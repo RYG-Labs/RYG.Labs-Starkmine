@@ -1,0 +1,69 @@
+using _Project._Scripts.Game.Managers;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DowngradeSpaceStationUI : BasePopup
+{
+    [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private TextMeshProUGUI mineRequirementText;
+    [SerializeField] private TextMeshProUGUI balanceText;
+    [SerializeField] private Button downgradeButton;
+    private StationData _stationData;
+
+    public void SetUp(StationData stationData)
+    {
+        _stationData = stationData;
+        descriptionText.text =
+            $"From <color=#FF59C2>Lv{stationData.level - 1}</color> to <color=#FF59C2>Lv{stationData.level}</color> will decrease multiplier to <color=#FF59C2>x{stationData.GetDecreaseMultiplierForPrevLevel()}</color>";
+        mineRequirementText.text = Helpers.FormatCurrencyNumber(_stationData.GetCostForPrevLevel());
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        downgradeButton.onClick.AddListener(OnDowngradeButtonClick);
+    }
+
+    private void OnDowngradeButtonClick()
+    {
+        DataManager.Instance.MineCoin += _stationData.GetCostForPrevLevel();
+        _stationData.Downgrade();
+        downgradeButton.interactable = !_stationData.IsMinLevel();
+        SpaceStationUI spaceStationUI = UIManager.Instance.spaceStationUI;
+        spaceStationUI.RefreshStationInformation(_stationData);
+        ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
+        if (_stationData.IsMinLevel())
+        {
+            showNotificationUI.SetUp("Min Level.");
+            showNotificationUI.Show();
+            Hide();
+        }
+        else
+        {
+            showNotificationUI.SetUp("Downgrade Successful.");
+            SetUp(_stationData);
+            showNotificationUI.Show();
+        }
+    }
+
+    private void OnEnable()
+    {
+        DataManager.Instance.OnMineCoinUpdate += DataManagerOnOnMineCoinUpdate;
+        int mineCoins = DataManager.Instance.MineCoin;
+        balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
+        downgradeButton.interactable = !_stationData.IsMinLevel();
+    }
+
+    private void OnDisable()
+    {
+        DataManager.Instance.OnMineCoinUpdate -= DataManagerOnOnMineCoinUpdate;
+    }
+
+    private void DataManagerOnOnMineCoinUpdate(object sender, DataManager.OnMineCoinUpdateEventArgs e)
+    {
+        int mineCoins = e.NewMineCoin;
+        balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
+        downgradeButton.interactable = !_stationData.IsMinLevel();
+    }
+}

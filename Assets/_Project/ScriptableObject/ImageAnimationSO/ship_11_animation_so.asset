@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c77a2a46341604dba208ab72939e93, type: 3}
+  m_Name: ship_11_animation_so
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 3a95d216ec1346f4fa0fb61e3a4d1336, type: 3}
+  - {fileID: 21300000, guid: 5c013753ce4dacf42b9883f764f6bf0a, type: 3}
+  - {fileID: 21300000, guid: b89b55f2a00d7ce4ba5bc4a3269542a4, type: 3}
+  - {fileID: 21300000, guid: ab9aed2eab0921e49a05f09b984fb1cd, type: 3}
+  - {fileID: 21300000, guid: 73810f1905f208e47813b30fccd84ad3, type: 3}
+  - {fileID: 21300000, guid: 6246e7a6716144647b08bed538bd059d, type: 3}
+  - {fileID: 21300000, guid: b287ec698c5b93542b677d1e621c9a70, type: 3}

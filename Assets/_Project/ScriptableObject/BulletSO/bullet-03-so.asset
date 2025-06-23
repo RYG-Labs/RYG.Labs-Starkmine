@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98d69d1b175493b4a9e67a4056eb9a42, type: 3}
+  m_Name: bullet-03-so
+  m_EditorClassIdentifier: 
+  animatorController: {fileID: 9100000, guid: 87e6889f5035d874ab2f01656666fa35, type: 2}
+  speed: 7
+  shootSounds:
+  - {fileID: 8300000, guid: 60d70b798acf8634f8c67a55abe24041, type: 3}
