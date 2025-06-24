@@ -38,7 +38,7 @@ public class DefuseCoreEngineUI : BasePopup
             showNotificationUI.Show();
             return;
         }
-
+        SoundManager.Instance.PlayCompleteSound2();
         DataManager.Instance.MineCoin += coreEngineSelected.cost;
         Hide();
     }

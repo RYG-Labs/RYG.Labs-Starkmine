@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class UIManager : StaticInstance<UIManager>
 {
-    public ShopUI shopUI;
-    public SpaceSackUI spaceSackUI;
     public SpaceStationUI spaceStationUI;
     public ChooseSpaceShipUI chooseSpaceShipUI;
     public ShipInformationUI shipInformationUI;
@@ -18,10 +16,4 @@ public class UIManager : StaticInstance<UIManager>
     public MergeSpaceshipUI mergeSpaceshipUI;
     public DefuseCoreEngineUI defuseCoreEngineUI;
     public bool isHoverUI;
-
-    public void HideAllUI()
-    {
-        shopUI.Hide();
-        spaceSackUI.Hide();
-    }
 }

@@ -80,11 +80,12 @@ public class MergeSpaceshipUI : BasePopup
     {
         if (!IsSuccess(TotalSuccessRate + selectSpaceShipInUI.TotalSuccessRate))
         {
+            SoundManager.Instance.PlayBleepSound4();
             TotalFailing++;
             TotalSuccessRate++;
             return;
         }
-
+        SoundManager.Instance.PlayCompleteSound2();
         ShipData newShipData = new ShipData(selectSpaceShipResultUI.ShipSOSelected);
         List<ShipData> listShipRemove = selectSpaceShipInUI.DestroyItemSelected();
         DataManager.Instance.AddShipToInventory(newShipData);

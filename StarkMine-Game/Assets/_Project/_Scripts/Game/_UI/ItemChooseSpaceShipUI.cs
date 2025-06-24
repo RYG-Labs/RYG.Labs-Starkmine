@@ -60,6 +60,7 @@ public class ItemChooseSpaceShipUI : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        SoundManager.Instance.PlayDataPointSound3();
         hoverGroup.gameObject.SetActive(true);
     }
 

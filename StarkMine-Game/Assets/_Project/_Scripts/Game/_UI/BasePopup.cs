@@ -31,8 +31,6 @@ public class BasePopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public virtual void Show()
     {
-        UIManager.Instance.HideAllUI();
-
         if (isShowing)
         {
             return;
@@ -45,6 +43,7 @@ public class BasePopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public virtual void Hide()
     {
+        SoundManager.Instance.PlayBleepSound7();
         gameObject.SetActive(false);
         isShowing = false;
         UIManager.Instance.isHoverUI = false;

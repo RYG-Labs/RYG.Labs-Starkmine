@@ -61,11 +61,13 @@ public class HangarUI : BasePopup
 
     private void DefuseCoreEngineButtonOnClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         UIManager.Instance.defuseCoreEngineUI.Show();
     }
 
     private void CreateCoreEngineButtonOnClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         CreateCoreEngineUI createCoreEngineUI = UIManager.Instance.createCoreEngineUI;
         createCoreEngineUI.SetUp(null);
         createCoreEngineUI.Show();
@@ -73,12 +75,12 @@ public class HangarUI : BasePopup
 
     private void MergeSpaceShipButtonOnClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         UIManager.Instance.mergeSpaceshipUI.Show();
     }
 
     private void BuySpaceShipButtonOnClick()
     {
-        throw new NotImplementedException();
     }
 
     public void ClearChildren()

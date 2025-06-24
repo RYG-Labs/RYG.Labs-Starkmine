@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipType: 3
   baseSprite: {fileID: 21300000, guid: 5395673f186962445bfdc0849fcf18c7, type: 3}
-  shipName: Giga
+  shipName: GIGA
   shipCost: 400
   maxLevel: 5
   shipDamage: 0

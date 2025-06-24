@@ -46,6 +46,7 @@ public class UpgradeSpaceShipUI : BasePopup
         }
         else
         {
+            SoundManager.Instance.PlayCompleteSound2();
             showNotificationUI.SetUp("Upgrade Successful.");
             SetUp(_shipData);
             showNotificationUI.Show();

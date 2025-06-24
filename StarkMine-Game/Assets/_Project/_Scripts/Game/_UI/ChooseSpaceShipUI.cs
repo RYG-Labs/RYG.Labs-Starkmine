@@ -26,6 +26,7 @@ public class ChooseSpaceShipUI : BasePopup
     private void ItemSpaceStationUIOnOnYesButtonClickHandler(object sender,
         ItemChooseSpaceShipUI.OnYesButtonClickHandlerEventArgs e)
     {
+        SoundManager.Instance.PlayConfirmSound1();
         List<ShipData> listShipData = DataManager.Instance.ShipInInventory;
         ShipData shipData = listShipData[e.ItemIndex];
         GameManager.Instance.AddShipToCurrentPlanet(shipData, spaceShipSelectedIndex);

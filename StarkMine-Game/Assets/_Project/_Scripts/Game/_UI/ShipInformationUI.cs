@@ -37,6 +37,7 @@ public class ShipInformationUI : BasePopup
         shipName.text = shipData.shipSO.shipName;
         starLevelUI.SetUp(shipData.level);
         maintenanceLevelUI.SetUp(shipData.maintenanceLevel, shipData.maintenanceDown);
+        repairButton.interactable = shipData.maintenanceLevel < 100;
         hashPower.text = $"177,765.12 - {shipData.GetHashPower()} $MINE/min";
         if (shipData.level < 5)
         {
@@ -84,11 +85,13 @@ public class ShipInformationUI : BasePopup
 
     private void OnClickNoRemoveCoreEngineButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         removeGroup.gameObject.SetActive(false);
     }
 
     private void OnClickYesRemoveCoreEngineButton()
     {
+        SoundManager.Instance.PlayDataPointSound3();
         removeGroup.gameObject.SetActive(false);
         CoreEngineSO coreEngineSo = _shipData.CoreEngine;
         DataManager.Instance.AddCoreEngine(coreEngineSo, 1);
@@ -98,11 +101,14 @@ public class ShipInformationUI : BasePopup
 
     private void OnClickCallbackToRemoveButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         callbackToRemoveButton.gameObject.SetActive(false);
     }
 
     private void OnClickCoreEngineButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
+
         if (_shipData.onDuty)
         {
             callbackToRemoveButton.gameObject.SetActive(true);
@@ -115,6 +121,8 @@ public class ShipInformationUI : BasePopup
 
     private void OnClickRequireCoreEngineButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
+
         bool isContainCoreEngineRequire =
             DataManager.Instance.IsContainCoreEngineRequireInInventory(_shipData.shipSO.shipType);
         if (!isContainCoreEngineRequire)
@@ -136,6 +144,7 @@ public class ShipInformationUI : BasePopup
 
     private void OnYesButtonClickEventHandler(object sender, EventArgs e)
     {
+        SoundManager.Instance.PlayBleepSound1();
         CoreEngineSO coreEngineSo = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
         DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineSo, _shipData);
 
@@ -160,6 +169,7 @@ public class ShipInformationUI : BasePopup
     {
         if (_shipData.onDuty)
         {
+            SoundManager.Instance.PlayConfirmSound3();
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
             showNotificationUI.SetUp("Please callback before trying to remove the ship.");
             showNotificationUI.Show();
@@ -168,6 +178,7 @@ public class ShipInformationUI : BasePopup
 
         if (_shipData.CoreEngine != null)
         {
+            SoundManager.Instance.PlayConfirmSound3();
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
             showNotificationUI.SetUp("Please remove core engine before trying to remove the ship.");
             showNotificationUI.Show();
@@ -175,6 +186,7 @@ public class ShipInformationUI : BasePopup
         }
 
         GameManager.Instance.RemoveShipToCurrentPlanet(_shipData, _shipIndex);
+        SoundManager.Instance.PlayDataPointSound1();
         Hide();
     }
 
@@ -185,14 +197,17 @@ public class ShipInformationUI : BasePopup
             // int newMaintenanceLevel = _shipData.maintenanceLevel + 10;
             // _shipData.maintenanceLevel = newMaintenanceLevel <= 100 ? newMaintenanceLevel : 100;
             _shipData.maintenanceLevel = 100;
+            SoundManager.Instance.PlayConfirmSound6();
         }
 
         maintenanceLevelUI.SetUp(_shipData.maintenanceLevel, 0);
+        repairButton.interactable = false;
     }
 
     private void OnClickUpgradeButton()
     {
         if (_shipIndex == -1) return;
+        SoundManager.Instance.PlayConfirmSound3();
         UpgradeSpaceShipUI upgradeSpaceShipUI = UIManager.Instance.upgradeSpaceShipUI;
         upgradeSpaceShipUI.SetUp(_shipData);
         upgradeSpaceShipUI.Show();
