@@ -10,7 +10,7 @@ const StarknetProvider = ({
   return (
     <StarknetConfig
       chains={[walletConfig.targetNetwork]}
-      provider={publicProvider()}
+      provider={walletConfig.provider}
       connectors={walletConfig.walletsSupported}
       explorer={voyager}
     >

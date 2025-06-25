@@ -49,11 +49,25 @@ export function UnityCanvas() {
 
   // interact with unity
   const connectWallet = async (): Promise<void> => {
-    const { connector } = await starknetkitConnectModal();
-    if (!connector) {
-      return;
+    try {
+      const { connector } = await starknetkitConnectModal();
+      if (!connector) {
+        return;
+      }
+      await connect({ connector: connector as Connector });
+    } catch (e) {
+      console.log("🚀 ~ connectWal ~ e:", e);
+      sendMessage(
+        "UIManager",
+        "ResponseConnectWallet",
+        JSON.stringify({
+          status: "error",
+          message: MessageEnum.ERROR,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
     }
-    await connect({ connector: connector as Connector });
   };
 
   const getChainId = useCallback(async () => {
@@ -185,14 +199,6 @@ export function UnityCanvas() {
         <p>target chain: {walletConfig.targetNetwork.id}</p>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
-        {/* <Image
-        src={Background.src}
-        alt="background"
-        width={1440}
-        height={1000}
-        className="absolute top-0 bottom-0 right-0 left-0 min-w-full w-auto h-screen object-cover blur-3xl"
-      /> */}
-
         {isLoaded === false && (
           <div className="flex flex-col loading-overlay absolute top-0 bottom-0 right-0 left-0 h-full w-full items-center justify-center">
             <Image
