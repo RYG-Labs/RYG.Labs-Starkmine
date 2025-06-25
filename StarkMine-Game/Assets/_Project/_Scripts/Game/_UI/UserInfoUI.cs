@@ -14,7 +14,7 @@ public class UserInfoUI : BasePopup
         base.Start();
         walletAddressText.text = DataManager.Instance.UserData.Address;
         mineCoinText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MineCoin) + " $MINE";
-        balanceText.text = DataManager.Instance.UserData.Balance + " $MINE";
+        balanceText.text = Helpers.FormatAddress(DataManager.Instance.UserData.Address) + " $MINE";
         DataManager.Instance.OnMineCoinUpdate += InstanceOnOnMineCoinUpdate;
         DataManager.Instance.OnUserDataChangedEventHandler += DataManagerOnUserDataChangedEventHandler;
     }

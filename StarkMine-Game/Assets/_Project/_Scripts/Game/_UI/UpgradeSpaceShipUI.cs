@@ -56,7 +56,7 @@ public class UpgradeSpaceShipUI : BasePopup
     private void OnEnable()
     {
         DataManager.Instance.OnMineCoinUpdate += DataManagerOnOnMineCoinUpdate;
-        int mineCoins = DataManager.Instance.MineCoin;
+        double mineCoins = DataManager.Instance.MineCoin;
         bool isEnoughCoin = mineCoins > _shipData.GetCostForNextLevel();
         balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
         notificationText.SetActive(!isEnoughCoin);
@@ -70,7 +70,7 @@ public class UpgradeSpaceShipUI : BasePopup
 
     private void DataManagerOnOnMineCoinUpdate(object sender, DataManager.OnMineCoinUpdateEventArgs e)
     {
-        int mineCoins = e.NewMineCoin;
+        double mineCoins = e.NewMineCoin;
         bool isEnoughCoin = mineCoins > _shipData.GetCostForNextLevel();
         balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
         notificationText.SetActive(!isEnoughCoin);

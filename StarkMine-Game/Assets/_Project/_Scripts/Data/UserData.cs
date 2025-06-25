@@ -12,9 +12,9 @@ public class UserData
         set { _address = value; }
     }
 
-    private string _balance;
+    private double _balance;
 
-    public string Balance
+    public double Balance
     {
         get { return _balance; }
         set { _balance = value; }

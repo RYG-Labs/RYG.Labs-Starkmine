@@ -51,7 +51,7 @@ public class DowngradeSpaceStationUI : BasePopup
     private void OnEnable()
     {
         DataManager.Instance.OnMineCoinUpdate += DataManagerOnOnMineCoinUpdate;
-        int mineCoins = DataManager.Instance.MineCoin;
+        double mineCoins = DataManager.Instance.MineCoin;
         balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
         downgradeButton.interactable = !_stationData.IsMinLevel();
     }
@@ -63,7 +63,7 @@ public class DowngradeSpaceStationUI : BasePopup
 
     private void DataManagerOnOnMineCoinUpdate(object sender, DataManager.OnMineCoinUpdateEventArgs e)
     {
-        int mineCoins = e.NewMineCoin;
+        double mineCoins = e.NewMineCoin;
         balanceText.text = Helpers.FormatCurrencyNumber(mineCoins) + " $MINE";
         downgradeButton.interactable = !_stationData.IsMinLevel();
     }

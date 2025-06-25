@@ -126,12 +126,12 @@ namespace _Project._Scripts.Game.Managers
 
         public class OnMineCoinUpdateEventArgs : EventArgs
         {
-            public int NewMineCoin;
+            public double NewMineCoin;
         }
 
-        [SerializeField] private int _mineCoin = 100000;
+        [SerializeField] private double _mineCoin = 100000;
 
-        public int MineCoin
+        public double MineCoin
         {
             get => _mineCoin;
             set

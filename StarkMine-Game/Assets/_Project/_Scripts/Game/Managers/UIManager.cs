@@ -24,9 +24,11 @@ public class UIManager : StaticInstance<UIManager>
 
     public bool isHoverUI;
 
-    private void ResponseConnectWallet(string responseString)
+    public void ResponseConnectWallet(string responseString)
     {
         loadingUI.Hide();
+        showNotificationCantOffUI.Hide();
+        showNotificationUI.Hide();
         Debug.Log("ResponseConnectWallet:" + responseString);
         MessageBase response = JsonConvert.DeserializeObject<MessageBase>(responseString);
         if (!response.IsSuccess())
@@ -34,10 +36,12 @@ public class UIManager : StaticInstance<UIManager>
             switch (response.level)
             {
                 case MessageBase.MessageEnum.WARNING:
+                    Debug.Log("showNotificationUI");
                     showNotificationUI.SetUp(response.message);
                     showNotificationUI.Show();
                     break;
                 case MessageBase.MessageEnum.ERROR:
+                    Debug.Log("showNotificationCantOffUI");
                     showNotificationCantOffUI.SetUp(response.message);
                     showNotificationCantOffUI.Show();
                     break;
@@ -53,6 +57,7 @@ public class UIManager : StaticInstance<UIManager>
             Address = userDto.address,
             Balance = userDto.balance,
         };
+        DataManager.Instance.MineCoin = userDto.balance;
         userInfoUI.Show();
         connectWalletUI.Hide();
     }

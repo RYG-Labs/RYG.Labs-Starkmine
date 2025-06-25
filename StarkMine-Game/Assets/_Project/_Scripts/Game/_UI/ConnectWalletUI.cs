@@ -36,6 +36,7 @@ public class ConnectWalletUI : BasePopup
 #if UNITY_WEBGL && !UNITY_EDITOR
         RequestDisconnectConnectWallet();
 #endif
+        UIManager.Instance.userInfoUI.Hide();
         Show();
     }
 
@@ -49,5 +50,10 @@ public class ConnectWalletUI : BasePopup
     {
         base.Hide();
         disconnectWalletButton.gameObject.SetActive(true);
+    }
+
+    public void OnClickTestButton(string text)
+    {
+        UIManager.Instance.ResponseConnectWallet(text);
     }
 }
