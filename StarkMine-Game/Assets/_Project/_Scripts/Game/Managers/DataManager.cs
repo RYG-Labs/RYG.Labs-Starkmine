@@ -41,6 +41,27 @@ namespace _Project._Scripts.Game.Managers
             public ShipData ShipRemoved;
         }
 
+        public event EventHandler<OnUserDataChangedEventArgs> OnUserDataChangedEventHandler;
+
+        public class OnUserDataChangedEventArgs : EventArgs
+        {
+            public UserData NewUserData;
+        }
+
+        // User Data
+        [SerializeField] private UserData userData = new();
+
+        public UserData UserData
+        {
+            get => userData;
+            set
+            {
+                userData = value;
+                OnUserDataChangedEventHandler?.Invoke(this, new OnUserDataChangedEventArgs { NewUserData = value });
+            }
+        }
+
+
         //ship Inventory
         [SerializeField] private List<ShipData> shipInInventory = new();
 
@@ -93,13 +114,13 @@ namespace _Project._Scripts.Game.Managers
             set => _planetShipDictionary = value;
         }
 
-        private string walletAddress = "0x0034...3456";
-
-        public string WalletAddress
-        {
-            get => walletAddress;
-            set => walletAddress = value;
-        }
+        // private string walletAddress = "0x0034...3456";
+        //
+        // public string WalletAddress
+        // {
+        //     get => walletAddress;
+        //     set => walletAddress = value;
+        // }
 
         public event EventHandler<OnMineCoinUpdateEventArgs> OnMineCoinUpdate;
 
@@ -141,6 +162,7 @@ namespace _Project._Scripts.Game.Managers
                 NewShipData = shipData
             });
         }
+
         public void RemoveShipToPlanet(PlanetSO planetSo, ShipData shipData, int index)
         {
             PlanetShipDictionary[planetSo][index] = null;
@@ -217,13 +239,13 @@ namespace _Project._Scripts.Game.Managers
                 {
                     return IsContainCoreEngineInInventory(CoreEngineSO.CoreEngineType.Elite);
                 }
-                case ShipSO.ShipType.Giga:
+                case ShipSO.ShipType.GIGA:
                 {
                     return IsContainCoreEngineInInventory(CoreEngineSO.CoreEngineType.Pro);
                 }
                 case ShipSO.ShipType.Pro:
                 {
-                    return IsContainCoreEngineInInventory(CoreEngineSO.CoreEngineType.Giga);
+                    return IsContainCoreEngineInInventory(CoreEngineSO.CoreEngineType.GIGA);
                 }
             }
 
@@ -273,12 +295,111 @@ namespace _Project._Scripts.Game.Managers
             {
                 case ShipSO.ShipType.Basic: return listCoreEngineSO[0];
                 case ShipSO.ShipType.Elite: return listCoreEngineSO[1];
-                case ShipSO.ShipType.Giga: return listCoreEngineSO[2];
+                case ShipSO.ShipType.GIGA: return listCoreEngineSO[2];
                 case ShipSO.ShipType.Pro: return listCoreEngineSO[3];
                 default: return listCoreEngineSO[0];
             }
         }
 
         public AllShipLevel allShipLevel;
+
+
+        public int CountAllSpaceShip()
+        {
+            return shipInInventory.Count + CountSpaceShipAddedStation();
+        }
+
+        public int CountSpaceShipAddedStation()
+        {
+            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
+                .Count(shipData => shipData != null);
+        }
+
+        public int CountSpaceShipOnDuty()
+        {
+            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
+                .Count(shipData => shipData != null && shipData.onDuty);
+        }
+
+        public int CountAllSpaceShipByType(ShipSO.ShipType shipType)
+        {
+            return CountAllSpaceShipInInventoryByType(shipType) + CountSpaceShipAddedStationByType(shipType);
+        }
+
+        public int CountAllSpaceShipInInventoryByType(ShipSO.ShipType shipType)
+        {
+            return shipInInventory.Count(shipData => shipData != null && shipData.shipSO.shipType == shipType);
+        }
+
+        public int CountSpaceShipAddedStationByType(ShipSO.ShipType shipType)
+        {
+            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
+                .Count(shipData => shipData != null && shipData.shipSO.shipType == shipType);
+        }
+
+
+        public int CountAllCoreEngine()
+        {
+            return CountCoreEngineEquipped() + CountCoreEngineUnequipped();
+        }
+
+        public int CountCoreEngineUnequipped()
+        {
+            return listCoreEngineAmountInInventory.Sum(coreEngineAmountData => coreEngineAmountData.amount);
+        }
+
+        public int CountCoreEngineEquipped()
+        {
+            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
+                .Count(shipData => shipData != null && shipData.CoreEngine != null);
+        }
+
+        public int CountCoreEngineUnequippedByType(CoreEngineSO.CoreEngineType coreEngineType)
+        {
+            return listCoreEngineAmountInInventory
+                .Where(coreEngineAmountData => coreEngineAmountData.coreEngineSO.coreEngineType == coreEngineType)
+                .Sum(coreEngineAmountData => coreEngineAmountData.amount);
+        }
+
+        public int CountCoreEngineEquippedByType(CoreEngineSO.CoreEngineType coreEngineType)
+        {
+            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
+                .Count(shipData => shipData != null && shipData.CoreEngine != null &&
+                                   shipData.CoreEngine.coreEngineType == coreEngineType);
+        }
+
+        public int CountAllCoreEngineByType(CoreEngineSO.CoreEngineType coreEngineType)
+        {
+            return CountCoreEngineUnequippedByType(coreEngineType) + CountCoreEngineEquippedByType(coreEngineType);
+        }
+
+
+        public List<ShipData> ShipDataInInventoryFilter(List<ShipSO.ShipType> shipTypes, int page, int size,
+            bool isAll = false, bool isAllType = false)
+        {
+            List<ShipData> result = new List<ShipData>();
+            if (isAllType)
+            {
+                result = ShipInInventory;
+            }
+            else
+            {
+                result.AddRange(shipInInventory.Where(shipData => shipTypes.Contains(shipData.shipSO.shipType)));
+            }
+
+            if (isAll)
+            {
+                return result;
+            }
+
+            int startIndex = (page - 1) * size;
+            int count = Mathf.Min(size, result.Count - startIndex);
+            if (startIndex < 0 || startIndex >= result.Count)
+            {
+                return new List<ShipData>();
+            }
+
+            return result.GetRange(startIndex, count);
+        }
     }
 }

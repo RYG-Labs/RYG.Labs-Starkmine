@@ -1,3 +1,5 @@
+using _Project._Scripts.Game.Managers;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class UIManager : StaticInstance<UIManager>
@@ -8,12 +10,50 @@ public class UIManager : StaticInstance<UIManager>
     public DontHaveRequireCoreEngineUI dontHaveRequireCoreEngineUI;
     public CreateCoreEngineUI createCoreEngineUI;
     public YesNoUI yesNoUI;
-    public ShowNotificationUI showNotificationUI;
     public UpgradeSpaceShipUI upgradeSpaceShipUI;
     public UpgradeSpaceStationUI upgradeSpaceStationUI;
     public DowngradeSpaceStationUI downgradeSpaceStationUI;
     public HangarUI hangarUI;
     public MergeSpaceshipUI mergeSpaceshipUI;
     public DefuseCoreEngineUI defuseCoreEngineUI;
+    public LoadingUI loadingUI;
+    public ConnectWalletUI connectWalletUI;
+    public UserInfoUI userInfoUI;
+    public ShowNotificationUI showNotificationUI;
+    public ShowNotificationCantOffUI showNotificationCantOffUI;
+
     public bool isHoverUI;
+
+    private void ResponseConnectWallet(string responseString)
+    {
+        loadingUI.Hide();
+        Debug.Log("ResponseConnectWallet:" + responseString);
+        MessageBase response = JsonConvert.DeserializeObject<MessageBase>(responseString);
+        if (!response.IsSuccess())
+        {
+            switch (response.level)
+            {
+                case MessageBase.MessageEnum.WARNING:
+                    showNotificationUI.SetUp(response.message);
+                    showNotificationUI.Show();
+                    break;
+                case MessageBase.MessageEnum.ERROR:
+                    showNotificationCantOffUI.SetUp(response.message);
+                    showNotificationCantOffUI.Show();
+                    break;
+            }
+
+            return;
+        }
+
+        UserDTO userDto = response.data.ToObject<UserDTO>();
+        Debug.Log("Address:" + userDto.address);
+        DataManager.Instance.UserData = new UserData
+        {
+            Address = userDto.address,
+            Balance = userDto.balance,
+        };
+        userInfoUI.Show();
+        connectWalletUI.Hide();
+    }
 }

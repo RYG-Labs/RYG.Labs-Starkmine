@@ -14,15 +14,11 @@ public class HangarUI : BasePopup
     [SerializeField] private Button mergeSpaceShipButton;
     [SerializeField] private Button createCoreEngineButton;
     [SerializeField] private Button defuseCoreEngineButton;
-
-    protected override void Start()
-    {
-        base.Start();
-        buySpaceShipButton.onClick.AddListener(BuySpaceShipButtonOnClick);
-        mergeSpaceShipButton.onClick.AddListener(MergeSpaceShipButtonOnClick);
-        createCoreEngineButton.onClick.AddListener(CreateCoreEngineButtonOnClick);
-        defuseCoreEngineButton.onClick.AddListener(DefuseCoreEngineButtonOnClick);
-    }
+    [SerializeField] private Button nextPageButton;
+    [SerializeField] private Button prevPageButton;
+    [SerializeField] private FilterSpaceShipUI filterSpaceShipUI;
+    [SerializeField] private int size = 10;
+    private int _page = 0;
 
     public void SetUp(List<ShipData> shipDatas)
     {
@@ -35,10 +31,47 @@ public class HangarUI : BasePopup
         }
     }
 
+    protected override void Start()
+    {
+        base.Start();
+        buySpaceShipButton.onClick.AddListener(BuySpaceShipButtonOnClick);
+        mergeSpaceShipButton.onClick.AddListener(MergeSpaceShipButtonOnClick);
+        createCoreEngineButton.onClick.AddListener(CreateCoreEngineButtonOnClick);
+        defuseCoreEngineButton.onClick.AddListener(DefuseCoreEngineButtonOnClick);
+        nextPageButton.onClick.AddListener(OnClickNextPageButton);
+        prevPageButton.onClick.AddListener(OnClickPrevPageButton);
+        filterSpaceShipUI.OnOptionFilterChangeEventHandler += FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
+    }
+
+    private void OnClickPrevPageButton()
+    {
+        if (_page == 1) return;
+        _page--;
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page, size));
+    }
+
+    private void OnClickNextPageButton()
+    {
+        List<ShipData> result =
+            DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page + 1, size);
+        if (result.Count == 0) return;
+        _page++;
+        SetUp(result);
+    }
+
+    private void FilterSpaceShipUIOnOnOptionFilterChangeEventHandler(object sender,
+        FilterSpaceShipUI.OnOptionFilterChangeEventArgs e)
+    {
+        _page = 1;
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(e.ListToggleSelected, _page, size));
+    }
+
+
     private void OnEnable()
     {
-        List<ShipData> shipDatas = DataManager.Instance.ShipInInventory;
-        SetUp(shipDatas);
+        _page = 1;
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page,
+            size, isAllType: true));
         DataManager.Instance.OnAddShipToInventoryEventHandler += DataManagerOnAddShipToInventoryEventHandler;
         DataManager.Instance.OnRemoveShipToInventoryEventHandler += DataManagerOnRemoveShipToInventoryEventHandler;
     }

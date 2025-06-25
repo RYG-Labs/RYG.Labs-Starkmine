@@ -9,7 +9,7 @@ public class ShipSO : ScriptableObject
         Basic,
         Elite,
         Pro,
-        Giga
+        GIGA
     }
 
     public ShipType shipType;

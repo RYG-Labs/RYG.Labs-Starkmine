@@ -9,7 +9,7 @@ public class CoreEngineSO : ScriptableObject
         Basic,
         Elite,
         Pro,
-        Giga
+        GIGA
     }
 
     [SerializeField] public Sprite sprite;
