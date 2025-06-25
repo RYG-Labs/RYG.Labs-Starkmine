@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Project._Scripts.Game.Managers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -17,6 +18,10 @@ public class HangarUI : BasePopup
     [SerializeField] private Button nextPageButton;
     [SerializeField] private Button prevPageButton;
     [SerializeField] private FilterSpaceShipUI filterSpaceShipUI;
+    [SerializeField] private TextMeshProUGUI countBasicShipText;
+    [SerializeField] private TextMeshProUGUI countEliteShipText;
+    [SerializeField] private TextMeshProUGUI countProShipText;
+    [SerializeField] private TextMeshProUGUI countGIGAShipText;
     [SerializeField] private int size = 10;
     private int _page = 0;
 
@@ -41,10 +46,13 @@ public class HangarUI : BasePopup
         nextPageButton.onClick.AddListener(OnClickNextPageButton);
         prevPageButton.onClick.AddListener(OnClickPrevPageButton);
         filterSpaceShipUI.OnOptionFilterChangeEventHandler += FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
+            isAll: true, isAllType: true));
     }
 
     private void OnClickPrevPageButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         if (_page == 1) return;
         _page--;
         SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page, size));
@@ -52,6 +60,7 @@ public class HangarUI : BasePopup
 
     private void OnClickNextPageButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         List<ShipData> result =
             DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page + 1, size);
         if (result.Count == 0) return;
@@ -69,9 +78,16 @@ public class HangarUI : BasePopup
 
     private void OnEnable()
     {
+        countBasicShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Basic).ToString();
+        countEliteShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Elite).ToString();
+        countProShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Pro).ToString();
+        countGIGAShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.GIGA).ToString();
         _page = 1;
         SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, _page,
-            size, isAllType: true));
+            size));
         DataManager.Instance.OnAddShipToInventoryEventHandler += DataManagerOnAddShipToInventoryEventHandler;
         DataManager.Instance.OnRemoveShipToInventoryEventHandler += DataManagerOnRemoveShipToInventoryEventHandler;
     }

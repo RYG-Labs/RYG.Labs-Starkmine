@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using _Project._Scripts.Game.Managers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,24 +24,15 @@ public class FilterSpaceShipUI : MonoBehaviour
 
     private void Start()
     {
+        if (listToggle[0].isOn) listToggleIndexSelected.Add(ShipSO.ShipType.Basic);
+        if (listToggle[1].isOn) listToggleIndexSelected.Add(ShipSO.ShipType.Elite);
+        if (listToggle[2].isOn) listToggleIndexSelected.Add(ShipSO.ShipType.Pro);
+        if (listToggle[3].isOn) listToggleIndexSelected.Add(ShipSO.ShipType.GIGA);
         for (int i = 0; i < listToggle.Count; i++)
         {
             var i1 = i;
             listToggle[i].onValueChanged.AddListener(isOn => OnToggleChanged(i1, listToggle[i1], isOn));
         }
-    }
-
-    private void OnEnable()
-    {
-        listToggleIndexSelected.Add(ShipSO.ShipType.Basic);
-        listToggleIndexSelected.Add(ShipSO.ShipType.Elite);
-        listToggleIndexSelected.Add(ShipSO.ShipType.Pro);
-        listToggleIndexSelected.Add(ShipSO.ShipType.GIGA);
-    }
-
-    private void OnDisable()
-    {
-        listToggleIndexSelected.Clear();
     }
 
     private void OnToggleChanged(int index, Toggle toggle, bool isOn)

@@ -9,14 +9,14 @@ public class ItemChooseSpaceShipUI : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public class OnYesButtonClickHandlerEventArgs : EventArgs
     {
-        public int ItemIndex;
+        public ShipData ShipData;
     }
 
     public event EventHandler<OnNoButtonClickHandlerEventArgs> OnNoButtonClickHandler;
 
     public class OnNoButtonClickHandlerEventArgs : EventArgs
     {
-        public int ItemIndex;
+        public ShipData ShipData;
     }
 
     [SerializeField] private Button yesButton;
@@ -25,7 +25,7 @@ public class ItemChooseSpaceShipUI : MonoBehaviour, IPointerEnterHandler, IPoint
     [SerializeField] private Image shipImage;
     [SerializeField] private ImageAnimation imageAnimation;
     public int Index { get; set; } = 0;
-
+    private ShipData _shipData;
     private void Start()
     {
         yesButton.onClick.AddListener(OnYesButtonClick);
@@ -33,20 +33,21 @@ public class ItemChooseSpaceShipUI : MonoBehaviour, IPointerEnterHandler, IPoint
     }
 
 
-    public void SetUp(int index, ImageAnimationSO shipAnimationSO)
+    public void SetUp(int index, ShipData shipData)
     {
         Index = index;
+        _shipData = shipData;
         shipImage.gameObject.SetActive(true);
-        shipImage.sprite = shipAnimationSO.sprites[0];
+        shipImage.sprite = shipData.shipSO.imageAnimationSO.sprites[0];
         shipImage.SetNativeSize();
-        imageAnimation.ImageAnimationSO = shipAnimationSO;
+        imageAnimation.ImageAnimationSO = shipData.shipSO.imageAnimationSO;
     }
 
     private void OnNoButtonClick()
     {
         OnNoButtonClickHandler?.Invoke(this, new OnNoButtonClickHandlerEventArgs()
         {
-            ItemIndex = Index
+            ShipData = _shipData
         });
     }
 
@@ -54,7 +55,7 @@ public class ItemChooseSpaceShipUI : MonoBehaviour, IPointerEnterHandler, IPoint
     {
         OnYesButtonClickHandler?.Invoke(this, new OnYesButtonClickHandlerEventArgs()
         {
-            ItemIndex = Index
+            ShipData = _shipData
         });
     }
 

@@ -18,11 +18,10 @@ public class ConnectWalletUI : BasePopup
 
     private void OnClickConnectWalletButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
 #if UNITY_WEBGL && !UNITY_EDITOR
         RequestConnectWallet();
-        UIManager.Instance.loadingUI.Show();
 #endif
-        Hide();
     }
 
     [DllImport("__Internal")]
@@ -33,6 +32,7 @@ public class ConnectWalletUI : BasePopup
 
     public void OnClickDisconnectWalletButton()
     {
+        SoundManager.Instance.PlayConfirmSound3();
 #if UNITY_WEBGL && !UNITY_EDITOR
         RequestDisconnectConnectWallet();
 #endif

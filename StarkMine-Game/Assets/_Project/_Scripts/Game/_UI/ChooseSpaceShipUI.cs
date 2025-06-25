@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _Project._Scripts.Game.Managers;
+using TMPro;
 using UnityEngine;
 
 public class ChooseSpaceShipUI : BasePopup
@@ -8,44 +9,69 @@ public class ChooseSpaceShipUI : BasePopup
     [SerializeField] private ItemChooseSpaceShipUI prefabItemChooseSpaceShipUI;
     [SerializeField] private Transform containerItemChooseSpaceShipUI;
     [SerializeField] private List<ItemChooseSpaceShipUI> listItem = new();
+    [SerializeField] private FilterSpaceShipUI filterSpaceShipUI;
+    [SerializeField] private TextMeshProUGUI countBasicShipText;
+    [SerializeField] private TextMeshProUGUI countEliteShipText;
+    [SerializeField] private TextMeshProUGUI countProShipText;
+    [SerializeField] private TextMeshProUGUI countGIGAShipText;
     public int spaceShipSelectedIndex = -1;
+
+    protected override void Start()
+    {
+        base.Start();
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
+            isAll: true, isAllType: true));
+    }
 
     private void OnEnable()
     {
-        List<ShipData> listShipSO = DataManager.Instance.ShipInInventory;
-        for (int i = 0; i < listShipSO.Count; i++)
+        countBasicShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Basic).ToString();
+        countEliteShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Elite).ToString();
+        countProShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Pro).ToString();
+        countGIGAShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.GIGA).ToString();
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
+            isAll: true));
+        filterSpaceShipUI.OnOptionFilterChangeEventHandler += FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
+    }
+
+    public void SetUp(List<ShipData> listShipData)
+    {
+        for (int i = 0; i < listShipData.Count; i++)
         {
             ItemChooseSpaceShipUI itemSpaceStationUI =
                 Instantiate(prefabItemChooseSpaceShipUI, containerItemChooseSpaceShipUI);
-            itemSpaceStationUI.SetUp(i, listShipSO[i].shipSO.imageAnimationSO);
+            itemSpaceStationUI.SetUp(i, listShipData[i]);
             itemSpaceStationUI.OnYesButtonClickHandler += ItemSpaceStationUIOnOnYesButtonClickHandler;
             listItem.Add(itemSpaceStationUI);
         }
+    }
+
+    private void FilterSpaceShipUIOnOnOptionFilterChangeEventHandler(object sender,
+        FilterSpaceShipUI.OnOptionFilterChangeEventArgs e)
+    {
+        Clear();
+        SetUp(DataManager.Instance.ShipDataInInventoryFilter(e.ListToggleSelected, 1, 0, isAll: true));
     }
 
     private void ItemSpaceStationUIOnOnYesButtonClickHandler(object sender,
         ItemChooseSpaceShipUI.OnYesButtonClickHandlerEventArgs e)
     {
         SoundManager.Instance.PlayConfirmSound1();
-        List<ShipData> listShipData = DataManager.Instance.ShipInInventory;
-        ShipData shipData = listShipData[e.ItemIndex];
-        GameManager.Instance.AddShipToCurrentPlanet(shipData, spaceShipSelectedIndex);
-        ItemChooseSpaceShipUI itemChooseSpaceShipUI = listItem[e.ItemIndex];
-        listItem.Remove(itemChooseSpaceShipUI);
-        if (itemChooseSpaceShipUI.gameObject != null)
-        {
-            Destroy(itemChooseSpaceShipUI.gameObject);
-        }
-
-        ResetIndex();
+        GameManager.Instance.AddShipToCurrentPlanet(e.ShipData, spaceShipSelectedIndex);
         Hide();
     }
 
     private void OnDisable()
     {
+        Clear();
+        spaceShipSelectedIndex = -1;
+        filterSpaceShipUI.OnOptionFilterChangeEventHandler -= FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
+    }
+
+    public void Clear()
+    {
         containerItemChooseSpaceShipUI.DestroyChildren();
         listItem.Clear();
-        spaceShipSelectedIndex = -1;
     }
 
     private void ResetIndex()

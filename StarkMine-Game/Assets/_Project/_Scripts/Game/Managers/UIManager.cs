@@ -26,7 +26,6 @@ public class UIManager : StaticInstance<UIManager>
 
     public void ResponseConnectWallet(string responseString)
     {
-        loadingUI.Hide();
         showNotificationCantOffUI.Hide();
         showNotificationUI.Hide();
         Debug.Log("ResponseConnectWallet:" + responseString);

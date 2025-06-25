@@ -12,17 +12,17 @@ public class UserInfoUI : BasePopup
     protected override void Start()
     {
         base.Start();
-        walletAddressText.text = DataManager.Instance.UserData.Address;
+        walletAddressText.text = Helpers.FormatAddress(DataManager.Instance.UserData.Address);
         mineCoinText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MineCoin) + " $MINE";
-        balanceText.text = Helpers.FormatAddress(DataManager.Instance.UserData.Address) + " $MINE";
+        balanceText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MineCoin) + " $MINE";
         DataManager.Instance.OnMineCoinUpdate += InstanceOnOnMineCoinUpdate;
         DataManager.Instance.OnUserDataChangedEventHandler += DataManagerOnUserDataChangedEventHandler;
     }
 
     private void DataManagerOnUserDataChangedEventHandler(object sender, DataManager.OnUserDataChangedEventArgs e)
     {
-        walletAddressText.text = e.NewUserData.Address;
-        balanceText.text = e.NewUserData.Balance + " $MINE";
+        walletAddressText.text = Helpers.FormatAddress(e.NewUserData.Address);
+        balanceText.text = Helpers.FormatCurrencyNumber(e.NewUserData.Balance) + " $MINE";
     }
 
     private void InstanceOnOnMineCoinUpdate(object sender, DataManager.OnMineCoinUpdateEventArgs e)
