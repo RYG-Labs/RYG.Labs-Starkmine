@@ -41,6 +41,7 @@ public class ItemSelectSpaceShipResultUI : MonoBehaviour, IPointerClickHandler, 
     public void OnPointerClick(PointerEventData eventData)
     {
         Selected();
+        SoundManager.Instance.PlayClickSound4();
         OnClickItemEventHandler?.Invoke(this, new OnClickItemEventArgs
         {
             Index = _index,
@@ -63,7 +64,7 @@ public class ItemSelectSpaceShipResultUI : MonoBehaviour, IPointerClickHandler, 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (_isSelected) return;
-
+        SoundManager.Instance.PlayDataPointSound3();
         borderImage.color = hoverColor;
     }
 

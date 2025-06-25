@@ -41,6 +41,11 @@ public class ButtonAnimation : MonoBehaviour, IPointerEnterHandler, IPointerExit
         button = GetComponent<Button>();
     }
 
+    private void OnEnable()
+    {
+        ApplyButtonState(beforeButtonAnimationSO, useAnimation: true);
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!button.interactable) return;

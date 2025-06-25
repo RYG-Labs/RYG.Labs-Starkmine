@@ -19,6 +19,7 @@ public class DontHaveRequireCoreEngineUI : BasePopup
 
     private void CreateCoreEngineButtonClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         CreateCoreEngineUI createCoreEngineUI = UIManager.Instance.createCoreEngineUI;
         createCoreEngineUI.SetUp(_coreEngineRequire);
         createCoreEngineUI.Show();

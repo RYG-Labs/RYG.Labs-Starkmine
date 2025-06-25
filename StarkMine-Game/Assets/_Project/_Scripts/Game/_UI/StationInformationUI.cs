@@ -37,6 +37,6 @@ public class StationInformationUI : MonoBehaviour
         CreateItemStationInformationUI(ShipSO.ShipType.Basic);
         CreateItemStationInformationUI(ShipSO.ShipType.Elite);
         CreateItemStationInformationUI(ShipSO.ShipType.Pro);
-        CreateItemStationInformationUI(ShipSO.ShipType.Giga);
+        CreateItemStationInformationUI(ShipSO.ShipType.GIGA);
     }
 }

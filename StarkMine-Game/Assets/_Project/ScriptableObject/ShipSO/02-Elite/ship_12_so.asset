@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipType: 1
   baseSprite: {fileID: 21300000, guid: bd0a1bfe7ecf373448379f4681f5d64e, type: 3}
-  shipName: Elite 1
+  shipName: Elite
   shipCost: 200
   maxLevel: 5
   shipDamage: 0

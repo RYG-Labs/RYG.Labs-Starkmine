@@ -15,7 +15,7 @@ public class DowngradeSpaceStationUI : BasePopup
     {
         _stationData = stationData;
         descriptionText.text =
-            $"From <color=#FF59C2>Lv{stationData.level - 1}</color> to <color=#FF59C2>Lv{stationData.level}</color> will decrease multiplier to <color=#FF59C2>x{stationData.GetDecreaseMultiplierForPrevLevel()}</color>";
+            $"From <color=#FF59C2>Lv{stationData.level}</color> to <color=#FF59C2>Lv{stationData.level - 1}</color> will decrease multiplier to <color=#FF59C2>x{stationData.GetDecreaseMultiplierForPrevLevel()}</color>";
         mineRequirementText.text = Helpers.FormatCurrencyNumber(_stationData.GetCostForPrevLevel());
     }
 
@@ -33,6 +33,7 @@ public class DowngradeSpaceStationUI : BasePopup
         SpaceStationUI spaceStationUI = UIManager.Instance.spaceStationUI;
         spaceStationUI.RefreshStationInformation(_stationData);
         ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
+        SoundManager.Instance.PlayCompleteSound2();
         if (_stationData.IsMinLevel())
         {
             showNotificationUI.SetUp("Min Level.");

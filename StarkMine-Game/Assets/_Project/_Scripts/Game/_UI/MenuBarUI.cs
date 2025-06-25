@@ -15,6 +15,7 @@ public class MenuBarUI : BasePopup
 
     private void OnHangarButtonClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         UIManager.Instance.hangarUI.Show();
     }
 }

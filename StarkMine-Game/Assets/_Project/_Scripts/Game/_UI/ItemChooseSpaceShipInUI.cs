@@ -42,6 +42,7 @@ public class ItemChooseSpaceShipInUI : MonoBehaviour, IPointerClickHandler, IPoi
     public void OnPointerClick(PointerEventData eventData)
     {
         // ToggleSelect();
+        SoundManager.Instance.PlayClickSound4();
         OnClickItemEventHandler?.Invoke(this, new OnClickItemEventArgs
         {
             ShipData = _shipData
@@ -66,6 +67,7 @@ public class ItemChooseSpaceShipInUI : MonoBehaviour, IPointerClickHandler, IPoi
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (_isSelected) return;
+        SoundManager.Instance.PlayDataPointSound3();
         borderImage.gameObject.SetActive(true);
         borderImage.color = hoverColor;
     }

@@ -89,6 +89,7 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     private void OnClickCallbackButton()
     {
         bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
+        SoundManager.Instance.PlayDataPointSound1();
         if (success)
         {
             SpaceShipOnCallbackHandler();
@@ -97,6 +98,7 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
 
     private void OnClickLaunchButton()
     {
+        SoundManager.Instance.PlayCompleteSound1();
         SpaceShipOnDutyHandler();
         GameManager.Instance.LaunchSpaceShip(_shipData);
     }
@@ -105,7 +107,7 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     {
         bool isContainCoreEngineRequire =
             DataManager.Instance.IsContainCoreEngineRequireInInventory(_shipData.shipSO.shipType);
-
+        SoundManager.Instance.PlayConfirmSound3();
         if (!isContainCoreEngineRequire)
         {
             DontHaveRequireCoreEngineUI dontHaveRequireCoreEngineUI = UIManager.Instance.dontHaveRequireCoreEngineUI;
@@ -125,6 +127,8 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
 
     private void OnYesButtonClickEventHandler(object sender, EventArgs e)
     {
+        SoundManager.Instance.PlayBleepSound1();
+
         CoreEngineSO coreEngineSo = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
         DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineSo, _shipData);
 

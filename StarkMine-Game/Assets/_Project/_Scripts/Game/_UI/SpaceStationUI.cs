@@ -29,6 +29,7 @@ public class SpaceStationUI : BasePopup
 
     private void OnDowngradeButtonClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         DowngradeSpaceStationUI upgradeSpaceShipUI = UIManager.Instance.downgradeSpaceStationUI;
         upgradeSpaceShipUI.SetUp(_stationData);
         upgradeSpaceShipUI.Show();
@@ -36,6 +37,7 @@ public class SpaceStationUI : BasePopup
 
     private void OnUpgradeButtonClick()
     {
+        SoundManager.Instance.PlayConfirmSound3();
         UpgradeSpaceStationUI upgradeSpaceShipUI = UIManager.Instance.upgradeSpaceStationUI;
         upgradeSpaceShipUI.SetUp(_stationData);
         upgradeSpaceShipUI.Show();
@@ -92,6 +94,7 @@ public class SpaceStationUI : BasePopup
 
     private void ItemSpaceStationUIOnOnClickHandler(object sender, ItemSpaceStationUI.OnClickHandlerEventArgs e)
     {
+        SoundManager.Instance.PlayConfirmSound3();
         _indexSelected = e.ItemIndex;
         if (e.IsEmpty)
         {
@@ -145,6 +148,7 @@ public class SpaceStationUI : BasePopup
     {
         base.Show();
         showButton.gameObject.SetActive(false);
+        SoundManager.Instance.PlayClickSound2();
     }
 
     public override void Hide()

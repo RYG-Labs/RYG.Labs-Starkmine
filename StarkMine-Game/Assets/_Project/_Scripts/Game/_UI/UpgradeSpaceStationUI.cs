@@ -39,6 +39,7 @@ public class UpgradeSpaceStationUI : BasePopup
         SpaceStationUI spaceStationUI = UIManager.Instance.spaceStationUI;
         spaceStationUI.RefreshStationInformation(_stationData);
         ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
+        SoundManager.Instance.PlayCompleteSound2();
         if (_stationData.IsMaxLevel())
         {
             showNotificationUI.SetUp("Max Level.");
