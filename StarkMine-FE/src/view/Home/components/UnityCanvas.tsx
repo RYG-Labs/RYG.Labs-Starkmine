@@ -41,7 +41,7 @@ export function UnityCanvas() {
   // wallet state
   const { connect, connectors, connector } = useConnect();
   const { disconnect } = useDisconnect();
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, account } = useAccount();
   const { starknetkitConnectModal } = useStarknetkitConnectModal({
     connectors: connectors as StarknetkitConnector[],
   });
