@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+"Don't use `q` when in zsh. Ignore it.

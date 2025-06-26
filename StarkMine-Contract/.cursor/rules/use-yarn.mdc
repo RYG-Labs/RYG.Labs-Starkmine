@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+use yarn
+
+yarn start instead of yarn dev
