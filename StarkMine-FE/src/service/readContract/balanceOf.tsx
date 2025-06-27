@@ -3,7 +3,7 @@ import { Contract, RpcProvider } from "starknet";
 import { mainnet } from "@starknet-react/chains";
 import { contracts } from "@/configs/contracts";
 import { ABI_MINE_TOKEN } from "@/type/ABI_MINE_TOKEN";
-import { convertWeiToEther } from "../../../utils/helper";
+import { convertWeiToEther } from "../../utils/helper";
 
 const nodeUrl =
   walletConfig.targetNetwork.id == mainnet.id
