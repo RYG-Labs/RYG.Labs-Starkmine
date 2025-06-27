@@ -12,6 +12,7 @@ import { walletConfig } from "@/configs/network";
 import { ErrorLevelEnum, MessageBase, MessageEnum } from "@/type/common";
 import { balanceOf } from "@/service/readContract/balanceOf";
 import { convertWeiToEther } from "@/utils/helper";
+import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -46,15 +47,6 @@ export function UnityCanvas() {
   });
   const [accountChainId, setAccountChainId] = useState<bigint>();
   const [currentAddress, setCurrentAddress] = useState<string>("");
-
-  // interact with unity
-  const connectWallet = async (): Promise<void> => {
-    const { connector } = await starknetkitConnectModal();
-    if (!connector) {
-      return;
-    }
-    await connect({ connector: connector as Connector });
-  };
 
   const getChainId = useCallback(async () => {
     if (!connector) return;
@@ -97,20 +89,14 @@ export function UnityCanvas() {
     }
   };
 
-  useEffect(() => {
-    if (!address) {
-      setCurrentAddress("");
+  // interact with unity
+  const connectWallet = async (): Promise<void> => {
+    const { connector } = await starknetkitConnectModal();
+    if (!connector) {
       return;
     }
-    if (!currentAddress && address) {
-      setCurrentAddress(address);
-      return;
-    }
-    if (currentAddress == address) return;
-
-    setCurrentAddress(address);
-    window.location.reload();
-  }, [address]);
+    await connect({ connector: connector as Connector });
+  };
 
   // event listener
   useEffect(() => {
@@ -133,6 +119,7 @@ export function UnityCanvas() {
     }
   }, [isLoaded, address, accountChainId]);
 
+  // ============================= DON'T TOUCH =============================
   useEffect(() => {
     if (!connector) return;
     connector.on("change", getChainId);
@@ -147,7 +134,21 @@ export function UnityCanvas() {
     }
   }, [isConnected]);
 
-  // Hàm tính toán kích thước canvas với tỷ lệ 16:9
+  useEffect(() => {
+    if (!address) {
+      setCurrentAddress("");
+      return;
+    }
+    if (!currentAddress && address) {
+      setCurrentAddress(address);
+      return;
+    }
+    if (currentAddress == address) return;
+
+    setCurrentAddress(address);
+    window.location.reload();
+  }, [address]);
+
   const updateCanvasSize = useCallback(() => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -190,9 +191,20 @@ export function UnityCanvas() {
     },
     [devicePixelRatio]
   );
+  // ============================= DON'T TOUCH =============================
+
   return (
     <>
       <div>
+        <button
+          onClick={() =>
+            getMinersByOwner(
+              "0x02c210ac81bce69749a8ae3b4b1b5677f9794d67bfb9b4e23a7f42638d3aeae9"
+            )
+          }
+        >
+          Get data
+        </button>
         {isConnected && <div>Connected: {address}</div>}
         {isConnected && (
           <button onClick={() => disconnect()}>Disconnect</button>

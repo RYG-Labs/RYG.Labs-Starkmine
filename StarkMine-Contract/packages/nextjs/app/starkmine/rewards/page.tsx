@@ -93,14 +93,14 @@ const RewardsPage: NextPage = () => {
 
     const calculateBurnAmount = () => {
         if (!pendingRewards || !burnRate) return "0";
-        const burnAmount = (BigInt(pendingRewards) * BigInt(burnRate)) / BigInt(10000);
+        const burnAmount = (BigInt(pendingRewards.toString()) * BigInt(burnRate.toString())) / BigInt(10000);
         return formatTokenAmount(burnAmount);
     };
 
     const calculateNetRewards = () => {
         if (!pendingRewards || !burnRate) return "0";
-        const burnAmount = (BigInt(pendingRewards) * BigInt(burnRate)) / BigInt(10000);
-        const netAmount = BigInt(pendingRewards) - burnAmount;
+        const burnAmount = (BigInt(pendingRewards.toString()) * BigInt(burnRate.toString())) / BigInt(10000);
+        const netAmount = BigInt(pendingRewards.toString()) - burnAmount;
         return formatTokenAmount(netAmount);
     };
 

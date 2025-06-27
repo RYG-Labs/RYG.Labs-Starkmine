@@ -302,6 +302,9 @@ mod MinerNFT {
                 engine_info.attached_miner == 0, "Core engine already attached to another miner",
             );
 
+            // Validate that engine type matches miner tier
+            assert!(engine_info.engine_type == miner.tier, "Engine type must match miner tier");
+
             // Attach engine to miner via CoreEngine contract
             core_engine_dispatcher.attach_to_miner(core_engine_id, token_id, caller);
 
@@ -468,10 +471,20 @@ mod MinerNFT {
                     contract_address: station_contract,
                 };
 
-                // Determine owner of the miner to fetch their station multiplier
+                // Determine owner of the miner and which station this miner is assigned to
                 let owner: ContractAddress = self.owners.read(token_id);
-                let station_multiplier = station_dispatcher.get_account_multiplier(owner);
-                effective_power = (effective_power * station_multiplier) / 10000;
+                let assigned_station = station_dispatcher
+                    .get_miner_station_assignment(owner, token_id);
+
+                // If miner is assigned to a station, apply that station's multiplier
+                if assigned_station > 0 {
+                    let station_multiplier = station_dispatcher
+                        .get_account_multiplier(owner, assigned_station);
+                    effective_power = (effective_power * station_multiplier) / 10000;
+                }
+                // If miner is not assigned to any station, use default Level 0 multiplier (10000 =
+            // 100%)
+            // No need to apply multiplier as it would be 10000/10000 = 1.0
             }
 
             effective_power

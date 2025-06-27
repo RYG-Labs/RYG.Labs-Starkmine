@@ -1,6 +1,6 @@
 ---
-description: 
+description: When try to compile Cairo contract
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 `yarn compile` to compile cairo contracts

@@ -28,11 +28,11 @@ interface EngineTypeConfig {
     repair_cost_base: bigint;
 }
 
-const ENGINE_TYPES = ['Standard', 'Premium', 'Elite'] as const;
+const ENGINE_TYPES = ['Basic', 'Elite', 'Pro', 'GIGA'] as const;
 
 const EnginesPage: NextPage = () => {
     const { address, isConnected } = useAccount();
-    const [selectedEngineType, setSelectedEngineType] = useState<string>('Standard');
+    const [selectedEngineType, setSelectedEngineType] = useState<string>('Basic');
     const [userEngines, setUserEngines] = useState<Array<{ tokenId: bigint; info: EngineInfo }>>([]);
     const [loadingEngines, setLoadingEngines] = useState(false);
     const [engineTypeConfigs, setEngineTypeConfigs] = useState<Record<string, EngineTypeConfig>>({});
@@ -64,22 +64,28 @@ const EnginesPage: NextPage = () => {
     });
 
     // Get engine type configurations
-    const { data: standardConfig } = useScaffoldReadContract({
+    const { data: basicConfig } = useScaffoldReadContract({
         contractName: "CoreEngine",
         functionName: "get_engine_type_config",
-        args: ['Standard'],
-    });
-
-    const { data: premiumConfig } = useScaffoldReadContract({
-        contractName: "CoreEngine",
-        functionName: "get_engine_type_config",
-        args: ['Premium'],
+        args: ['Basic'],
     });
 
     const { data: eliteConfig } = useScaffoldReadContract({
         contractName: "CoreEngine",
         functionName: "get_engine_type_config",
         args: ['Elite'],
+    });
+
+    const { data: proConfig } = useScaffoldReadContract({
+        contractName: "CoreEngine",
+        functionName: "get_engine_type_config",
+        args: ['Pro'],
+    });
+
+    const { data: gigaConfig } = useScaffoldReadContract({
+        contractName: "CoreEngine",
+        functionName: "get_engine_type_config",
+        args: ['GIGA'],
     });
 
     // Write functions
@@ -108,6 +114,12 @@ const EnginesPage: NextPage = () => {
         contractName: "CoreEngine",
         functionName: "detach_from_miner",
         args: [BigInt(0), "0x0"],
+    });
+
+    const { sendAsync: defuseEngine, isPending: isDefusing } = useScaffoldWriteContract({
+        contractName: "CoreEngine",
+        functionName: "defuse_engine",
+        args: [BigInt(0)],
     });
 
     // Get contract instances
@@ -163,21 +175,19 @@ const EnginesPage: NextPage = () => {
         watch: true,
     });
 
+    const { data: engineDefusedEvents } = useScaffoldEventHistory({
+        contractName: "CoreEngine",
+        eventName: "starkmine::nft::core_engine::CoreEngine::EngineDefused",
+        fromBlock: STARKMINE_FROMBLOCK,
+        watch: true,
+    });
+
     // Update engine type configs when data is loaded
     useEffect(() => {
         const configs: Record<string, EngineTypeConfig> = {};
-        if (standardConfig) {
-            const config = standardConfig as any;
-            configs['Standard'] = {
-                efficiency_bonus: BigInt(config.efficiency_bonus || 0),
-                durability: BigInt(config.durability || 0),
-                mint_cost: BigInt(config.mint_cost || 0),
-                repair_cost_base: BigInt(config.repair_cost_base || 0),
-            };
-        }
-        if (premiumConfig) {
-            const config = premiumConfig as any;
-            configs['Premium'] = {
+        if (basicConfig) {
+            const config = basicConfig as any;
+            configs['Basic'] = {
                 efficiency_bonus: BigInt(config.efficiency_bonus || 0),
                 durability: BigInt(config.durability || 0),
                 mint_cost: BigInt(config.mint_cost || 0),
@@ -193,8 +203,26 @@ const EnginesPage: NextPage = () => {
                 repair_cost_base: BigInt(config.repair_cost_base || 0),
             };
         }
+        if (proConfig) {
+            const config = proConfig as any;
+            configs['Pro'] = {
+                efficiency_bonus: BigInt(config.efficiency_bonus || 0),
+                durability: BigInt(config.durability || 0),
+                mint_cost: BigInt(config.mint_cost || 0),
+                repair_cost_base: BigInt(config.repair_cost_base || 0),
+            };
+        }
+        if (gigaConfig) {
+            const config = gigaConfig as any;
+            configs['GIGA'] = {
+                efficiency_bonus: BigInt(config.efficiency_bonus || 0),
+                durability: BigInt(config.durability || 0),
+                mint_cost: BigInt(config.mint_cost || 0),
+                repair_cost_base: BigInt(config.repair_cost_base || 0),
+            };
+        }
         setEngineTypeConfigs(configs);
-    }, [standardConfig, premiumConfig, eliteConfig]);
+    }, [basicConfig, eliteConfig, proConfig, gigaConfig]);
 
     // Fetch user engines
     useEffect(() => {
@@ -318,7 +346,7 @@ const EnginesPage: NextPage = () => {
     // Refresh data when events occur
     useEffect(() => {
         setRefreshTrigger(prev => prev + 1);
-    }, [engineMintedEvents, engineAttachedEvents, engineDetachedEvents, engineRepairedEvents]);
+    }, [engineMintedEvents, engineAttachedEvents, engineDetachedEvents, engineRepairedEvents, engineDefusedEvents]);
 
     const handleMintEngine = async () => {
         try {
@@ -387,15 +415,37 @@ const EnginesPage: NextPage = () => {
         }
     };
 
+    const handleDefuseEngine = async (engineId: bigint, engineType: string) => {
+        try {
+            // // Show confirmation dialog
+            // const confirmed = window.confirm(
+            //     `Are you sure you want to defuse this ${engineType} engine? This action cannot be undone.\n\n` +
+            //     `You will receive back a percentage of the original mint cost based on the engine's remaining durability.`
+            // );
+
+            // if (!confirmed) return;
+
+            await defuseEngine({
+                args: [engineId],
+            });
+            notification.success(`Engine defused successfully! MINE tokens returned to your wallet.`);
+            setRefreshTrigger(prev => prev + 1);
+        } catch (error) {
+            console.error('Error defusing engine:', error);
+            notification.error('Failed to defuse engine');
+        }
+    };
+
     const formatTokenAmount = (amount: any, decimals: number = 18) => {
         return (Number(amount) / Math.pow(10, decimals)).toFixed(2);
     };
 
     const getEngineTypeIcon = (type: string) => {
         switch (type) {
-            case 'Standard': return '🔧';
-            case 'Premium': return '⚙️';
+            case 'Basic': return '🔧';
             case 'Elite': return '🛠️';
+            case 'Pro': return '⚙️';
+            case 'GIGA': return '🚀';
             default: return '🔧';
         }
     };
@@ -470,7 +520,49 @@ const EnginesPage: NextPage = () => {
                 <div className="card-body">
                     <h2 className="card-title text-2xl mb-4">⚡ Mint New Engine</h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="alert alert-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h3 className="font-bold">🔗 Engine-Miner Compatibility</h3>
+                                <p className="text-sm">
+                                    Core engines must match their corresponding miner tier:
+                                    <br />
+                                    🔧 <strong>Basic</strong> engines ↔ <strong>Basic</strong> miners
+                                    <br />
+                                    🛠️ <strong>Elite</strong> engines ↔ <strong>Elite</strong> miners
+                                    <br />
+                                    ⚙️ <strong>Pro</strong> engines ↔ <strong>Pro</strong> miners
+                                    <br />
+                                    🚀 <strong>GIGA</strong> engines ↔ <strong>GIGA</strong> miners
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="alert alert-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.96-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <div>
+                                <h3 className="font-bold">💥 Engine Defusing</h3>
+                                <p className="text-sm">
+                                    You can defuse (destroy) engines to recover MINE tokens:
+                                    <br />
+                                    • Base refund: 40% of mint cost
+                                    <br />
+                                    • Durability bonus: +20% based on remaining durability
+                                    <br />
+                                    • <strong>Cannot defuse attached engines</strong>
+                                    <br />
+                                    • <strong>This action is irreversible!</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
                         {ENGINE_TYPES.map((type) => {
                             const config = engineTypeConfigs[type];
                             return (
@@ -482,6 +574,9 @@ const EnginesPage: NextPage = () => {
                                     <div className="card-body items-center text-center p-4">
                                         <div className="text-4xl mb-2">{getEngineTypeIcon(type)}</div>
                                         <h3 className="font-bold text-lg">{type}</h3>
+                                        <div className="badge badge-outline mb-2">
+                                            Compatible with {type} miners
+                                        </div>
                                         {config && (
                                             <div className="text-sm space-y-1">
                                                 <div>Efficiency: +{Number(config.efficiency_bonus) / 100}%</div>
@@ -599,6 +694,24 @@ const EnginesPage: NextPage = () => {
                                                         disabled={isRepairing}
                                                     >
                                                         🔧 Repair
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* Defuse Engine */}
+                                            {info.attached_miner === BigInt(0) && (
+                                                <div className="flex justify-center">
+                                                    <button
+                                                        className="btn btn-error btn-sm"
+                                                        onClick={() => handleDefuseEngine(tokenId, info.engine_type)}
+                                                        disabled={isDefusing}
+                                                        title="Defuse engine to get back MINE tokens (irreversible)"
+                                                    >
+                                                        {isDefusing ? (
+                                                            <span className="loading loading-spinner loading-xs"></span>
+                                                        ) : (
+                                                            <>💥 Defuse Engine</>
+                                                        )}
                                                     </button>
                                                 </div>
                                             )}
