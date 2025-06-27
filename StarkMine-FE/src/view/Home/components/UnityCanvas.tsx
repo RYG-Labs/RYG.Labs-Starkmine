@@ -60,6 +60,11 @@ export function UnityCanvas() {
 
     setCurrentAddress(address);
     if (accountChainId !== walletConfig.targetNetwork.id) {
+      if (connector?.name === "Controller") {
+        disconnect();
+        return;
+      }
+
       sendMessage(
         "UIManager",
         "ResponseConnectWallet",
