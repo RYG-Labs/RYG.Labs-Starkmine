@@ -71,7 +71,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             status: StatusEnum.ERROR,
             message: MessageEnum.STATION_INIT_FAILED,
             level: ErrorLevelEnum.WARNING,
-            data: {},
+            data: [],
           } as MessageBase;
         } else {
             const allStations = await getAllStations(userAddress, stationCount);
