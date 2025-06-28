@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using _Project._Scripts.Game.Enemies;
 using _Project._Scripts.Game.Poolings;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -74,6 +76,15 @@ namespace _Project._Scripts.Game.Managers
             listShipData.Add(shipData);
         }
 
+        public void LaunchSpaceShip(int coreEngineId, int shipId)
+        {
+            ShipData shipData = DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineId, shipId);
+            // Update UI ship launched
+            UIManager.Instance.spaceStationUI.LaunchSpaceShip(shipData);
+            // Instantiate ship
+            LaunchSpaceShip(shipData);
+        }
+
         public void LaunchSpaceShip(ShipData shipData)
         {
             Ship ship = Instantiate(shipPrefab, new Vector3(2, 0, 0), Quaternion.identity, GameHolder);
@@ -116,5 +127,16 @@ namespace _Project._Scripts.Game.Managers
         //
         //     ships.Clear();
         // }
+
+        public void ResponseIgniteMiner(string responseString)
+        {
+            Debug.Log("ResponseIgniteMiner" + responseString);
+            MessageBase<JObject> response = JsonConvert.DeserializeObject<MessageBase<JObject>>(responseString);
+            if (!response.IsSuccess()) return;
+
+            Debug.Log("ResponseIgniteMiner To Object Success");
+            ResponseIgniteMinerDTO data = response.data.ToObject<ResponseIgniteMinerDTO>();
+            LaunchSpaceShip(data.coreEngineId, data.minerId);
+        }
     }
 }

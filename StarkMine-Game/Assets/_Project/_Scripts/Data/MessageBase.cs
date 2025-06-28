@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 [Serializable]
-public class MessageBase
+public class MessageBase<T>
 {
     public enum MessageEnum
     {
@@ -14,7 +14,7 @@ public class MessageBase
 
     public string status;
     public string message;
-    public JObject data;
+    public T data;
     public MessageEnum level;
 
     public bool IsSuccess()

@@ -13,7 +13,7 @@ public class ConnectWalletUI : BasePopup
     {
         base.Start();
         connectWalletButton.onClick.AddListener(OnClickConnectWalletButton);
-        disconnectWalletButton.onClick.AddListener(OnClickDisconnectWalletButton);
+        // disconnectWalletButton.onClick.AddListener(OnClickDisconnectWalletButton);
     }
 
     private void OnClickConnectWalletButton()

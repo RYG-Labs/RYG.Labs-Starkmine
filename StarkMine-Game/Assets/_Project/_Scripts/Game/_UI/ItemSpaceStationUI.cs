@@ -27,6 +27,12 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     public bool IsEmpty { get; set; }
     private ShipData _shipData;
 
+    public ShipData ShipData
+    {
+        get => _shipData;
+        set => _shipData = value;
+    }
+
     public void SetUp(int index, ShipData ship, bool isEmpty)
     {
         Index = index;
@@ -82,7 +88,7 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     private void Start()
     {
         addCoreButton.onClick.AddListener(OnClickAddCoreButton);
-        launchButton.onClick.AddListener(OnClickLaunchButton);
+        // launchButton.onClick.AddListener(OnClickLaunchButton);
         callbackButton.onClick.AddListener(OnClickCallbackButton);
     }
 

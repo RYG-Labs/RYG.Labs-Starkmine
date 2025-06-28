@@ -156,4 +156,15 @@ public class SpaceStationUI : BasePopup
         base.Hide();
         showButton.gameObject.SetActive(true);
     }
+
+    public void LaunchSpaceShip(ShipData shipData)
+    {
+        foreach (ItemSpaceStationUI itemSpaceStationUI in listItem)
+        {
+            if (itemSpaceStationUI.ShipData == shipData)
+            {
+                itemSpaceStationUI.SpaceShipOnDutyHandler();
+            }
+        }
+    }
 }
