@@ -1,6 +1,11 @@
 import { walletConfig } from "@/configs/network";
 import { mainnet, sepolia} from "@starknet-react/chains";
 
+export enum StatusEnum {
+    SUCCESS = "success",
+    ERROR = "error",
+}
+
 export const MessageEnum = {
     SUCCESS: "Success.",
     ERROR: "Found an error, please try again later.",
@@ -21,7 +26,7 @@ export enum EventKeyEnum {
 }
 
 export interface MessageBase {
-    status: "success" | "error";
+    status: StatusEnum.SUCCESS | StatusEnum.ERROR;
     message: typeof MessageEnum[keyof typeof MessageEnum];
     data: any;
     level: typeof ErrorLevelEnum[keyof typeof ErrorLevelEnum];
