@@ -31,8 +31,8 @@ export const getCoreEnginesByOwner = async (userAddress: string) => {
           address: contracts.CoreEngine,
           keys: [[
             EventKeyEnum.EngineMinted,
-             EventKeyEnum.Transfer,
-            //   userAddress
+            EventKeyEnum.Transfer,
+            userAddress
           ]],
         });
         allEvents = allEvents.concat(events.events);
@@ -93,13 +93,13 @@ export const getCoreEnginesByOwner = async (userAddress: string) => {
           
           return {
             tokenId: parseInt(tokenId, 16),
-            attachedMiner: coreEngineInfo.attached_miner.toString(),
+            attachedMiner: parseInt(coreEngineInfo.attached_miner),
             blocksUsed: coreEngineInfo.blocks_used.toString(),
-            durability: coreEngineInfo.durability.toString(),
-            efficiencyBonus: coreEngineInfo.efficiency_bonus.toString(),
+            durability: parseInt(coreEngineInfo.durability),
+            efficiencyBonus: parseInt(coreEngineInfo.efficiency_bonus),
             engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
             isActive: Boolean(coreEngineInfo.is_active),
-            lastUsedBlock: coreEngineInfo.last_used_block.toString(),
+            lastUsedBlock: parseInt(coreEngineInfo.last_used_block),
           };
         })
       );

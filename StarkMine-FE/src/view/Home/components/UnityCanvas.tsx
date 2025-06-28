@@ -20,6 +20,7 @@ import { convertWeiToEther } from "@/utils/helper";
 import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
 import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOwner";
 import { igniteMiner } from "@/service/writeContract/igniteMiner";
+import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -191,6 +192,29 @@ export function UnityCanvas() {
     [account]
   );
 
+  const sendStationsData = useCallback(async () => {
+    if (!address || !account) {
+      sendMessage(
+        "DataManager",
+        "ResponseStationsData",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const stationsDetails = await getStationsByOwner(account, address);
+    sendMessage(
+      "DataManager",
+      "ResponseStationsData",
+      JSON.stringify(stationsDetails)
+    );
+  }, [account]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -225,6 +249,12 @@ export function UnityCanvas() {
       sendCoreEnginesData(address);
     }
   }, [isLoaded, address, accountChainId]);
+
+  useEffect(() => {
+    if (address && account) {
+      sendStationsData();
+    }
+  }, [address, account]);
 
   // ============================= DON'T TOUCH =============================
   useEffect(() => {
@@ -311,6 +341,10 @@ export function UnityCanvas() {
             getMinersByOwner(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
+            // getStationsByOwner(
+            //   account!,
+            //   "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            // );
           }}
         >
           Get data
