@@ -1,5 +1,6 @@
 using _Project._Scripts.Game.Managers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class UIManager : StaticInstance<UIManager>
@@ -29,17 +30,17 @@ public class UIManager : StaticInstance<UIManager>
         showNotificationCantOffUI.Hide();
         showNotificationUI.Hide();
         Debug.Log("ResponseConnectWallet:" + responseString);
-        MessageBase response = JsonConvert.DeserializeObject<MessageBase>(responseString);
+        MessageBase<JObject> response = JsonConvert.DeserializeObject<MessageBase<JObject>>(responseString);
         if (!response.IsSuccess())
         {
             switch (response.level)
             {
-                case MessageBase.MessageEnum.WARNING:
+                case MessageBase<JObject>.MessageEnum.WARNING:
                     Debug.Log("showNotificationUI");
                     showNotificationUI.SetUp(response.message);
                     showNotificationUI.Show();
                     break;
-                case MessageBase.MessageEnum.ERROR:
+                case MessageBase<JObject>.MessageEnum.ERROR:
                     Debug.Log("showNotificationCantOffUI");
                     showNotificationCantOffUI.SetUp(response.message);
                     showNotificationCantOffUI.Show();

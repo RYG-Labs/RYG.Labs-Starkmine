@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -400,6 +403,75 @@ namespace _Project._Scripts.Game.Managers
             }
 
             return result.GetRange(startIndex, count);
+        }
+
+        public List<ShipSO> AllShipSO;
+
+        [DllImport("__Internal")]
+        private static extern void RequestMinersData();
+
+        [DllImport("__Internal")]
+        private static extern void RequestCoreEnginesData();
+
+        private void ResponseMinersData(string responseString)
+        {
+            Debug.Log("ResponseMinersData" + responseString);
+            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
+
+            if (!response.IsSuccess())
+            {
+                return;
+            }
+
+            shipInInventory.Clear();
+            List<JObject> listShipDto = response.data.ToObject<List<JObject>>();
+            Debug.Log("ResponseMinersData To Object Success");
+            Debug.Log("ResponseMinersData To Array Success" + listShipDto.Count);
+            foreach (JObject jObject in listShipDto)
+            {
+                ShipDTO shipDto = jObject.ToObject<ShipDTO>();
+                Debug.Log(shipDto.ToString());
+                ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
+                    shipDto.hashPower, shipDto.isIgnited);
+                ShipInInventory.Add(shipData);
+                Debug.Log("ResponseMinersData To Object Success 2");
+            }
+        }
+
+        private void ResponseCoreEnginesData(string responseString)
+        {
+            Debug.Log("ResponseCoreEnginesData" + responseString);
+            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
+
+            if (!response.IsSuccess())
+            {
+                return;
+            }
+
+            Debug.Log("ResponseCoreEnginesData To Object Success");
+            // shipInInventory.Clear();
+            // Debug.Log(response.message);
+            // List<ShipDTO> listShipDto = response.data.ToObject<List<ShipDTO>>();
+            //
+            // foreach (ShipDTO shipDto in listShipDto)
+            // {
+            //     ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
+            //         shipDto.hashPower, shipDto.isIgnited);
+            //     ShipInInventory.Add(shipData);
+            // }
+        }
+
+        public ShipSO GetShipSoByType(string shipType)
+        {
+            switch (shipType)
+            {
+                case "Basic": return AllShipSO[0];
+                case "Elite": return AllShipSO[1];
+                case "Pro": return AllShipSO[2];
+                case "GIGA": return AllShipSO[3];
+            }
+
+            return AllShipSO[0];
         }
     }
 }

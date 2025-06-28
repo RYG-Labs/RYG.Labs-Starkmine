@@ -82,7 +82,7 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     private void Start()
     {
         addCoreButton.onClick.AddListener(OnClickAddCoreButton);
-        launchButton.onClick.AddListener(OnClickLaunchButton);
+        // launchButton.onClick.AddListener(OnClickLaunchButton);
         callbackButton.onClick.AddListener(OnClickCallbackButton);
     }
 

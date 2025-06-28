@@ -13,4 +13,18 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
+  RequestMinersData: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestMinersData");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestCoreEnginesData: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestCoreEnginesData");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
 });

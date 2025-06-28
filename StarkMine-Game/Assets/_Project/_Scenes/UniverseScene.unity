@@ -2201,7 +2201,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 70.005, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 140.01, y: 14.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &87376400
 MonoBehaviour:
@@ -3262,9 +3262,9 @@ RectTransform:
   - {fileID: 2101309699}
   m_Father: {fileID: 648155408}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 290, y: -140}
   m_SizeDelta: {x: 580, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &123209248
@@ -5188,6 +5188,47 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 253743941}
   m_CullTransparentMesh: 1
+--- !u!21 &254566897
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _OuterUV: {r: 0.425, g: 0.71999997, b: 0.45000002, a: 0.76}
+    - _WidthHeightRadius: {r: 72, g: 72, b: 72, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &256363952
 GameObject:
   m_ObjectHideFlags: 0
@@ -5842,9 +5883,9 @@ RectTransform:
   - {fileID: 1423798221}
   m_Father: {fileID: 648155408}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 290, y: -451.15}
   m_SizeDelta: {x: 580, y: 134.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &283123611
@@ -6170,7 +6211,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -36.015038}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 186.67, y: 28.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &290263592
 MonoBehaviour:
@@ -6830,7 +6871,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 293.34998, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 9.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &319358012
 MonoBehaviour:
@@ -7598,9 +7639,9 @@ RectTransform:
   - {fileID: 857301805}
   m_Father: {fileID: 648155408}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 290, y: -332}
   m_SizeDelta: {x: 580, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &352608220
@@ -7965,7 +8006,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 140.01, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &369424085
 MonoBehaviour:
@@ -11071,7 +11112,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 484922026}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1815323602}
+        m_TargetAssemblyTypeName: ConnectWalletUI, Assembly-CSharp
+        m_MethodName: OnClickDisconnectWalletButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &484922026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13490,7 +13543,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -29.015}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 277.35, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &578302128
 MonoBehaviour:
@@ -13793,7 +13846,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 60.67, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 121.34, y: 14.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &606848123
 MonoBehaviour:
@@ -15390,7 +15443,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -103.999985}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 580, y: 518.3}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &648155409
 MonoBehaviour:
@@ -20434,7 +20487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1937997600}
+  m_Material: {fileID: 254566897}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -21308,7 +21361,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -58.02499}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 205.34, y: 28.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &876011908
 MonoBehaviour:
@@ -22514,7 +22567,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 121.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &920345994
 MonoBehaviour:
@@ -23959,7 +24012,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 174.67, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 56.01, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &996820744
 MonoBehaviour:
@@ -25699,7 +25752,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 102.67, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1079309430
 MonoBehaviour:
@@ -26167,7 +26220,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 137.34, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 158.67, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1089385972
 MonoBehaviour:
@@ -28986,7 +29039,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 177.34, y: 0}
+  m_SizeDelta: {x: 177.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1163831372
 MonoBehaviour:
@@ -31193,7 +31246,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 158.67, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1269335722
 MonoBehaviour:
@@ -31709,7 +31762,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 121.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1294873503
 MonoBehaviour:
@@ -33697,7 +33750,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 158.67, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1391028858
 MonoBehaviour:
@@ -34074,7 +34127,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 174.67, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 93.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1433902717
 MonoBehaviour:
@@ -35792,7 +35845,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 137.34, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 233.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1498143830
 MonoBehaviour:
@@ -37149,7 +37202,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 156.01, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 93.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1554046093
 MonoBehaviour:
@@ -37300,7 +37353,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 193.34, y: -7.005}
-  m_SizeDelta: {x: 84.01, y: 0}
+  m_SizeDelta: {x: 84.01, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1555932495
 MonoBehaviour:
@@ -38815,7 +38868,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1649833952
 RectTransform:
   m_ObjectHideFlags: 0
@@ -41698,7 +41751,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1815323601
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44538,6 +44591,7 @@ MonoBehaviour:
     maintenanceLevel: 82
     maintenanceDown: 1
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: 36cb209064f02534385a66afac03b4a0, type: 2}
     level: 2
@@ -44545,6 +44599,7 @@ MonoBehaviour:
     maintenanceLevel: 69
     maintenanceDown: 10
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 1
@@ -44552,6 +44607,7 @@ MonoBehaviour:
     maintenanceLevel: 39
     maintenanceDown: 15
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: a57c8401a63b9d74388ebf8cad25797a, type: 2}
     level: 3
@@ -44559,6 +44615,7 @@ MonoBehaviour:
     maintenanceLevel: 14
     maintenanceDown: 20
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: ae27bef4a53b6e84690706337729927c, type: 2}
     level: 5
@@ -44566,6 +44623,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44573,6 +44631,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44580,6 +44639,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44587,6 +44647,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44594,6 +44655,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44601,6 +44663,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44608,6 +44671,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44615,6 +44679,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44622,6 +44687,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44629,6 +44695,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44636,6 +44703,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44643,6 +44711,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44650,6 +44719,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44657,6 +44727,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44664,6 +44735,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44671,6 +44743,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44678,6 +44751,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44685,6 +44759,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44692,6 +44767,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44699,6 +44775,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   - shipID: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
@@ -44706,6 +44783,7 @@ MonoBehaviour:
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
+    hashPower: 0
   _mineCoin: 100000
   planets:
   - {fileID: 11400000, guid: 7a1b82cd07f6784418c5b946902ae604, type: 2}
@@ -44730,6 +44808,11 @@ MonoBehaviour:
   - coreEngineSO: {fileID: 11400000, guid: 7d204a224aeb00f42b07b69a8434b031, type: 2}
     amount: 5
   allShipLevel: {fileID: 11400000, guid: 1388eaef4395e664497b1a6e3c229f42, type: 2}
+  AllShipSO:
+  - {fileID: 11400000, guid: a57c8401a63b9d74388ebf8cad25797a, type: 2}
+  - {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
+  - {fileID: 11400000, guid: 36cb209064f02534385a66afac03b4a0, type: 2}
+  - {fileID: 11400000, guid: ae27bef4a53b6e84690706337729927c, type: 2}
 --- !u!4 &1927828771
 Transform:
   m_ObjectHideFlags: 0
@@ -45149,47 +45232,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1734117353274742343, guid: 1629d9eac4db26d47806bebba0da20c3, type: 3}
   m_PrefabInstance: {fileID: 1933965040}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &1937997600
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _OuterUV: {r: 0.425, g: 0.71999997, b: 0.45000002, a: 0.76}
-    - _WidthHeightRadius: {r: 72, g: 72, b: 72, a: 0}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1001 &1938437639
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -48317,7 +48359,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 118.67, y: -7.005}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 37.34, y: 14.01}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2086065925
 MonoBehaviour:
@@ -58770,10 +58812,10 @@ RectTransform:
   - {fileID: 1787183687844295660}
   m_Father: {fileID: 2101309699}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 44}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 413, y: -22}
+  m_SizeDelta: {x: 270, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &8937608529437998944
 RectTransform:
@@ -59034,10 +59076,10 @@ RectTransform:
   - {fileID: 1787183687171650665}
   m_Father: {fileID: 2101309699}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 44}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 135, y: -22}
+  m_SizeDelta: {x: 270, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &9110130241991725548
 GameObject:

@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [Serializable]
 public class ShipData
@@ -12,13 +13,14 @@ public class ShipData
         public ShipData NewShipData;
     }
 
-    [SerializeField] public int shipID;
+    [SerializeField] public int id;
     [SerializeField] public ShipSO shipSO;
     [SerializeField] public int level;
     [SerializeField] private CoreEngineSO coreEngine;
     [SerializeField] public int maintenanceLevel;
     [SerializeField] public int maintenanceDown;
     [SerializeField] public bool onDuty;
+    [SerializeField] public double hashPower;
 
     public ShipData(ShipSO newShipSO)
     {
@@ -27,6 +29,25 @@ public class ShipData
         maintenanceLevel = 100;
         maintenanceDown = 0;
         onDuty = false;
+    }
+
+    public ShipData(ShipSO newShipSO, int level, double hashPower, int maintenanceLevel, bool onDuty)
+    {
+        shipSO = newShipSO;
+        this.level = level;
+        this.maintenanceLevel = maintenanceLevel;
+        this.hashPower = hashPower;
+        // this.maintenanceDown = maintenanceDown;
+        this.onDuty = onDuty;
+    }
+
+    public ShipData(int id, ShipSO newShipSO, int level, double hashPower, bool onDuty)
+    {
+        this.id = id;
+        shipSO = newShipSO;
+        this.level = level;
+        this.hashPower = hashPower;
+        this.onDuty = onDuty;
     }
 
     public CoreEngineSO CoreEngine
