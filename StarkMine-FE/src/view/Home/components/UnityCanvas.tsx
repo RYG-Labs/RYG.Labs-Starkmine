@@ -154,6 +154,7 @@ export function UnityCanvas() {
   useEffect(() => {
     if (isLoaded && address && accountChainId) {
       sendDataConnectWallet();
+      sendMinersData(address);
     }
   }, [isLoaded, address, accountChainId]);
 
