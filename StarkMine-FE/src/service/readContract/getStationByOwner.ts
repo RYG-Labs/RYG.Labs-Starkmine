@@ -98,7 +98,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
         status: StatusEnum.ERROR,
         message: MessageEnum.ERROR,
         level: ErrorLevelEnum.WARNING,
-        data: {},
+        data: [],
       }
     }
 }
