@@ -4,10 +4,12 @@ import {
   } from "starknet";
   import { contracts } from "@/configs/contracts";
   import {
+    convertWeiToEther,
     formattedContractAddress,
   } from "../../utils/helper";
   import { ABI_MINER_NFT } from "@/type/ABI_MINER_NFT";
   import { provider } from ".";
+import { EventKeyEnum } from "@/type/common";
 
 const getMinerData = async (tokenId: string) => {
     const MinerNFTContract = new Contract(
@@ -34,8 +36,8 @@ export const getMinersByOwner = async (userAddress: string) => {
           to_block: "latest",
           address: contracts.MinerNFT,
           keys: [[
-            "0x270f83cc00ac131de21fbbf4fa173d136a8f7941b5399a881cd17c399164afc", // MinerMinted
-             "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9", // Transfer
+            EventKeyEnum.MinerMinted,
+             EventKeyEnum.Transfer,
               userAddress
           ]],
         });
@@ -49,12 +51,12 @@ export const getMinersByOwner = async (userAddress: string) => {
 
           if (
             eventKey ===
-            "0x270f83cc00ac131de21fbbf4fa173d136a8f7941b5399a881cd17c399164afc"
+            EventKeyEnum.MinerMinted
           ) {
             eventName = "MinerMinted";
           } else if (
             eventKey ===
-            "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9"
+            EventKeyEnum.Transfer
           ) {
             eventName = "Transfer";
           }
@@ -94,9 +96,9 @@ export const getMinersByOwner = async (userAddress: string) => {
         Array.from(ownedNFTs).map(async (tokenId: any) => {
           const minerInfo = await getMinerData(tokenId);
           return {
-            token_id: shortString.decodeShortString(tokenId),
-            tier: shortString.decodeShortString(minerInfo.tier),
-            hash_power: minerInfo.hash_power.toString(),
+            token_id: parseInt(shortString.decodeShortString(tokenId)), // int
+            tier: shortString.decodeShortString(minerInfo.tier), // string [Basic, ....]
+            hash_power: parseFloat(convertWeiToEther(minerInfo.hash_power.toString())) * 10000000, // 
             level: Number(minerInfo.level),
             efficiency: Number(minerInfo.efficiency),
             last_maintenance: minerInfo.last_maintenance.toString(),

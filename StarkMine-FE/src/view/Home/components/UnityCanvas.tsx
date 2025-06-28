@@ -103,6 +103,35 @@ export function UnityCanvas() {
     await connect({ connector: connector as Connector });
   };
 
+  const sendMinersData = useCallback(
+    async (address: string) => {
+      if (!address) {
+        sendMessage(
+          "DataManager",
+          "ResponseMinersData",
+          JSON.stringify({
+            status: "success",
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+      }
+      const minersDetails = await getMinersByOwner(address);
+      sendMessage(
+        "DataManager",
+        "ResponseMinersData",
+        JSON.stringify({
+          status: "success",
+          message: MessageEnum.SUCCESS,
+          level: ErrorLevelEnum.INFOR,
+          data: minersDetails,
+        } as MessageBase)
+      );
+    },
+    [address]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -111,10 +140,14 @@ export function UnityCanvas() {
     addEventListener("RequestDisconnectConnectWallet", () => {
       disconnect();
     });
+    addEventListener("RequestMinersData", () => {
+      sendMinersData(address as string);
+    });
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectConnectWallet", () => {});
+      removeEventListener("RequestMinersData", () => {});
     };
   }, []);
 
@@ -204,7 +237,7 @@ export function UnityCanvas() {
         <button
           onClick={() =>
             getMinersByOwner(
-              "0x02c210ac81bce69749a8ae3b4b1b5677f9794d67bfb9b4e23a7f42638d3aeae9"
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
             )
           }
         >
