@@ -7,7 +7,7 @@ const deployedContracts = {
   sepolia: {
     MineToken: {
       address:
-        "0x779f13d85b0c4a0f4a78230dc8e3960edb755c84f7d9eafb23993a6722c1187",
+        "0x41521b65af1c075a10f373e96d37dde46054f2c32f81c9e54700c06ec3307b0",
       abi: [
         {
           type: "impl",
@@ -464,7 +464,7 @@ const deployedContracts = {
     },
     MinerNFT: {
       address:
-        "0x69b80a1f4586e711d582464be6eeba5c4363e15a75c4033d9c852dfef94142c",
+        "0x4672deef869f0fa8e5e4f364ac0781f2f87a102f3381a786585813acec416ca",
       abi: [
         {
           type: "impl",
@@ -1186,11 +1186,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x561b0c4d71512978fa94f797c88851123f8ed7fbb25c3ff48984ed7e2be667d",
+        "0x56e02a31e45306c61e3d801756c4da86f09f8f2d152b427d92034b657c0ac0d",
     },
     CoreEngine: {
       address:
-        "0x7be66de0030c56f78e7fc69163f50b64650f5ebae262552fa3e7fac551befbd",
+        "0x2cb794ecb348428ed6ab2d879dba7e3a5da46f516ccf18f4b41a9b66b4d2f2f",
       abi: [
         {
           type: "impl",
@@ -1497,6 +1497,22 @@ const deployedContracts = {
                 },
               ],
               outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "defuse_engine",
+              inputs: [
+                {
+                  name: "engine_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
               state_mutability: "external",
             },
             {
@@ -1816,6 +1832,28 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "starkmine::nft::core_engine::CoreEngine::EngineDefused",
+          kind: "struct",
+          members: [
+            {
+              name: "engine_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "refund_amount",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
           name: "starkmine::nft::core_engine::CoreEngine::Event",
           kind: "enum",
           variants: [
@@ -1859,15 +1897,20 @@ const deployedContracts = {
               type: "starkmine::nft::core_engine::CoreEngine::EngineExpired",
               kind: "nested",
             },
+            {
+              name: "EngineDefused",
+              type: "starkmine::nft::core_engine::CoreEngine::EngineDefused",
+              kind: "nested",
+            },
           ],
         },
       ],
       classHash:
-        "0x1c018ef362d6079fb3db9f862098b405d875ec1adbabc8fc14dd96bfec1ee4f",
+        "0x7611a6f03cf1da8237fc4e67543ab57db35dffd1cfffe15b3d40a41e09aeb00",
     },
     StationSystem: {
       address:
-        "0x6f6a4354fd1003de074e02781c298fab5fb3dd15eb99a330baf49ea56bc71b9",
+        "0x5505270e0570c3c5e6aa5c1babbfba5d7bc907f94c03423fa5f57e70a7b93fd",
       abi: [
         {
           type: "impl",
@@ -1916,6 +1959,10 @@ const deployedContracts = {
               name: "pending_downgrade",
               type: "core::integer::u8",
             },
+            {
+              name: "miner_count",
+              type: "core::integer::u8",
+            },
           ],
         },
         {
@@ -1956,8 +2003,19 @@ const deployedContracts = {
           items: [
             {
               type: "function",
+              name: "initialize_user_stations",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
               name: "upgrade_station",
               inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
                 {
                   name: "target_level",
                   type: "core::integer::u8",
@@ -1971,6 +2029,10 @@ const deployedContracts = {
               name: "request_downgrade",
               inputs: [
                 {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+                {
                   name: "target_level",
                   type: "core::integer::u8",
                 },
@@ -1981,21 +2043,68 @@ const deployedContracts = {
             {
               type: "function",
               name: "execute_downgrade",
-              inputs: [],
+              inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+              ],
               outputs: [],
               state_mutability: "external",
             },
             {
               type: "function",
               name: "cancel_downgrade",
-              inputs: [],
+              inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+              ],
               outputs: [],
               state_mutability: "external",
             },
             {
               type: "function",
               name: "emergency_withdraw",
-              inputs: [],
+              inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "assign_miner_to_station",
+              inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+                {
+                  name: "token_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "remove_miner_from_station",
+              inputs: [
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+                {
+                  name: "miner_slot",
+                  type: "core::integer::u8",
+                },
+              ],
               outputs: [],
               state_mutability: "external",
             },
@@ -2006,6 +2115,10 @@ const deployedContracts = {
                 {
                   name: "account",
                   type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
                 },
               ],
               outputs: [
@@ -2023,10 +2136,70 @@ const deployedContracts = {
                   name: "account",
                   type: "core::starknet::contract_address::ContractAddress",
                 },
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
               ],
               outputs: [
                 {
                   type: "core::integer::u128",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_miner_station_assignment",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "token_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u8",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_station_miners",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::array::Array::<core::integer::u256>",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_user_station_count",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u8",
                 },
               ],
               state_mutability: "view",
@@ -2055,6 +2228,10 @@ const deployedContracts = {
                   name: "account",
                   type: "core::starknet::contract_address::ContractAddress",
                 },
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
+                },
               ],
               outputs: [
                 {
@@ -2070,6 +2247,10 @@ const deployedContracts = {
                 {
                   name: "account",
                   type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "station_id",
+                  type: "core::integer::u8",
                 },
               ],
               outputs: [
@@ -2184,6 +2365,11 @@ const deployedContracts = {
               kind: "key",
             },
             {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
               name: "old_level",
               type: "core::integer::u8",
               kind: "data",
@@ -2213,6 +2399,11 @@ const deployedContracts = {
             {
               name: "account",
               type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "station_id",
+              type: "core::integer::u8",
               kind: "key",
             },
             {
@@ -2248,6 +2439,11 @@ const deployedContracts = {
               kind: "key",
             },
             {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
               name: "amount",
               type: "core::integer::u256",
               kind: "data",
@@ -2270,6 +2466,11 @@ const deployedContracts = {
               kind: "key",
             },
             {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
               name: "amount",
               type: "core::integer::u256",
               kind: "data",
@@ -2289,6 +2490,11 @@ const deployedContracts = {
             {
               name: "account",
               type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "station_id",
+              type: "core::integer::u8",
               kind: "key",
             },
             {
@@ -2319,6 +2525,11 @@ const deployedContracts = {
               kind: "key",
             },
             {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
               name: "canceled_level",
               type: "core::integer::u8",
               kind: "data",
@@ -2336,6 +2547,11 @@ const deployedContracts = {
               kind: "key",
             },
             {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
               name: "amount",
               type: "core::integer::u256",
               kind: "data",
@@ -2343,6 +2559,77 @@ const deployedContracts = {
             {
               name: "penalty",
               type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "starkmine::mining::station_system::StationSystem::MinerAssigned",
+          kind: "struct",
+          members: [
+            {
+              name: "account",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
+              name: "token_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "miner_slot",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "starkmine::mining::station_system::StationSystem::MinerRemoved",
+          kind: "struct",
+          members: [
+            {
+              name: "account",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "station_id",
+              type: "core::integer::u8",
+              kind: "key",
+            },
+            {
+              name: "token_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "miner_slot",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "starkmine::mining::station_system::StationSystem::StationsInitialized",
+          kind: "struct",
+          members: [
+            {
+              name: "account",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "station_count",
+              type: "core::integer::u8",
               kind: "data",
             },
           ],
@@ -2387,15 +2674,30 @@ const deployedContracts = {
               type: "starkmine::mining::station_system::StationSystem::EmergencyWithdrawal",
               kind: "nested",
             },
+            {
+              name: "MinerAssigned",
+              type: "starkmine::mining::station_system::StationSystem::MinerAssigned",
+              kind: "nested",
+            },
+            {
+              name: "MinerRemoved",
+              type: "starkmine::mining::station_system::StationSystem::MinerRemoved",
+              kind: "nested",
+            },
+            {
+              name: "StationsInitialized",
+              type: "starkmine::mining::station_system::StationSystem::StationsInitialized",
+              kind: "nested",
+            },
           ],
         },
       ],
       classHash:
-        "0x13491502ee9e15ff79db5cc74601cc645a1459ca783abd043f4a6d369101e59",
+        "0x555c556552492a4746b6f9d4f28ff45fbb9b93a3af14149b11be037f442e50e",
     },
     MergeSystem: {
       address:
-        "0x2fad96c5ce3811eb466eb7e10e81fde36d9de3f62cb9c9a227b4064e3a3936e",
+        "0x36cb33537ecdf3b59b80750519ec8d9b79b6d789d886481898edea11cc5f9c6",
       abi: [
         {
           type: "impl",
@@ -2842,7 +3144,7 @@ const deployedContracts = {
     },
     RewardDistributor: {
       address:
-        "0x7c4eca4b19b3301b048355974e5ff483848c335f746ce6e7236e420badbd962",
+        "0x41dae1b17f3a2b21149f38361e8d04cbd15164de70eed4543f45b9365c34104",
       abi: [
         {
           type: "impl",

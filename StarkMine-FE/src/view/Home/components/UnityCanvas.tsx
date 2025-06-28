@@ -2,8 +2,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { Loading } from "./LoadingAnimation";
-import Background from "@/assets/bg_sunnyside.jpg";
-import Image from "next/image";
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import {
   Connector,
@@ -13,7 +11,9 @@ import {
 import { walletConfig } from "@/configs/network";
 import { ErrorLevelEnum, MessageBase, MessageEnum } from "@/type/common";
 import { balanceOf } from "@/service/readContract/balanceOf";
-import { toast } from "react-toastify";
+import { convertWeiToEther } from "@/utils/helper";
+import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
+// import { toast } from "react-toastify";
 
 export function UnityCanvas() {
   const {
@@ -46,71 +46,91 @@ export function UnityCanvas() {
     connectors: connectors as StarknetkitConnector[],
   });
   const [accountChainId, setAccountChainId] = useState<bigint>();
-
-  // interact with unity
-  const connectWallet = async (): Promise<void> => {
-    try {
-      const { connector } = await starknetkitConnectModal();
-      if (!connector) {
-        return;
-      }
-      await connect({ connector: connector as Connector });
-    } catch (e) {
-      console.log("🚀 ~ connectWal ~ e:", e);
-      sendMessage(
-        "UIManager",
-        "ResponseConnectWallet",
-        JSON.stringify({
-          status: "error",
-          message: MessageEnum.ERROR,
-          level: ErrorLevelEnum.WARNING,
-          data: {},
-        } as MessageBase)
-      );
-    }
-  };
+  const [currentAddress, setCurrentAddress] = useState<string>("");
 
   const getChainId = useCallback(async () => {
     if (!connector) return;
     const chainId = await connector.chainId();
     setAccountChainId(chainId);
+    return chainId;
   }, [connector]);
 
-  useEffect(() => {
-    const sendDataConnectWallet = async () => {
-      if (!accountChainId || !address) return;
+  const sendDataConnectWallet = async () => {
+    if (!address) return;
 
-      if (accountChainId !== walletConfig.targetNetwork.id) {
+    setCurrentAddress(address);
+    if (accountChainId !== walletConfig.targetNetwork.id) {
+      if (connector?.name === "Controller") {
+        disconnect();
+        return;
+      }
+
+      sendMessage(
+        "UIManager",
+        "ResponseConnectWallet",
+        JSON.stringify({
+          status: "error",
+          message: MessageEnum.WRONG_NETWORK,
+          level: ErrorLevelEnum.ERROR,
+          data: {},
+        } as MessageBase)
+      );
+    } else {
+      const balance = await balanceOf(address);
+
+      sendMessage(
+        "UIManager",
+        "ResponseConnectWallet",
+        JSON.stringify({
+          status: "success",
+          message: MessageEnum.SUCCESS,
+          level: ErrorLevelEnum.INFOR,
+          data: {
+            address: address,
+            balance: convertWeiToEther(balance),
+          },
+        } as MessageBase)
+      );
+    }
+  };
+
+  // interact with unity
+  const connectWallet = async (): Promise<void> => {
+    const { connector } = await starknetkitConnectModal();
+    if (!connector) {
+      return;
+    }
+    await connect({ connector: connector as Connector });
+  };
+
+  const sendMinersData = useCallback(
+    async (address: string) => {
+      if (!address) {
         sendMessage(
-          "UIManager",
-          "ResponseConnectWallet",
+          "DataManager",
+          "ResponseMinersData",
           JSON.stringify({
-            status: "error",
-            message: MessageEnum.WRONG_NETWORK,
-            level: ErrorLevelEnum.ERROR,
+            status: "success",
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
             data: {},
           } as MessageBase)
         );
-      } else {
-        const balance = await balanceOf(address);
-        sendMessage(
-          "UIManager",
-          "ResponseConnectWallet",
-          JSON.stringify({
-            status: "success",
-            message: MessageEnum.SUCCESS,
-            level: ErrorLevelEnum.INFOR,
-            data: {
-              address: address,
-              balance: balance,
-            },
-          } as MessageBase)
-        );
       }
-    };
-
-    sendDataConnectWallet();
-  }, [accountChainId, address]);
+      const minersDetails = await getMinersByOwner(address);
+      sendMessage(
+        "DataManager",
+        "ResponseMinersData",
+        JSON.stringify({
+          status: "success",
+          message: MessageEnum.SUCCESS,
+          level: ErrorLevelEnum.INFOR,
+          data: minersDetails,
+        } as MessageBase)
+      );
+    },
+    [address]
+  );
 
   // event listener
   useEffect(() => {
@@ -120,19 +140,25 @@ export function UnityCanvas() {
     addEventListener("RequestDisconnectConnectWallet", () => {
       disconnect();
     });
+    addEventListener("RequestMinersData", () => {
+      sendMinersData(address as string);
+    });
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectConnectWallet", () => {});
+      removeEventListener("RequestMinersData", () => {});
     };
   }, []);
 
   useEffect(() => {
-    if (isConnected) {
-      getChainId();
+    if (isLoaded && address && accountChainId) {
+      sendDataConnectWallet();
+      sendMinersData(address);
     }
-  }, [isConnected]);
+  }, [isLoaded, address, accountChainId]);
 
+  // ============================= DON'T TOUCH =============================
   useEffect(() => {
     if (!connector) return;
     connector.on("change", getChainId);
@@ -141,7 +167,27 @@ export function UnityCanvas() {
     };
   }, [connector]);
 
-  // Hàm tính toán kích thước canvas với tỷ lệ 16:9
+  useEffect(() => {
+    if (isConnected) {
+      getChainId();
+    }
+  }, [isConnected]);
+
+  useEffect(() => {
+    if (!address) {
+      setCurrentAddress("");
+      return;
+    }
+    if (!currentAddress && address) {
+      setCurrentAddress(address);
+      return;
+    }
+    if (currentAddress == address) return;
+
+    setCurrentAddress(address);
+    window.location.reload();
+  }, [address]);
+
   const updateCanvasSize = useCallback(() => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -184,10 +230,20 @@ export function UnityCanvas() {
     },
     [devicePixelRatio]
   );
+  // ============================= DON'T TOUCH =============================
 
   return (
     <>
       <div>
+        <button
+          onClick={() =>
+            getMinersByOwner(
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+            )
+          }
+        >
+          Get data
+        </button>
         {isConnected && <div>Connected: {address}</div>}
         {isConnected && (
           <button onClick={() => disconnect()}>Disconnect</button>
@@ -201,13 +257,6 @@ export function UnityCanvas() {
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
           <div className="flex flex-col loading-overlay absolute top-0 bottom-0 right-0 left-0 h-full w-full items-center justify-center">
-            <Image
-              width={1440}
-              height={1000}
-              src={Background.src}
-              alt="background"
-              className="absolute top-0 bottom-0 right-0 left-0 min-w-full w-auto h-screen object-cover"
-            />
             <div className="absolute top-[10%]  right-[5%]">
               <Loading
                 onAnimationComplete={() => {

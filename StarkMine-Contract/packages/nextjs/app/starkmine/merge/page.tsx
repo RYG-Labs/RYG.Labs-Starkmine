@@ -206,13 +206,13 @@ const MergePage: NextPage = () => {
                 <div className="stat">
                     <div className="stat-title">MINE Balance</div>
                     <div className="stat-value text-lg">
-                        {formatTokenAmount(mineBalance as bigint)} MINE
+                        {formatTokenAmount(mineBalance ? BigInt(mineBalance.toString()) : BigInt(0))} MINE
                     </div>
                 </div>
                 <div className="stat">
                     <div className="stat-title">STRK Balance</div>
                     <div className="stat-value text-lg">
-                        {formatTokenAmount(strkBalance as bigint)} STRK
+                        {formatTokenAmount(strkBalance ? BigInt(strkBalance.toString()) : BigInt(0))} STRK
                     </div>
                 </div>
             </div>
@@ -256,7 +256,7 @@ const MergePage: NextPage = () => {
                                 <div className="flex justify-between">
                                     <span>Current Success Rate:</span>
                                     <span className="font-mono text-success">
-                                        {formatPercentage(currentSuccessRate as bigint)}
+                                        {formatPercentage(currentSuccessRate ? BigInt(currentSuccessRate.toString()) : BigInt(0))}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -325,16 +325,16 @@ const MergePage: NextPage = () => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between">
                                         <span>Total Attempts:</span>
-                                        <span className="font-mono">{globalStats[0]?.toString()}</span>
+                                        <span className="font-mono">{Array.isArray(globalStats) ? globalStats[0]?.toString() : globalStats?.toString()}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Successful Merges:</span>
-                                        <span className="font-mono">{globalStats[1]?.toString()}</span>
+                                        <span className="font-mono">{Array.isArray(globalStats) && globalStats.length > 1 ? globalStats[1]?.toString() : "0"}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Global Success Rate:</span>
                                         <span className="font-mono">
-                                            {globalStats[0] && Number(globalStats[0]) > 0
+                                            {Array.isArray(globalStats) && globalStats[0] && Number(globalStats[0]) > 0 && globalStats.length > 1
                                                 ? `${((Number(globalStats[1]) / Number(globalStats[0])) * 100).toFixed(1)}%`
                                                 : "0%"
                                             }
@@ -441,7 +441,7 @@ const MergePage: NextPage = () => {
                                         ({selectedTierCombo.from} → {selectedTierCombo.to})
                                     </p>
                                     <p className="text-sm">
-                                        Success Rate: {formatPercentage(currentSuccessRate as bigint)} |
+                                        Success Rate: {formatPercentage(currentSuccessRate ? BigInt(currentSuccessRate.toString()) : BigInt(0))} |
                                         Cost: {formatTokenAmount(mergeConfig?.cost_mine)} MINE + {formatTokenAmount(mergeConfig?.cost_strk)} STRK
                                     </p>
                                 </div>

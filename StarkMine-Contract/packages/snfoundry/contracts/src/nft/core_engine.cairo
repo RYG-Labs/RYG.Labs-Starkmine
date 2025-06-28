@@ -5,6 +5,7 @@ mod CoreEngine {
     use core::cmp::min;
     use core::num::traits::Zero;
     use starkmine::interfaces::icore_engine::{EngineInfo, EngineTypeConfig, ICoreEngine};
+    use starkmine::nft::miner_nft::{IMinerNFTDispatcher, IMinerNFTDispatcherTrait};
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
@@ -43,6 +44,7 @@ mod CoreEngine {
         EngineDetached: EngineDetached,
         EngineRepaired: EngineRepaired,
         EngineExpired: EngineExpired,
+        EngineDefused: EngineDefused,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -112,6 +114,15 @@ mod CoreEngine {
     struct EngineExpired {
         #[key]
         engine_id: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct EngineDefused {
+        #[key]
+        engine_id: u256,
+        #[key]
+        owner: ContractAddress,
+        refund_amount: u256,
     }
 
     #[constructor]
@@ -253,8 +264,12 @@ mod CoreEngine {
             assert!(engine.attached_miner == 0, "Engine already attached");
             assert!(!self.is_engine_expired(engine_id), "Engine expired");
 
-            // TODO: Verify miner ownership and validate miner contract
-            // This would interact with the MinerNFT contract
+            // Validate that engine type matches miner tier
+            let miner_nft_dispatcher = IMinerNFTDispatcher {
+                contract_address: self.miner_nft_contract.read(),
+            };
+            let miner_info = miner_nft_dispatcher.get_miner_info(miner_id);
+            assert!(engine.engine_type == miner_info.tier, "Engine type must match miner tier");
 
             engine.attached_miner = miner_id;
             engine.is_active = true;
@@ -318,6 +333,43 @@ mod CoreEngine {
                         engine_id, cost: repair_cost, durability_restored: max_restorable,
                     },
                 );
+        }
+
+        fn defuse_engine(ref self: ContractState, engine_id: u256) -> u256 {
+            self.require_not_paused();
+            let caller = get_caller_address();
+            self.require_approved_or_owner(caller, engine_id);
+
+            let engine = self.engines.read(engine_id);
+            assert!(engine.attached_miner == 0, "Cannot defuse attached engine");
+
+            let config = self.engine_type_configs.read(engine.engine_type);
+            let owner = self.owner_of(engine_id);
+
+            // Calculate refund amount: 60% of original mint cost based on remaining durability
+            let remaining_durability = self.get_engine_remaining_durability(engine_id);
+            let durability_percentage = if engine.durability > 0 {
+                (remaining_durability * 100) / engine.durability
+            } else {
+                0
+            };
+
+            // Base refund: 40% of mint cost + 20% bonus based on remaining durability
+            let base_refund_percentage = 40;
+            let bonus_percentage = (durability_percentage * 20) / 100;
+            let total_refund_percentage = base_refund_percentage + bonus_percentage;
+
+            let refund_amount = (config.mint_cost * total_refund_percentage.into()) / 100;
+
+            // Burn the NFT
+            self._burn(engine_id);
+
+            // Return MINE tokens
+            self._return_mine_tokens(owner, refund_amount);
+
+            self.emit(EngineDefused { engine_id, owner, refund_amount });
+
+            refund_amount
         }
 
         fn get_engine_info(self: @ContractState, engine_id: u256) -> EngineInfo {
@@ -406,7 +458,7 @@ mod CoreEngine {
     #[generate_trait]
     impl CoreEngineInternalImpl of CoreEngineInternalTrait {
         fn initialize_engine_types(ref self: ContractState) {
-            // Standard Engine: 20% efficiency bonus, 30 days durability
+            // Basic Engine: 20% efficiency bonus, 30 days durability
             let blocks_per_month = 30
                 * 24
                 * 60
@@ -414,7 +466,7 @@ mod CoreEngine {
             self
                 .engine_type_configs
                 .write(
-                    'Standard',
+                    'Basic',
                     EngineTypeConfig {
                         efficiency_bonus: 2000, // 20%
                         durability: blocks_per_month,
@@ -423,11 +475,11 @@ mod CoreEngine {
                     },
                 );
 
-            // Premium Engine: 35% efficiency bonus, 45 days durability
+            // Elite Engine: 35% efficiency bonus, 45 days durability
             self
                 .engine_type_configs
                 .write(
-                    'Premium',
+                    'Elite',
                     EngineTypeConfig {
                         efficiency_bonus: 3500, // 35%
                         durability: (blocks_per_month * 45) / 30,
@@ -436,16 +488,29 @@ mod CoreEngine {
                     },
                 );
 
-            // Elite Engine: 50% efficiency bonus, 60 days durability
+            // Pro Engine: 50% efficiency bonus, 60 days durability
             self
                 .engine_type_configs
                 .write(
-                    'Elite',
+                    'Pro',
                     EngineTypeConfig {
                         efficiency_bonus: 5000, // 50%
                         durability: blocks_per_month * 2,
                         mint_cost: 3000_000_000_000_000_000_000, // 3000 MINE
                         repair_cost_base: 200_000_000_000_000_000_000 // 200 MINE base
+                    },
+                );
+
+            // GIGA Engine: 70% efficiency bonus, 90 days durability
+            self
+                .engine_type_configs
+                .write(
+                    'GIGA',
+                    EngineTypeConfig {
+                        efficiency_bonus: 7000, // 70%
+                        durability: blocks_per_month * 3,
+                        mint_cost: 5000_000_000_000_000_000_000, // 5000 MINE
+                        repair_cost_base: 300_000_000_000_000_000_000 // 300 MINE base
                     },
                 );
         }
@@ -454,6 +519,41 @@ mod CoreEngine {
             if amount > 0 { // TODO: Transfer MINE tokens from user
             // This would interact with the MINE token contract
             }
+        }
+
+        fn _return_mine_tokens(ref self: ContractState, to: ContractAddress, amount: u256) {
+            if amount > 0 { // TODO: Transfer MINE tokens to user
+            // This would interact with the MINE token contract to return tokens
+            }
+        }
+
+        fn _burn(ref self: ContractState, token_id: u256) {
+            let owner = self.owner_of(token_id);
+
+            // Clear approvals
+            self.token_approvals.write(token_id, Zero::zero());
+
+            // Update balance
+            let balance = self.balances.read(owner);
+            self.balances.write(owner, balance - 1);
+
+            // Remove owner
+            self.owners.write(token_id, Zero::zero());
+
+            // Clear engine data
+            let empty_engine = EngineInfo {
+                engine_type: 0,
+                efficiency_bonus: 0,
+                durability: 0,
+                blocks_used: 0,
+                last_used_block: 0,
+                attached_miner: 0,
+                is_active: false,
+            };
+            self.engines.write(token_id, empty_engine);
+
+            let zero_address: ContractAddress = Zero::zero();
+            self.emit(Transfer { from: owner, to: zero_address, token_id });
         }
 
         fn calculate_repair_cost(

@@ -523,6 +523,23 @@ const MinersPage: NextPage = () => {
                 </p>
             </div>
 
+            {/* Engine-Miner Compatibility Info */}
+            <div className="alert alert-info">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 className="font-bold">🔗 Core Engine Compatibility</h3>
+                    <p className="text-sm">
+                        To ignite a miner, you need a matching core engine:
+                        🥉 Basic miners need Basic engines,
+                        🥈 Elite miners need Elite engines,
+                        🥇 Pro miners need Pro engines,
+                        💎 GIGA miners need GIGA engines.
+                    </p>
+                </div>
+            </div>
+
             {/* User Stats */}
             {/* <div className="stats shadow w-full">
                 <div className="stat">
@@ -771,6 +788,9 @@ const MinersPage: NextPage = () => {
                                             <div className="mb-3">
                                                 <label className="label">
                                                     <span className="label-text text-xs font-semibold">Select Core Engine:</span>
+                                                    <span className="label-text-alt text-xs opacity-60">
+                                                        Must match miner tier ({miner.info.tier})
+                                                    </span>
                                                 </label>
                                                 {loadingCoreEngines ? (
                                                     <div className="flex justify-center">
@@ -782,9 +802,12 @@ const MinersPage: NextPage = () => {
                                                         value={selectedCoreEngineIds[miner.tokenId.toString()] || ''}
                                                         onChange={(e) => handleCoreEngineIdChange(miner.tokenId.toString(), e.target.value)}
                                                     >
-                                                        <option value="">Select Core Engine</option>
+                                                        <option value="">Select Compatible {miner.info.tier} Core Engine</option>
                                                         {userCoreEngines
-                                                            .filter(engine => engine.info.attached_miner === 0n) // Only show unattached engines
+                                                            .filter(engine =>
+                                                                engine.info.attached_miner === 0n && // Only show unattached engines
+                                                                engine.info.engine_type === miner.info.tier // Only show engines matching miner tier
+                                                            )
                                                             .map((engine) => (
                                                                 <option key={engine.tokenId.toString()} value={engine.tokenId.toString()}>
                                                                     #{engine.tokenId.toString()} - {engine.info.engine_type}
@@ -795,9 +818,20 @@ const MinersPage: NextPage = () => {
                                                     </select>
                                                 ) : (
                                                     <div className="text-center text-sm text-base-content/70 py-2">
-                                                        No available core engines found
+                                                        No compatible {miner.info.tier} core engines found
                                                     </div>
                                                 )}
+                                                {userCoreEngines.filter(engine =>
+                                                    engine.info.attached_miner === 0n &&
+                                                    engine.info.engine_type === miner.info.tier
+                                                ).length === 0 && userCoreEngines.filter(engine => engine.info.attached_miner === 0n).length > 0 && (
+                                                        <div className="alert alert-warning mt-2 p-2">
+                                                            <span className="text-xs">
+                                                                ⚠️ You have core engines, but none match this {miner.info.tier} miner tier.
+                                                                Only {miner.info.tier} engines can be attached to {miner.info.tier} miners.
+                                                            </span>
+                                                        </div>
+                                                    )}
                                             </div>
                                         )}
 

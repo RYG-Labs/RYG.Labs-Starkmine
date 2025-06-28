@@ -4,15 +4,19 @@ import { jsonRpcProvider } from "@starknet-react/core";
 import { constants } from "starknet";
 import { InjectedConnector } from "starknetkit/injected";
 
+const targetNetwork = sepolia;
+
+const cartridgeRpcUrl = targetNetwork.id === mainnet.id ? "https://api.cartridge.gg/x/starknet/mainnet" : "https://api.cartridge.gg/x/starknet/sepolia";
+
 const cartridgeConnector = new ControllerConnector({
   // policies,
   // rpc: 'https://api.cartridge.gg/x/starknet/sepolia',
   chains: [
     {
-      rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
+      rpcUrl: cartridgeRpcUrl,
     },
   ],
-  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  defaultChainId: targetNetwork.id === mainnet.id ? constants.StarknetChainId.SN_MAIN : constants.StarknetChainId.SN_SEPOLIA,
 });
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -26,6 +30,7 @@ const provider = jsonRpcProvider({
   },
 });
 const connectors = [
+
   cartridgeConnector,
   new InjectedConnector({
     options: { id: "argentX", name: "Argent X" },
@@ -37,7 +42,7 @@ const connectors = [
 ];
 
 export const walletConfig = {
-  targetNetwork: sepolia,
+  targetNetwork: targetNetwork,
   walletsSupported: connectors,
   provider,
 };

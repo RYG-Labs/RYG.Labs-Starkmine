@@ -1,6 +1,5 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
-"Don't use `q` when in zsh. Ignore it.

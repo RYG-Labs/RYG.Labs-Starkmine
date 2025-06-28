@@ -44,6 +44,7 @@ pub trait ICoreEngine<TContractState> {
     );
     fn detach_from_miner(ref self: TContractState, engine_id: u256, owner: ContractAddress);
     fn repair_engine(ref self: TContractState, engine_id: u256, durability_to_restore: u64);
+    fn defuse_engine(ref self: TContractState, engine_id: u256) -> u256;
     fn get_engine_info(self: @TContractState, engine_id: u256) -> EngineInfo;
     fn get_engine_remaining_durability(self: @TContractState, engine_id: u256) -> u64;
     fn is_engine_expired(self: @TContractState, engine_id: u256) -> bool;

@@ -16,7 +16,8 @@ mod StationSystem {
         pub mine_locked: u256, // Amount of MINE tokens locked
         pub lock_timestamp: u64, // When tokens were locked
         pub unlock_timestamp: u64, // When tokens can be unlocked (for downgrades)
-        pub pending_downgrade: u8 // Pending downgrade level (0 if none)
+        pub pending_downgrade: u8, // Pending downgrade level (0 if none)
+        pub miner_count: u8 // Number of miners assigned to this station
     }
 
     #[derive(Drop, Serde, starknet::Store, Copy)]
@@ -26,13 +27,28 @@ mod StationSystem {
         pub unlock_period: u64 // Blocks to wait for downgrade
     }
 
+    #[derive(Drop, Serde, starknet::Store, Copy)]
+    pub struct MinerAssignment {
+        pub token_id: u256, // NFT token ID (0 if slot is empty)
+        pub assigned_timestamp: u64 // When the miner was assigned
+    }
+
     const SECONDS_PER_DAY: u64 = 86400;
     const UNLOCK_PERIOD_DAYS: u64 = 14;
+    const DEFAULT_STATIONS_COUNT: u8 = 10;
+    const MAX_MINERS_PER_STATION: u8 = 6;
 
     #[storage]
     struct Storage {
-        // Station data per account
-        stations: Map<ContractAddress, StationInfo>,
+        // Station data per account and station ID: (account, station_id) -> StationInfo
+        stations: Map<(ContractAddress, u8), StationInfo>,
+        // User station count tracking
+        user_station_count: Map<ContractAddress, u8>,
+        // Miner assignments per station: (account, station_id, miner_slot) -> MinerAssignment
+        station_miners: Map<(ContractAddress, u8, u8), MinerAssignment>,
+        // Track which station a miner is assigned to: (account, token_id) -> station_id (0 if
+        // unassigned)
+        miner_station_assignment: Map<(ContractAddress, u256), u8>,
         level_configs: Map<u8, LevelConfig>,
         // Contract addresses
         mine_token_address: ContractAddress,
@@ -55,12 +71,17 @@ mod StationSystem {
         DowngradeRequested: DowngradeRequested,
         DowngradeCanceled: DowngradeCanceled,
         EmergencyWithdrawal: EmergencyWithdrawal,
+        MinerAssigned: MinerAssigned,
+        MinerRemoved: MinerRemoved,
+        StationsInitialized: StationsInitialized,
     }
 
     #[derive(Drop, starknet::Event)]
     struct StationUpgraded {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         old_level: u8,
         new_level: u8,
         new_multiplier: u128,
@@ -71,6 +92,8 @@ mod StationSystem {
     struct StationDowngraded {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         old_level: u8,
         new_level: u8,
         new_multiplier: u128,
@@ -81,6 +104,8 @@ mod StationSystem {
     struct TokensLocked {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         amount: u256,
         new_total: u256,
     }
@@ -89,6 +114,8 @@ mod StationSystem {
     struct TokensUnlocked {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         amount: u256,
         remaining: u256,
     }
@@ -97,6 +124,8 @@ mod StationSystem {
     struct DowngradeRequested {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         current_level: u8,
         target_level: u8,
         unlock_timestamp: u64,
@@ -106,6 +135,8 @@ mod StationSystem {
     struct DowngradeCanceled {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         canceled_level: u8,
     }
 
@@ -113,8 +144,39 @@ mod StationSystem {
     struct EmergencyWithdrawal {
         #[key]
         account: ContractAddress,
+        #[key]
+        station_id: u8,
         amount: u256,
         penalty: u256,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct MinerAssigned {
+        #[key]
+        account: ContractAddress,
+        #[key]
+        station_id: u8,
+        #[key]
+        token_id: u256,
+        miner_slot: u8,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct MinerRemoved {
+        #[key]
+        account: ContractAddress,
+        #[key]
+        station_id: u8,
+        #[key]
+        token_id: u256,
+        miner_slot: u8,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct StationsInitialized {
+        #[key]
+        account: ContractAddress,
+        station_count: u8,
     }
 
     #[constructor]
@@ -133,12 +195,45 @@ mod StationSystem {
 
     #[abi(embed_v0)]
     impl StationSystemImpl of IStationSystem<ContractState> {
-        fn upgrade_station(ref self: ContractState, target_level: u8) {
+        fn initialize_user_stations(ref self: ContractState) {
+            let caller = get_caller_address();
+            let current_count = self.user_station_count.read(caller);
+
+            // Only initialize if user doesn't have stations yet
+            assert!(current_count == 0, "Stations already initialized");
+
+            // Create 10 default stations at level 0
+            let mut i: u8 = 1;
+            while i <= DEFAULT_STATIONS_COUNT {
+                let level_0_config = self.level_configs.read(0);
+                let station_info = StationInfo {
+                    level: 0,
+                    multiplier: level_0_config.multiplier,
+                    mine_locked: 0,
+                    lock_timestamp: 0,
+                    unlock_timestamp: 0,
+                    pending_downgrade: 0,
+                    miner_count: 0,
+                };
+                self.stations.write((caller, i), station_info);
+                i += 1;
+            }
+
+            self.user_station_count.write(caller, DEFAULT_STATIONS_COUNT);
+
+            self
+                .emit(
+                    StationsInitialized { account: caller, station_count: DEFAULT_STATIONS_COUNT },
+                );
+        }
+
+        fn upgrade_station(ref self: ContractState, station_id: u8, target_level: u8) {
             self.require_not_paused();
             let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
             assert!(target_level > 0 && target_level <= self.max_level.read(), "Invalid level");
 
-            let mut station = self.stations.read(caller);
+            let mut station = self.stations.read((caller, station_id));
             assert!(target_level > station.level, "Can only upgrade to higher level");
             assert!(station.pending_downgrade == 0, "Cannot upgrade during pending downgrade");
 
@@ -150,7 +245,7 @@ mod StationSystem {
 
             if additional_mine > 0 {
                 // Process MINE token lock
-                self.lock_mine_tokens(caller, additional_mine);
+                self.lock_mine_tokens(caller, station_id, additional_mine);
             }
 
             let old_level = station.level;
@@ -158,15 +253,16 @@ mod StationSystem {
             station.multiplier = target_config.multiplier;
             station.mine_locked = target_config.mine_required;
             station.lock_timestamp = get_block_number().try_into().unwrap();
-            self.stations.write(caller, station);
+            self.stations.write((caller, station_id), station);
 
-            // Sync hash power for all user's miners since station multiplier changed
-            self.sync_user_miners_hash_power(caller);
+            // Sync hash power for all miners in this station
+            self.sync_station_miners_hash_power(caller, station_id);
 
             self
                 .emit(
                     StationUpgraded {
                         account: caller,
+                        station_id,
                         old_level,
                         new_level: target_level,
                         new_multiplier: target_config.multiplier,
@@ -175,11 +271,12 @@ mod StationSystem {
                 );
         }
 
-        fn request_downgrade(ref self: ContractState, target_level: u8) {
+        fn request_downgrade(ref self: ContractState, station_id: u8, target_level: u8) {
             self.require_not_paused();
             let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
 
-            let mut station = self.stations.read(caller);
+            let mut station = self.stations.read((caller, station_id));
             assert!(target_level < station.level, "Can only downgrade to lower level");
             assert!(station.pending_downgrade == 0, "Downgrade already pending");
 
@@ -188,12 +285,13 @@ mod StationSystem {
 
             station.pending_downgrade = target_level;
             station.unlock_timestamp = unlock_timestamp;
-            self.stations.write(caller, station);
+            self.stations.write((caller, station_id), station);
 
             self
                 .emit(
                     DowngradeRequested {
                         account: caller,
+                        station_id,
                         current_level: station.level,
                         target_level,
                         unlock_timestamp,
@@ -201,11 +299,12 @@ mod StationSystem {
                 );
         }
 
-        fn execute_downgrade(ref self: ContractState) {
+        fn execute_downgrade(ref self: ContractState, station_id: u8) {
             self.require_not_paused();
             let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
 
-            let mut station = self.stations.read(caller);
+            let mut station = self.stations.read((caller, station_id));
             assert!(station.pending_downgrade > 0, "No pending downgrade");
 
             let current_block = get_block_number().try_into().unwrap();
@@ -224,20 +323,21 @@ mod StationSystem {
             station.mine_locked = target_config.mine_required;
             station.pending_downgrade = 0;
             station.unlock_timestamp = 0;
-            self.stations.write(caller, station);
+            self.stations.write((caller, station_id), station);
 
             // Unlock MINE tokens
             if mine_to_unlock > 0 {
-                self.unlock_mine_tokens(caller, mine_to_unlock);
+                self.unlock_mine_tokens(caller, station_id, mine_to_unlock);
             }
 
-            // Sync hash power for all user's miners since station multiplier changed
-            self.sync_user_miners_hash_power(caller);
+            // Sync hash power for all miners in this station
+            self.sync_station_miners_hash_power(caller, station_id);
 
             self
                 .emit(
                     StationDowngraded {
                         account: caller,
+                        station_id,
                         old_level,
                         new_level: target_level,
                         new_multiplier: target_config.multiplier,
@@ -246,26 +346,28 @@ mod StationSystem {
                 );
         }
 
-        fn cancel_downgrade(ref self: ContractState) {
+        fn cancel_downgrade(ref self: ContractState, station_id: u8) {
             self.require_not_paused();
             let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
 
-            let mut station = self.stations.read(caller);
+            let mut station = self.stations.read((caller, station_id));
             assert!(station.pending_downgrade > 0, "No pending downgrade");
 
             let canceled_level = station.pending_downgrade;
             station.pending_downgrade = 0;
             station.unlock_timestamp = 0;
-            self.stations.write(caller, station);
+            self.stations.write((caller, station_id), station);
 
-            self.emit(DowngradeCanceled { account: caller, canceled_level });
+            self.emit(DowngradeCanceled { account: caller, station_id, canceled_level });
         }
 
-        fn emergency_withdraw(ref self: ContractState) {
+        fn emergency_withdraw(ref self: ContractState, station_id: u8) {
             self.require_not_paused();
             let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
 
-            let mut station = self.stations.read(caller);
+            let mut station = self.stations.read((caller, station_id));
             assert!(station.mine_locked > 0, "No locked tokens");
 
             // Apply 20% penalty for emergency withdrawal
@@ -280,24 +382,104 @@ mod StationSystem {
             station.mine_locked = 0;
             station.pending_downgrade = 0;
             station.unlock_timestamp = 0;
-            self.stations.write(caller, station);
+            self.stations.write((caller, station_id), station);
 
             // Unlock tokens with penalty
-            self.unlock_mine_tokens(caller, withdrawal_amount);
+            self.unlock_mine_tokens(caller, station_id, withdrawal_amount);
             // TODO: Handle penalty (burn or send to treasury)
 
-            // Sync hash power for all user's miners since station was reset to level 0
-            self.sync_user_miners_hash_power(caller);
+            // Sync hash power for all miners in this station
+            self.sync_station_miners_hash_power(caller, station_id);
 
-            self.emit(EmergencyWithdrawal { account: caller, amount: withdrawal_amount, penalty });
+            self
+                .emit(
+                    EmergencyWithdrawal {
+                        account: caller, station_id, amount: withdrawal_amount, penalty,
+                    },
+                );
         }
 
-        fn get_station_info(self: @ContractState, account: ContractAddress) -> StationInfo {
-            self.stations.read(account)
+        fn assign_miner_to_station(ref self: ContractState, station_id: u8, token_id: u256) {
+            self.require_not_paused();
+            let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
+
+            // Check if miner is already assigned somewhere
+            let current_assignment = self.miner_station_assignment.read((caller, token_id));
+            assert!(current_assignment == 0, "Miner already assigned to a station");
+
+            // Check station capacity
+            let mut station = self.stations.read((caller, station_id));
+            assert!(station.miner_count < MAX_MINERS_PER_STATION, "Station at maximum capacity");
+
+            // Find empty slot
+            let mut slot: u8 = 1;
+            let mut found_slot = false;
+            while slot <= MAX_MINERS_PER_STATION && !found_slot {
+                let assignment = self.station_miners.read((caller, station_id, slot));
+                if assignment.token_id == 0 {
+                    found_slot = true;
+                } else {
+                    slot += 1;
+                }
+            }
+
+            assert!(found_slot, "No available slot found");
+
+            // Assign miner to slot
+            let assignment = MinerAssignment {
+                token_id, assigned_timestamp: get_block_number().try_into().unwrap(),
+            };
+            self.station_miners.write((caller, station_id, slot), assignment);
+            self.miner_station_assignment.write((caller, token_id), station_id);
+
+            // Update station miner count
+            station.miner_count += 1;
+            self.stations.write((caller, station_id), station);
+
+            // Sync miner hash power
+            self.sync_miner_hash_power_internal(token_id);
+
+            self.emit(MinerAssigned { account: caller, station_id, token_id, miner_slot: slot });
         }
 
-        fn get_account_multiplier(self: @ContractState, account: ContractAddress) -> u128 {
-            let station = self.stations.read(account);
+        fn remove_miner_from_station(ref self: ContractState, station_id: u8, miner_slot: u8) {
+            self.require_not_paused();
+            let caller = get_caller_address();
+            self.require_valid_station(caller, station_id);
+            assert!(miner_slot > 0 && miner_slot <= MAX_MINERS_PER_STATION, "Invalid miner slot");
+
+            let assignment = self.station_miners.read((caller, station_id, miner_slot));
+            assert!(assignment.token_id != 0, "No miner in this slot");
+
+            let token_id = assignment.token_id;
+
+            // Remove assignment
+            let empty_assignment = MinerAssignment { token_id: 0, assigned_timestamp: 0 };
+            self.station_miners.write((caller, station_id, miner_slot), empty_assignment);
+            self.miner_station_assignment.write((caller, token_id), 0);
+
+            // Update station miner count
+            let mut station = self.stations.read((caller, station_id));
+            station.miner_count -= 1;
+            self.stations.write((caller, station_id), station);
+
+            // Sync miner hash power (now without station bonus)
+            self.sync_miner_hash_power_internal(token_id);
+
+            self.emit(MinerRemoved { account: caller, station_id, token_id, miner_slot });
+        }
+
+        fn get_station_info(
+            self: @ContractState, account: ContractAddress, station_id: u8,
+        ) -> StationInfo {
+            self.stations.read((account, station_id))
+        }
+
+        fn get_account_multiplier(
+            self: @ContractState, account: ContractAddress, station_id: u8,
+        ) -> u128 {
+            let station = self.stations.read((account, station_id));
 
             // If station is uninitialized (multiplier = 0), return Level 0 multiplier
             if station.multiplier == 0 {
@@ -308,12 +490,41 @@ mod StationSystem {
             station.multiplier
         }
 
+        fn get_miner_station_assignment(
+            self: @ContractState, account: ContractAddress, token_id: u256,
+        ) -> u8 {
+            self.miner_station_assignment.read((account, token_id))
+        }
+
+        fn get_station_miners(
+            self: @ContractState, account: ContractAddress, station_id: u8,
+        ) -> Array<u256> {
+            let mut miners = ArrayTrait::new();
+            let mut slot: u8 = 1;
+
+            while slot <= MAX_MINERS_PER_STATION {
+                let assignment = self.station_miners.read((account, station_id, slot));
+                if assignment.token_id != 0 {
+                    miners.append(assignment.token_id);
+                }
+                slot += 1;
+            }
+
+            miners
+        }
+
+        fn get_user_station_count(self: @ContractState, account: ContractAddress) -> u8 {
+            self.user_station_count.read(account)
+        }
+
         fn get_level_config(self: @ContractState, level: u8) -> LevelConfig {
             self.level_configs.read(level)
         }
 
-        fn get_time_until_unlock(self: @ContractState, account: ContractAddress) -> u64 {
-            let station = self.stations.read(account);
+        fn get_time_until_unlock(
+            self: @ContractState, account: ContractAddress, station_id: u8,
+        ) -> u64 {
+            let station = self.stations.read((account, station_id));
             if station.pending_downgrade == 0 {
                 return 0;
             }
@@ -326,8 +537,10 @@ mod StationSystem {
             station.unlock_timestamp - current_block
         }
 
-        fn can_execute_downgrade(self: @ContractState, account: ContractAddress) -> bool {
-            let station = self.stations.read(account);
+        fn can_execute_downgrade(
+            self: @ContractState, account: ContractAddress, station_id: u8,
+        ) -> bool {
+            let station = self.stations.read((account, station_id));
             if station.pending_downgrade == 0 {
                 return false;
             }
@@ -436,7 +649,9 @@ mod StationSystem {
                 );
         }
 
-        fn lock_mine_tokens(ref self: ContractState, from: ContractAddress, amount: u256) {
+        fn lock_mine_tokens(
+            ref self: ContractState, from: ContractAddress, station_id: u8, amount: u256,
+        ) {
             if amount > 0 {
                 // TODO: Transfer MINE tokens from user to contract
                 // This would interact with the MINE token contract
@@ -445,14 +660,17 @@ mod StationSystem {
                     .emit(
                         TokensLocked {
                             account: from,
+                            station_id,
                             amount,
-                            new_total: self.stations.read(from).mine_locked + amount,
+                            new_total: self.stations.read((from, station_id)).mine_locked + amount,
                         },
                     );
             }
         }
 
-        fn unlock_mine_tokens(ref self: ContractState, to: ContractAddress, amount: u256) {
+        fn unlock_mine_tokens(
+            ref self: ContractState, to: ContractAddress, station_id: u8, amount: u256,
+        ) {
             if amount > 0 {
                 // TODO: Transfer MINE tokens from contract to user
                 // This would interact with the MINE token contract
@@ -461,8 +679,9 @@ mod StationSystem {
                     .emit(
                         TokensUnlocked {
                             account: to,
+                            station_id,
                             amount,
-                            remaining: self.stations.read(to).mine_locked - amount,
+                            remaining: self.stations.read((to, station_id)).mine_locked - amount,
                         },
                     );
             }
@@ -476,12 +695,24 @@ mod StationSystem {
             assert!(!self.paused.read(), "Contract is paused");
         }
 
-        fn sync_user_miners_hash_power(ref self: ContractState, account: ContractAddress) {
-            // Since we can't track which miners a user owns from this contract,
-            // we'll provide a public function for external systems to call
-            // This is a placeholder - the actual sync will happen via public function
-            let _miner_nft_address = self.miner_nft_contract.read();
-            // In practice, the frontend will call sync_miner_hash_power for each owned miner
+        fn require_valid_station(self: @ContractState, account: ContractAddress, station_id: u8) {
+            let station_count = self.user_station_count.read(account);
+            assert!(station_count > 0, "User stations not initialized");
+            assert!(station_id > 0 && station_id <= station_count, "Invalid station ID");
+        }
+
+        fn sync_station_miners_hash_power(
+            ref self: ContractState, account: ContractAddress, station_id: u8,
+        ) {
+            // Sync hash power for all miners in a specific station
+            let mut slot: u8 = 1;
+            while slot <= MAX_MINERS_PER_STATION {
+                let assignment = self.station_miners.read((account, station_id, slot));
+                if assignment.token_id != 0 {
+                    self.sync_miner_hash_power_internal(assignment.token_id);
+                }
+                slot += 1;
+            };
         }
 
         fn sync_miner_hash_power_internal(ref self: ContractState, token_id: u256) {
@@ -498,18 +729,39 @@ mod StationSystem {
 // Interface for the StationSystem contract
 #[starknet::interface]
 pub trait IStationSystem<TContractState> {
-    fn upgrade_station(ref self: TContractState, target_level: u8);
-    fn request_downgrade(ref self: TContractState, target_level: u8);
-    fn execute_downgrade(ref self: TContractState);
-    fn cancel_downgrade(ref self: TContractState);
-    fn emergency_withdraw(ref self: TContractState);
+    // Station management
+    fn initialize_user_stations(ref self: TContractState);
+    fn upgrade_station(ref self: TContractState, station_id: u8, target_level: u8);
+    fn request_downgrade(ref self: TContractState, station_id: u8, target_level: u8);
+    fn execute_downgrade(ref self: TContractState, station_id: u8);
+    fn cancel_downgrade(ref self: TContractState, station_id: u8);
+    fn emergency_withdraw(ref self: TContractState, station_id: u8);
+
+    // Miner assignment
+    fn assign_miner_to_station(ref self: TContractState, station_id: u8, token_id: u256);
+    fn remove_miner_from_station(ref self: TContractState, station_id: u8, miner_slot: u8);
+
+    // View functions
     fn get_station_info(
-        self: @TContractState, account: starknet::ContractAddress,
+        self: @TContractState, account: starknet::ContractAddress, station_id: u8,
     ) -> StationSystem::StationInfo;
-    fn get_account_multiplier(self: @TContractState, account: starknet::ContractAddress) -> u128;
+    fn get_account_multiplier(
+        self: @TContractState, account: starknet::ContractAddress, station_id: u8,
+    ) -> u128;
+    fn get_miner_station_assignment(
+        self: @TContractState, account: starknet::ContractAddress, token_id: u256,
+    ) -> u8;
+    fn get_station_miners(
+        self: @TContractState, account: starknet::ContractAddress, station_id: u8,
+    ) -> Array<u256>;
+    fn get_user_station_count(self: @TContractState, account: starknet::ContractAddress) -> u8;
     fn get_level_config(self: @TContractState, level: u8) -> StationSystem::LevelConfig;
-    fn get_time_until_unlock(self: @TContractState, account: starknet::ContractAddress) -> u64;
-    fn can_execute_downgrade(self: @TContractState, account: starknet::ContractAddress) -> bool;
+    fn get_time_until_unlock(
+        self: @TContractState, account: starknet::ContractAddress, station_id: u8,
+    ) -> u64;
+    fn can_execute_downgrade(
+        self: @TContractState, account: starknet::ContractAddress, station_id: u8,
+    ) -> bool;
 
     // Admin functions
     fn set_mine_token_address(ref self: TContractState, token: starknet::ContractAddress);
