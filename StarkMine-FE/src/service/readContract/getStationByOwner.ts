@@ -56,14 +56,8 @@ const getAllStations = async (userAddress: string, stationCount: number) => {
 
 export const getStationsByOwner = async (account: AccountInterface, userAddress: string): Promise<MessageBase> => {
     try {
-        const StationSystemContract = new Contract(
-        ABI_STATION_SYSTEM,
-        contracts.StationSystem,
-        provider
-      );
 
       const stationCount = parseInt(await StationSystemContract.get_user_station_count(userAddress));
-      getMinerIdsAssignedToStation(userAddress, 1);
       if (!stationCount) {
         const initResult = await initStation(account);
         if (!initResult) {
@@ -74,7 +68,11 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             data: [],
           } as MessageBase;
         } else {
-            const allStations = await getAllStations(userAddress, stationCount);
+            let allStations = await getAllStations(userAddress, stationCount);
+            while (allStations.length <= 0) {
+                // call getStationsByOwner again
+                allStations = await getAllStations(userAddress, stationCount);
+            }
             return {
                 status: StatusEnum.SUCCESS,
                 message: MessageEnum.SUCCESS,
