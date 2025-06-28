@@ -222,7 +222,6 @@ export function UnityCanvas() {
     });
     addEventListener("RequestDisconnectConnectWallet", () => {
       disconnect();
-      window.location.reload();
     });
     addEventListener("RequestMinersData", () => {
       sendMinersData(address as string);
