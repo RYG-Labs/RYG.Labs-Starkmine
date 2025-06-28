@@ -235,7 +235,9 @@ export function UnityCanvas() {
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
-      removeEventListener("RequestDisconnectConnectWallet", () => {});
+      removeEventListener("RequestDisconnectConnectWallet", () => {
+        window.location.reload();
+      });
       removeEventListener("RequestMinersData", () => {});
       removeEventListener("RequestCoreEnginesData", () => {});
       removeEventListener("RequestIgniteMiner", () => {});
