@@ -17,6 +17,7 @@ export const ErrorLevelEnum = {
 export enum EventKeyEnum {
     MinerMinted = "0x270f83cc00ac131de21fbbf4fa173d136a8f7941b5399a881cd17c399164afc",
     Transfer = "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9",
+    EngineMinted = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45"
 }
 
 export interface MessageBase {

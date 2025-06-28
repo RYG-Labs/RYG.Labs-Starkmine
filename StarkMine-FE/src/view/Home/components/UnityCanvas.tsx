@@ -13,6 +13,7 @@ import { ErrorLevelEnum, MessageBase, MessageEnum } from "@/type/common";
 import { balanceOf } from "@/service/readContract/balanceOf";
 import { convertWeiToEther } from "@/utils/helper";
 import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
+import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOwner";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -132,6 +133,35 @@ export function UnityCanvas() {
     [address]
   );
 
+  const sendCoreEnginesData = useCallback(
+    async (address: string) => {
+      if (!address) {
+        sendMessage(
+          "DataManager",
+          "ResponseCoreEnginesData",
+          JSON.stringify({
+            status: "success",
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+      }
+      const coreEnginesDetails = await getCoreEnginesByOwner(address);
+      sendMessage(
+        "DataManager",
+        "ResponseCoreEnginesData",
+        JSON.stringify({
+          status: "success",
+          message: MessageEnum.SUCCESS,
+          level: ErrorLevelEnum.INFOR,
+          data: coreEnginesDetails,
+        } as MessageBase)
+      );
+    },
+    [address]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -143,11 +173,15 @@ export function UnityCanvas() {
     addEventListener("RequestMinersData", () => {
       sendMinersData(address as string);
     });
+    addEventListener("RequestCoreEnginesData", () => {
+      sendCoreEnginesData(address as string);
+    });
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectConnectWallet", () => {});
       removeEventListener("RequestMinersData", () => {});
+      removeEventListener("RequestCoreEnginesData", () => {});
     };
   }, []);
 
@@ -155,6 +189,7 @@ export function UnityCanvas() {
     if (isLoaded && address && accountChainId) {
       sendDataConnectWallet();
       sendMinersData(address);
+      sendCoreEnginesData(address);
     }
   }, [isLoaded, address, accountChainId]);
 
@@ -236,11 +271,14 @@ export function UnityCanvas() {
     <>
       <div>
         <button
-          onClick={() =>
+          onClick={() => {
+            getCoreEnginesByOwner(
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            );
             getMinersByOwner(
-              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
-            )
-          }
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            );
+          }}
         >
           Get data
         </button>
