@@ -96,14 +96,14 @@ export const getMinersByOwner = async (userAddress: string) => {
         Array.from(ownedNFTs).map(async (tokenId: any) => {
           const minerInfo = await getMinerData(tokenId);
           return {
-            token_id: parseInt(shortString.decodeShortString(tokenId)), // int
+            tokenId: parseInt(shortString.decodeShortString(tokenId)), // int
             tier: shortString.decodeShortString(minerInfo.tier), // string [Basic, ....]
-            hash_power: parseFloat(convertWeiToEther(minerInfo.hash_power.toString())) * 10000000, // 
+            hashPower: parseFloat(convertWeiToEther(minerInfo.hash_power.toString())) * 10000000, // 
             level: Number(minerInfo.level),
             efficiency: Number(minerInfo.efficiency),
-            last_maintenance: minerInfo.last_maintenance.toString(),
-            core_engine_id: shortString.decodeShortString(minerInfo.core_engine_id),
-            is_ignited: Boolean(minerInfo.is_ignited),
+            lastMaintenance: minerInfo.last_maintenance.toString(),
+            coreEngineId: shortString.decodeShortString(minerInfo.core_engine_id),
+            isIgnited: Boolean(minerInfo.is_ignited),
           };
         })
       );
