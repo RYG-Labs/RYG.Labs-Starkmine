@@ -449,11 +449,24 @@ namespace _Project._Scripts.Game.Managers
         {
             Debug.Log("ResponseMinersData" + responseString);
             MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess()) return;
+            if (!response.IsSuccess())
+            {
+                UIManager.Instance.loadingUI.Hide();
+                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
+                showNotificationCantOffUI.SetUp(response.message);
+                showNotificationCantOffUI.Show();
+                UIManager.Instance.connectWalletUI.Show();
+#if UNITY_WEBGL && !UNITY_EDITOR
+                RequestDisconnectConnectWallet();
+#endif
+                return;
+            }
 
+            IsLoadShipDataSuccess = true;
             shipInInventory.Clear();
             List<JObject> listJObject = response.data.ToObject<List<JObject>>();
             Debug.Log("ResponseMinersData To Array Success" + listJObject.Count);
+            Debug.Log(IsLoadShipDataSuccess);
             foreach (JObject jObject in listJObject)
             {
                 ShipDTO shipDto = jObject.ToObject<ShipDTO>();
@@ -467,12 +480,27 @@ namespace _Project._Scripts.Game.Managers
         private void ResponseCoreEnginesData(string responseString)
         {
             Debug.Log("ResponseCoreEnginesData" + responseString);
-            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess()) return;
 
-            Debug.Log("ResponseCoreEnginesData To Object Success");
+            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
+            if (!response.IsSuccess())
+            {
+                UIManager.Instance.loadingUI.Hide();
+                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
+                showNotificationCantOffUI.SetUp(response.message);
+                showNotificationCantOffUI.Show();
+                UIManager.Instance.connectWalletUI.Show();
+#if UNITY_WEBGL && !UNITY_EDITOR
+                RequestDisconnectConnectWallet();
+#endif
+                return;
+            }
+
+            IsLoadCoreEngineSuccess = true;
             ResetListCoreEngineAmountInInventory();
             List<JObject> listJObject = response.data.ToObject<List<JObject>>();
+            Debug.Log("ResponseCoreEnginesData " + listJObject.Count);
+            Debug.Log(IsLoadCoreEngineSuccess);
+
             foreach (JObject jObject in listJObject)
             {
                 CoreEngineDTO coreEngineDto = jObject.ToObject<CoreEngineDTO>();
@@ -513,15 +541,53 @@ namespace _Project._Scripts.Game.Managers
         public void ResponseStationsData(string responseString)
         {
             Debug.Log("ResponseStationsData" + responseString);
+
             MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess()) return;
+            if (!response.IsSuccess())
+            {
+                UIManager.Instance.loadingUI.Hide();
+                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
+                showNotificationCantOffUI.SetUp(response.message);
+                showNotificationCantOffUI.Show();
+                UIManager.Instance.connectWalletUI.Show();
+                HandleDisconnectConnectWallet();
+                return;
+            }
+
+            IsLoadStationDataSuccess = true;
             // listStationData.Clear();
             List<JObject> listJObject = response.data.ToObject<List<JObject>>();
+            Debug.Log("ResponseMinersData To Array Success" + listJObject.Count);
+            Debug.Log(IsLoadStationDataSuccess);
             for (int i = 0; i < listJObject.Count; i++)
             {
                 StationDTO stationDto = listJObject[i].ToObject<StationDTO>();
-                
                 listStationData[i].level = stationDto.level;
+            }
+        }
+
+        [DllImport("__Internal")]
+        private static extern void RequestDisconnectConnectWallet();
+
+        public void HandleDisconnectConnectWallet()
+        {
+            IsLoadShipDataSuccess = false;
+            IsLoadCoreEngineSuccess = false;
+            IsLoadStationDataSuccess = false;
+#if UNITY_WEBGL && !UNITY_EDITOR
+            RequestDisconnectConnectWallet();
+#endif
+        }
+
+        public bool IsLoadShipDataSuccess;
+        public bool IsLoadCoreEngineSuccess;
+        public bool IsLoadStationDataSuccess;
+
+        private void Update()
+        {
+            if (IsLoadShipDataSuccess && IsLoadCoreEngineSuccess && IsLoadStationDataSuccess)
+            {
+                UIManager.Instance.loadingUI.Hide();
             }
         }
     }

@@ -58,8 +58,7 @@ public class UIManager : StaticInstance<UIManager>
             Balance = userDto.balance,
         };
         DataManager.Instance.MineCoin = userDto.balance;
-        userInfoUI.Show();
-        tabPlanetUI.Show();
         connectWalletUI.Hide();
+        loadingUI.Show();
     }
 }
