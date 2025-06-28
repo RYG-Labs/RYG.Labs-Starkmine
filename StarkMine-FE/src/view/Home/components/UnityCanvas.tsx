@@ -9,11 +9,18 @@ import {
   useStarknetkitConnectModal,
 } from "starknetkit";
 import { walletConfig } from "@/configs/network";
-import { ErrorLevelEnum, MessageBase, MessageEnum } from "@/type/common";
+import {
+  ErrorLevelEnum,
+  MessageBase,
+  MessageEnum,
+  StatusEnum,
+} from "@/type/common";
 import { balanceOf } from "@/service/readContract/balanceOf";
 import { convertWeiToEther } from "@/utils/helper";
 import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
 import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOwner";
+import { igniteMiner } from "@/service/writeContract/igniteMiner";
+import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -83,7 +90,7 @@ export function UnityCanvas() {
         "UIManager",
         "ResponseConnectWallet",
         JSON.stringify({
-          status: "success",
+          status: StatusEnum.SUCCESS,
           message: MessageEnum.SUCCESS,
           level: ErrorLevelEnum.INFOR,
           data: {
@@ -111,7 +118,7 @@ export function UnityCanvas() {
           "DataManager",
           "ResponseMinersData",
           JSON.stringify({
-            status: "success",
+            status: StatusEnum.ERROR,
             message: MessageEnum.ADDRESS_NOT_FOUND,
             level: ErrorLevelEnum.WARNING,
             data: {},
@@ -123,7 +130,7 @@ export function UnityCanvas() {
         "DataManager",
         "ResponseMinersData",
         JSON.stringify({
-          status: "success",
+          status: StatusEnum.SUCCESS,
           message: MessageEnum.SUCCESS,
           level: ErrorLevelEnum.INFOR,
           data: minersDetails,
@@ -140,19 +147,20 @@ export function UnityCanvas() {
           "DataManager",
           "ResponseCoreEnginesData",
           JSON.stringify({
-            status: "success",
+            status: StatusEnum.ERROR,
             message: MessageEnum.ADDRESS_NOT_FOUND,
             level: ErrorLevelEnum.WARNING,
             data: {},
           } as MessageBase)
         );
+        return;
       }
       const coreEnginesDetails = await getCoreEnginesByOwner(address);
       sendMessage(
         "DataManager",
         "ResponseCoreEnginesData",
         JSON.stringify({
-          status: "success",
+          status: StatusEnum.SUCCESS,
           message: MessageEnum.SUCCESS,
           level: ErrorLevelEnum.INFOR,
           data: coreEnginesDetails,
@@ -161,6 +169,51 @@ export function UnityCanvas() {
     },
     [address]
   );
+
+  const sendIgniteMiner = useCallback(
+    async (minerId: number, coreEngineId: number) => {
+      if (!account || !minerId || !coreEngineId) {
+        sendMessage(
+          "GameManager",
+          "ResponseIgniteMiner",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await igniteMiner(account, minerId, coreEngineId);
+      sendMessage("GameManager", "ResponseIgniteMiner", JSON.stringify(result));
+    },
+    [account]
+  );
+
+  const sendStationsData = useCallback(async () => {
+    if (!address || !account) {
+      sendMessage(
+        "DataManager",
+        "ResponseStationsData",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const stationsDetails = await getStationsByOwner(account, address);
+    sendMessage(
+      "DataManager",
+      "ResponseStationsData",
+      JSON.stringify(stationsDetails)
+    );
+  }, [account]);
 
   // event listener
   useEffect(() => {
@@ -176,12 +229,16 @@ export function UnityCanvas() {
     addEventListener("RequestCoreEnginesData", () => {
       sendCoreEnginesData(address as string);
     });
+    addEventListener("RequestIgniteMiner", (minerId, coreEngineId) => {
+      sendIgniteMiner(minerId as number, coreEngineId as number);
+    });
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectConnectWallet", () => {});
       removeEventListener("RequestMinersData", () => {});
       removeEventListener("RequestCoreEnginesData", () => {});
+      removeEventListener("RequestIgniteMiner", () => {});
     };
   }, []);
 
@@ -192,6 +249,12 @@ export function UnityCanvas() {
       sendCoreEnginesData(address);
     }
   }, [isLoaded, address, accountChainId]);
+
+  useEffect(() => {
+    if (address && account) {
+      sendStationsData();
+    }
+  }, [address, account]);
 
   // ============================= DON'T TOUCH =============================
   useEffect(() => {
@@ -278,6 +341,10 @@ export function UnityCanvas() {
             getMinersByOwner(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
+            // getStationsByOwner(
+            //   account!,
+            //   "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            // );
           }}
         >
           Get data

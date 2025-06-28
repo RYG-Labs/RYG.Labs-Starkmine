@@ -1,11 +1,17 @@
 import { walletConfig } from "@/configs/network";
 import { mainnet, sepolia} from "@starknet-react/chains";
 
+export enum StatusEnum {
+    SUCCESS = "success",
+    ERROR = "error",
+}
+
 export const MessageEnum = {
     SUCCESS: "Success.",
     ERROR: "Found an error, please try again later.",
     WRONG_NETWORK: `Wrong network, please switch to ${walletConfig.targetNetwork.id == mainnet.id ? "mainnet" : "sepolia"} network!`,
     ADDRESS_NOT_FOUND: "Address not found.",
+    STATION_INIT_FAILED: "Station initialization failed.",
 } as const;
 
 export const ErrorLevelEnum = {
@@ -17,11 +23,12 @@ export const ErrorLevelEnum = {
 export enum EventKeyEnum {
     MinerMinted = "0x270f83cc00ac131de21fbbf4fa173d136a8f7941b5399a881cd17c399164afc",
     Transfer = "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9",
-    EngineMinted = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45"
+    EngineMinted = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45",
+    StationsInitialized = "0x1d1299fed5c4794b4b4e6e9d1dfcb0497e57ec9c982e6e095b59fda38596cab"
 }
 
 export interface MessageBase {
-    status: "success" | "error";
+    status: StatusEnum.SUCCESS | StatusEnum.ERROR;
     message: typeof MessageEnum[keyof typeof MessageEnum];
     data: any;
     level: typeof ErrorLevelEnum[keyof typeof ErrorLevelEnum];
