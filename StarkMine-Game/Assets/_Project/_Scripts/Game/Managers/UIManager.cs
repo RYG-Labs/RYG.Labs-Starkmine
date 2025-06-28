@@ -22,7 +22,7 @@ public class UIManager : StaticInstance<UIManager>
     public UserInfoUI userInfoUI;
     public ShowNotificationUI showNotificationUI;
     public ShowNotificationCantOffUI showNotificationCantOffUI;
-
+    public TabPlanetUI tabPlanetUI;
     public bool isHoverUI;
 
     public void ResponseConnectWallet(string responseString)
@@ -59,6 +59,7 @@ public class UIManager : StaticInstance<UIManager>
         };
         DataManager.Instance.MineCoin = userDto.balance;
         userInfoUI.Show();
+        tabPlanetUI.Show();
         connectWalletUI.Hide();
     }
 }

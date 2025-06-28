@@ -27,6 +27,12 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     public bool IsEmpty { get; set; }
     private ShipData _shipData;
 
+    public ShipData ShipData
+    {
+        get => _shipData;
+        set => _shipData = value;
+    }
+
     public void SetUp(int index, ShipData ship, bool isEmpty)
     {
         Index = index;

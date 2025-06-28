@@ -187,8 +187,27 @@ namespace _Project._Scripts.Game.Managers
         }
 
         public List<CoreEngineSO> listCoreEngineSO;
-
         public List<CoreEngineAmountData> listCoreEngineAmountInInventory;
+        public List<CoreEngineData> listCoreEngineData;
+
+        public CoreEngineData GetCoreEngineDataUnActiveByType(CoreEngineSO.CoreEngineType type)
+        {
+            return listCoreEngineData.Find(coreEngineData =>
+                coreEngineData.coreEngineSO.coreEngineType == type && !coreEngineData.isActive);
+        }
+
+        public CoreEngineData GetCoreEngineDataById(int id)
+        {
+            return listCoreEngineData.Find(coreEngineData => coreEngineData.id == id);
+        }
+
+        public void ResetListCoreEngineAmountInInventory()
+        {
+            foreach (CoreEngineAmountData coreEngineAmountData in listCoreEngineAmountInInventory)
+            {
+                coreEngineAmountData.amount = 0;
+            }
+        }
 
         public void AddCoreEngine(CoreEngineSO coreEngineSO, int amount)
         {
@@ -268,6 +287,19 @@ namespace _Project._Scripts.Game.Managers
                     }
                 }
             }
+        }
+
+        public ShipData AddCoreEngineToSpaceShip(int coreEngineId, int shipId)
+        {
+            CoreEngineData coreEngineData = GetCoreEngineDataById(coreEngineId);
+            ShipData shipData = GetShipDataById(shipId);
+            AddCoreEngineToSpaceShip(coreEngineData.coreEngineSO, shipData);
+            return shipData;
+        }
+
+        public ShipData GetShipDataById(int id)
+        {
+            return null;
         }
 
         public int SumAmountOfTypeShipAllPlanet(ShipSO.ShipType shipType)
@@ -417,24 +449,18 @@ namespace _Project._Scripts.Game.Managers
         {
             Debug.Log("ResponseMinersData" + responseString);
             MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-
-            if (!response.IsSuccess())
-            {
-                return;
-            }
+            if (!response.IsSuccess()) return;
 
             shipInInventory.Clear();
-            List<JObject> listShipDto = response.data.ToObject<List<JObject>>();
-            Debug.Log("ResponseMinersData To Object Success");
-            Debug.Log("ResponseMinersData To Array Success" + listShipDto.Count);
-            foreach (JObject jObject in listShipDto)
+            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
+            Debug.Log("ResponseMinersData To Array Success" + listJObject.Count);
+            foreach (JObject jObject in listJObject)
             {
                 ShipDTO shipDto = jObject.ToObject<ShipDTO>();
                 Debug.Log(shipDto.ToString());
                 ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
                     shipDto.hashPower, shipDto.isIgnited);
                 ShipInInventory.Add(shipData);
-                Debug.Log("ResponseMinersData To Object Success 2");
             }
         }
 
@@ -442,28 +468,25 @@ namespace _Project._Scripts.Game.Managers
         {
             Debug.Log("ResponseCoreEnginesData" + responseString);
             MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-
-            if (!response.IsSuccess())
-            {
-                return;
-            }
+            if (!response.IsSuccess()) return;
 
             Debug.Log("ResponseCoreEnginesData To Object Success");
-            // shipInInventory.Clear();
-            // Debug.Log(response.message);
-            // List<ShipDTO> listShipDto = response.data.ToObject<List<ShipDTO>>();
-            //
-            // foreach (ShipDTO shipDto in listShipDto)
-            // {
-            //     ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
-            //         shipDto.hashPower, shipDto.isIgnited);
-            //     ShipInInventory.Add(shipData);
-            // }
+            ResetListCoreEngineAmountInInventory();
+            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
+            foreach (JObject jObject in listJObject)
+            {
+                CoreEngineDTO coreEngineDto = jObject.ToObject<CoreEngineDTO>();
+                CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
+                CoreEngineData coreEngineData =
+                    new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
+                listCoreEngineData.Add(coreEngineData);
+                AddCoreEngine(coreEngineSo, 1);
+            }
         }
 
-        public ShipSO GetShipSoByType(string shipType)
+        public ShipSO GetShipSoByType(string type)
         {
-            switch (shipType)
+            switch (type)
             {
                 case "Basic": return AllShipSO[0];
                 case "Elite": return AllShipSO[1];
@@ -472,6 +495,34 @@ namespace _Project._Scripts.Game.Managers
             }
 
             return AllShipSO[0];
+        }
+
+        public CoreEngineSO GetCoreEngineByType(string type)
+        {
+            switch (type)
+            {
+                case "Basic": return listCoreEngineSO[0];
+                case "Elite": return listCoreEngineSO[1];
+                case "Pro": return listCoreEngineSO[2];
+                case "GIGA": return listCoreEngineSO[3];
+            }
+
+            return listCoreEngineSO[0];
+        }
+
+        public void ResponseStationsData(string responseString)
+        {
+            Debug.Log("ResponseStationsData" + responseString);
+            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
+            if (!response.IsSuccess()) return;
+            // listStationData.Clear();
+            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
+            for (int i = 0; i < listJObject.Count; i++)
+            {
+                StationDTO stationDto = listJObject[i].ToObject<StationDTO>();
+                
+                listStationData[i].level = stationDto.level;
+            }
         }
     }
 }
