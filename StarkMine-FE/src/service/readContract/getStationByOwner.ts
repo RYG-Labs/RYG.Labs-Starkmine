@@ -43,7 +43,7 @@ const getStationData = async (userAddress: string, stationId: number) => {
     });
 };
 
-const getAllStations = async (userAddress: string, stationCount: number) => {
+const getAllStations = async (userAddress: string, stationCount: number): Promise<any[]> => {
     const stationsData = []
 
     for (let i = 1; i <= stationCount; i++) {
@@ -68,11 +68,26 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             data: [],
           } as MessageBase;
         } else {
-            let allStations = await getAllStations(userAddress, stationCount);
-            while (allStations.length <= 0) {
-                // call getStationsByOwner again
-                allStations = await getAllStations(userAddress, stationCount);
+            let stationCountAfterInit = parseInt(await StationSystemContract.get_user_station_count(userAddress));
+            const attemptCount = 20;
+            let retriedAttemptCount = 0;
+            while (stationCountAfterInit <= 0 && retriedAttemptCount < attemptCount) {
+               // call station count again
+               stationCountAfterInit = parseInt(await StationSystemContract.get_user_station_count(userAddress));
+               retriedAttemptCount++;
             }
+
+            if (retriedAttemptCount >= attemptCount || stationCountAfterInit <= 0) {
+                return {
+                    status: StatusEnum.ERROR,
+                    message: MessageEnum.STATION_INIT_FAILED,
+                    level: ErrorLevelEnum.WARNING,
+                    data: [],
+                }
+            }
+
+            const allStations = await getAllStations(userAddress, stationCountAfterInit);
+            
             return {
                 status: StatusEnum.SUCCESS,
                 message: MessageEnum.SUCCESS,
@@ -82,7 +97,6 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
         }
       } else {
         const allStations = await getAllStations(userAddress, stationCount);
-        console.log("🚀 ~ getStationsByOwner ~ allStations:", allStations)
         return {
             status: StatusEnum.SUCCESS,
             message: MessageEnum.SUCCESS,

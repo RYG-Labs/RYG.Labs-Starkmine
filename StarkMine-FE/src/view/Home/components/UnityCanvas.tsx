@@ -222,6 +222,7 @@ export function UnityCanvas() {
     });
     addEventListener("RequestDisconnectConnectWallet", () => {
       disconnect();
+      window.location.reload();
     });
     addEventListener("RequestMinersData", () => {
       sendMinersData(address as string);
@@ -235,9 +236,7 @@ export function UnityCanvas() {
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
-      removeEventListener("RequestDisconnectConnectWallet", () => {
-        window.location.reload();
-      });
+      removeEventListener("RequestDisconnectConnectWallet", () => {});
       removeEventListener("RequestMinersData", () => {});
       removeEventListener("RequestCoreEnginesData", () => {});
       removeEventListener("RequestIgniteMiner", () => {});
@@ -343,10 +342,10 @@ export function UnityCanvas() {
             getMinersByOwner(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
-            // getStationsByOwner(
-            //   account!,
-            //   "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
-            // );
+            getStationsByOwner(
+              account!,
+              "0x07549b52079778e07daee3b913374fcbeea8e41500d21fe688fd2b0ed76d3f6e"
+            );
           }}
         >
           Get data
