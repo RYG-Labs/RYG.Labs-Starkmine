@@ -6,8 +6,21 @@ import { AccountInterface, Contract } from "starknet";
 import { ABI_STATION_SYSTEM } from "@/type/ABI_STATION_SYSTEM";
 import { convertWeiToEther } from "@/utils/helper";
 
+const StationSystemContract = new Contract(
+    ABI_STATION_SYSTEM,
+    contracts.StationSystem,
+    provider
+);
+
+const getMinerIdsAssignedToStation = async (userAddress: string, stationId: number) => {
+    const minerIds = await StationSystemContract.get_station_miners(userAddress, stationId);
+    const minerIdsFormatted = minerIds.map((minerId: BigInt) => parseInt(minerId.toString()));
+    return minerIdsFormatted
+}
+
 const formatStationData = (stationInfo: any): any => {
     return {
+        id: Number(stationInfo.id),
         level: Number(stationInfo.level),
         multiplier: Number(stationInfo.multiplier),
         mineLocked: Number(convertWeiToEther(stationInfo.mine_locked)),
@@ -15,17 +28,19 @@ const formatStationData = (stationInfo: any): any => {
         unlockTimestamp: Number(stationInfo.unlock_timestamp),
         pendingDowngrade: Number(stationInfo.pending_downgrade),
         minerCount: Number(stationInfo.miner_count),
+        minerIds: stationInfo.minerIds,
     }
 }
 
 const getStationData = async (userAddress: string, stationId: number) => {
-    const StationSystemContract = new Contract(
-        ABI_STATION_SYSTEM,
-      contracts.StationSystem,
-      provider
-    );
+
     const stationInfo = await StationSystemContract.get_station_info(userAddress, stationId);
-    return formatStationData(stationInfo);
+    const minerIds = await getMinerIdsAssignedToStation(userAddress, stationId);
+    return formatStationData({
+        id: stationId,
+        minerIds: minerIds,
+        ...stationInfo
+    });
 };
 
 const getAllStations = async (userAddress: string, stationCount: number) => {
@@ -48,7 +63,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
       );
 
       const stationCount = parseInt(await StationSystemContract.get_user_station_count(userAddress));
-
+      getMinerIdsAssignedToStation(userAddress, 1);
       if (!stationCount) {
         const initResult = await initStation(account);
         if (!initResult) {
@@ -77,7 +92,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             data: allStations,
         } as MessageBase;
       }
-  
+      
     } catch (error) {
       return {
         status: StatusEnum.ERROR,
