@@ -245,7 +245,7 @@ export function UnityCanvas() {
   }, [account]);
 
   const sendAssignMinerToStation = useCallback(
-    async (stationId: number, minerId: number) => {
+    async (stationId: number, minerId: number, index: number) => {
       if (!account || !minerId || !stationId) {
         sendMessage(
           "WebResponse",
@@ -260,7 +260,7 @@ export function UnityCanvas() {
         return;
       }
 
-      const result = await assignMinerToStation(account, stationId, minerId);
+      const result = await assignMinerToStation(account, stationId, minerId, index);
       sendMessage(
         "WebResponse",
         "ResponseAssignMinerToStation",
@@ -290,8 +290,8 @@ export function UnityCanvas() {
     addEventListener("RequestExtinguishMiner", (minerId) => {
       sendExtinguishMiner(minerId as number);
     });
-    addEventListener("RequestAssignMinerToStation", (stationId, minerId) => {
-      sendAssignMinerToStation(stationId as number, minerId as number);
+    addEventListener("RequestAssignMinerToStation", (stationId, minerId, index) => {
+      sendAssignMinerToStation(stationId as number, minerId as number, index: number);
     });
 
     return () => {

@@ -3,7 +3,7 @@ import { AccountInterface, CallData } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 
-const assignMinerToStation = async (account: AccountInterface, stationId: number, minerId: number): Promise<MessageBase> => {
+const assignMinerToStation = async (account: AccountInterface, stationId: number, minerId: number, index: number): Promise<MessageBase> => {
     try {
         const tx = await account.execute({
             contractAddress: contracts.StationSystem,
@@ -23,6 +23,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
                 data: {
                     minerId: minerId,
                     stationId: stationId,
+                    index: index,
                 }
             } 
         } else {
@@ -33,6 +34,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
                 data: {
                     minerId: minerId,
                     stationId: stationId,
+                    index: index,
                 }
             }
         };
@@ -44,6 +46,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
             data: {
                 minerId: minerId,
                 stationId: stationId,
+                index: index,
             },
         }
     }
