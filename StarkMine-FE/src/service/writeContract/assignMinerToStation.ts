@@ -1,5 +1,5 @@
 import { contracts } from "@/configs/contracts";
-import { AccountInterface, CallData } from "starknet";
+import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 
@@ -8,7 +8,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
         const tx = await account.execute({
             contractAddress: contracts.StationSystem,
             entrypoint: "assign_miner_to_station",
-            calldata: CallData.compile({ station_id: stationId, token_id: minerId }),
+            calldata: CallData.compile({ station_id: stationId, token_id: uint256.bnToUint256(minerId) }),
         });
     
         const receipt = await provider.waitForTransaction(tx.transaction_hash);

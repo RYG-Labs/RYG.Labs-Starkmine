@@ -315,7 +315,7 @@ export function UnityCanvas() {
       removeEventListener("RequestExtinguishMiner", () => {});
       removeEventListener("RequestAssignMinerToStation", () => {});
     };
-  }, []);
+  }, [account, address, isLoaded]);
 
   useEffect(() => {
     if (isLoaded && address && accountChainId) {
