@@ -12,6 +12,8 @@ export const MessageEnum = {
     WRONG_NETWORK: `Wrong network, please switch to ${walletConfig.targetNetwork.id == mainnet.id ? "mainnet" : "sepolia"} network!`,
     ADDRESS_NOT_FOUND: "Address not found.",
     STATION_INIT_FAILED: "Station initialization failed.",
+    ASSIGN_MINER_TO_STATION_FAILED: "Assign miner to station failed.",
+    EXTINGUISH_MINER_FAILED: "Extinguish miner failed.",
 } as const;
 
 export const ErrorLevelEnum = {

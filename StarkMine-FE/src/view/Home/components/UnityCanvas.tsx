@@ -21,6 +21,7 @@ import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
 import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOwner";
 import { igniteMiner } from "@/service/writeContract/igniteMiner";
 import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
+import assignMinerToStation from "@/service/writeContract/assignMinerToStation";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -63,6 +64,16 @@ export function UnityCanvas() {
     return chainId;
   }, [connector]);
 
+  const connectWallet = async (): Promise<void> => {
+    const { connector } = await starknetkitConnectModal();
+    if (!connector) {
+      return;
+    }
+    await connect({ connector: connector as Connector });
+  };
+
+  // interact with unity
+
   const sendDataConnectWallet = async () => {
     if (!address) return;
 
@@ -74,7 +85,7 @@ export function UnityCanvas() {
       }
 
       sendMessage(
-        "UIManager",
+        "WebResponse",
         "ResponseConnectWallet",
         JSON.stringify({
           status: "error",
@@ -87,7 +98,7 @@ export function UnityCanvas() {
       const balance = await balanceOf(address);
 
       sendMessage(
-        "UIManager",
+        "WebResponse",
         "ResponseConnectWallet",
         JSON.stringify({
           status: StatusEnum.SUCCESS,
@@ -102,20 +113,11 @@ export function UnityCanvas() {
     }
   };
 
-  // interact with unity
-  const connectWallet = async (): Promise<void> => {
-    const { connector } = await starknetkitConnectModal();
-    if (!connector) {
-      return;
-    }
-    await connect({ connector: connector as Connector });
-  };
-
   const sendMinersData = useCallback(
     async (address: string) => {
       if (!address) {
         sendMessage(
-          "DataManager",
+          "WebResponse",
           "ResponseMinersData",
           JSON.stringify({
             status: StatusEnum.ERROR,
@@ -127,7 +129,7 @@ export function UnityCanvas() {
       }
       const minersDetails = await getMinersByOwner(address);
       sendMessage(
-        "DataManager",
+        "WebResponse",
         "ResponseMinersData",
         JSON.stringify({
           status: StatusEnum.SUCCESS,
@@ -144,7 +146,7 @@ export function UnityCanvas() {
     async (address: string) => {
       if (!address) {
         sendMessage(
-          "DataManager",
+          "WebResponse",
           "ResponseCoreEnginesData",
           JSON.stringify({
             status: StatusEnum.ERROR,
@@ -157,7 +159,7 @@ export function UnityCanvas() {
       }
       const coreEnginesDetails = await getCoreEnginesByOwner(address);
       sendMessage(
-        "DataManager",
+        "WebResponse",
         "ResponseCoreEnginesData",
         JSON.stringify({
           status: StatusEnum.SUCCESS,
@@ -174,7 +176,7 @@ export function UnityCanvas() {
     async (minerId: number, coreEngineId: number) => {
       if (!account || !minerId || !coreEngineId) {
         sendMessage(
-          "GameManager",
+          "WebResponse",
           "ResponseIgniteMiner",
           JSON.stringify({
             status: StatusEnum.ERROR,
@@ -187,7 +189,7 @@ export function UnityCanvas() {
       }
 
       const result = await igniteMiner(account, minerId, coreEngineId);
-      sendMessage("GameManager", "ResponseIgniteMiner", JSON.stringify(result));
+      sendMessage("WebResponse", "ResponseIgniteMiner", JSON.stringify(result));
     },
     [account]
   );
@@ -215,12 +217,38 @@ export function UnityCanvas() {
     );
   }, [account]);
 
+  const sendAssignMinerToStation = useCallback(
+    async (stationId: number, minerId: number) => {
+      if (!account || !minerId || !stationId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseAssignMinerToStation",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await assignMinerToStation(account, stationId, minerId);
+      sendMessage(
+        "WebResponse",
+        "ResponseAssignMinerToStation",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
       connectWallet();
     });
-    addEventListener("RequestDisconnectConnectWallet", () => {
+    addEventListener("RequestDisconnectWallet", () => {
       disconnect();
     });
     addEventListener("RequestMinersData", () => {
@@ -233,12 +261,17 @@ export function UnityCanvas() {
       sendIgniteMiner(minerId as number, coreEngineId as number);
     });
 
+    addEventListener("RequestAssignMinerToStation", (stationId, minerId) => {
+      sendAssignMinerToStation(stationId as number, minerId as number);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
-      removeEventListener("RequestDisconnectConnectWallet", () => {});
+      removeEventListener("RequestDisconnectWallet", () => {});
       removeEventListener("RequestMinersData", () => {});
       removeEventListener("RequestCoreEnginesData", () => {});
       removeEventListener("RequestIgniteMiner", () => {});
+      removeEventListener("RequestAssignMinerToStation", () => {});
     };
   }, []);
 
