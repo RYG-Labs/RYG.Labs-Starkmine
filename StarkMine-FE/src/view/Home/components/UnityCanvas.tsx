@@ -22,6 +22,7 @@ import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOw
 import { igniteMiner } from "@/service/writeContract/igniteMiner";
 import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
 import assignMinerToStation from "@/service/writeContract/assignMinerToStation";
+import extinguishMiner from "@/service/writeContract/extinguishMiner";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -194,10 +195,36 @@ export function UnityCanvas() {
     [account]
   );
 
+  const sendExtinguishMiner = useCallback(
+    async (minerId: number) => {
+      if (!account || !minerId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseExtinguishMiner",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await extinguishMiner(account, minerId);
+      sendMessage(
+        "WebResponse",
+        "ResponseExtinguishMiner",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
   const sendStationsData = useCallback(async () => {
     if (!address || !account) {
       sendMessage(
-        "DataManager",
+        "WebResponse",
         "ResponseStationsData",
         JSON.stringify({
           status: StatusEnum.ERROR,
@@ -211,7 +238,7 @@ export function UnityCanvas() {
 
     const stationsDetails = await getStationsByOwner(account, address);
     sendMessage(
-      "DataManager",
+      "WebResponse",
       "ResponseStationsData",
       JSON.stringify(stationsDetails)
     );
@@ -260,7 +287,9 @@ export function UnityCanvas() {
     addEventListener("RequestIgniteMiner", (minerId, coreEngineId) => {
       sendIgniteMiner(minerId as number, coreEngineId as number);
     });
-
+    addEventListener("RequestExtinguishMiner", (minerId) => {
+      sendExtinguishMiner(minerId as number);
+    });
     addEventListener("RequestAssignMinerToStation", (stationId, minerId) => {
       sendAssignMinerToStation(stationId as number, minerId as number);
     });
@@ -271,6 +300,7 @@ export function UnityCanvas() {
       removeEventListener("RequestMinersData", () => {});
       removeEventListener("RequestCoreEnginesData", () => {});
       removeEventListener("RequestIgniteMiner", () => {});
+      removeEventListener("RequestExtinguishMiner", () => {});
       removeEventListener("RequestAssignMinerToStation", () => {});
     };
   }, []);
