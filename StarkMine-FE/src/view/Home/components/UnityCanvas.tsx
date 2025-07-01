@@ -260,7 +260,12 @@ export function UnityCanvas() {
         return;
       }
 
-      const result = await assignMinerToStation(account, stationId, minerId, index);
+      const result = await assignMinerToStation(
+        account,
+        stationId,
+        minerId,
+        index
+      );
       sendMessage(
         "WebResponse",
         "ResponseAssignMinerToStation",
@@ -290,9 +295,16 @@ export function UnityCanvas() {
     addEventListener("RequestExtinguishMiner", (minerId) => {
       sendExtinguishMiner(minerId as number);
     });
-    addEventListener("RequestAssignMinerToStation", (stationId, minerId, index) => {
-      sendAssignMinerToStation(stationId as number, minerId as number, index: number);
-    });
+    addEventListener(
+      "RequestAssignMinerToStation",
+      (stationId, minerId, index) => {
+        sendAssignMinerToStation(
+          stationId as number,
+          minerId as number,
+          index as number
+        );
+      }
+    );
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
