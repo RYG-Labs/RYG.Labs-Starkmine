@@ -27,7 +27,7 @@ public class WebRequest
     private static extern void RequestIgniteMiner(int minerId, int coreEngineId);
 
     [DllImport("__Internal")]
-    private static extern void ResponseExtinguishMiner(int minerId);
+    private static extern void RequestExtinguishMiner(int minerId);
 
     public static void CallRequestConnectWallet()
     {
@@ -79,13 +79,17 @@ public class WebRequest
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
         RequestIgniteMiner(minerId, coreEngineId);
+#else
+        FakeResponse.Instance.StartFakeResponseIgniteMinerCoroutine(minerId, coreEngineId);
 #endif
     }
 
-    public static void CallResponseExtinguishMiner(int minerId)
+    public static void CallRequestExtinguishMiner(int minerId)
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
-        ResponseExtinguishMiner(minerId);
+        RequestExtinguishMiner(minerId);
+#else
+        FakeResponse.Instance.StartFakeInvokeResponseExtinguishMinerCoroutine(minerId);
 #endif
     }
 }

@@ -48,22 +48,14 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // if (ship.onDuty)
-        // {
-        //     callbackButton.gameObject.SetActive(true);
-        //     ShowBorderGreen();
-        // }
-        // else
-        // {
-        if (ship.CoreEngineData == null)
+        if (ship.onDuty)
         {
-            launchButton.gameObject.SetActive(true);
+            SpaceShipOnDutyHandler();
         }
         else
         {
-            callbackButton.gameObject.SetActive(true);
+            SpaceShipOnCallbackHandler();
         }
-        // }
 
         warningImage.gameObject.SetActive(ship.maintenanceLevel < 80);
         shipImage.gameObject.SetActive(true);
@@ -94,7 +86,23 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
 
     private void OnClickCallbackButton()
     {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler += WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler +=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
+        WebRequest.CallRequestExtinguishMiner(_shipData.id);
+    }
 
+    private void WebResponseOnResponseExtinguishMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler -= WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler -=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseExtinguishMinerEventHandler(object sender,
+        WebResponse.OnResponseExtinguishMinerEventArgs e)
+    {
         bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
 
         SoundManager.Instance.PlayDataPointSound1();
@@ -102,6 +110,10 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         {
             SpaceShipOnCallbackHandler();
         }
+
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler -= WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler -=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
     }
 
     private void OnClickLaunchButton()
@@ -124,10 +136,6 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         yesNoUI.SetUp(
             $"Use 1 core engine <color=#FEE109>{DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType).nameCoreEngine}</color> for this spaceship?");
         yesNoUI.Show();
-
-        // SoundManager.Instance.PlayCompleteSound1();
-        // SpaceShipOnDutyHandler();
-        // GameManager.Instance.LaunchSpaceShip(_shipData);
     }
 
     private void OnClickAddCoreButton()
@@ -155,16 +163,35 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
     private void OnYesButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         SoundManager.Instance.PlayBleepSound1();
-        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
-        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
         // SoundManager.Instance.PlayCompleteSound1();
 
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
         yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
         yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
-        SpaceShipOnCallbackHandler();
+
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler += WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler += WebResponseOnResponseIgniteMinerFailEventHandler;
+        WebRequest.CallRequestIgniteMiner(_shipData.id, coreEngineData.id);
+        UIManager.Instance.loadingUI.Show();
+    }
+
+    private void WebResponseOnResponseIgniteMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler -= WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler -= WebResponseOnResponseIgniteMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseIgniteMinerEventHandler(object sender,
+        WebResponse.OnResponseIgniteMinerEventArgs e)
+    {
+        // SpaceShipOnCallbackHandler();
         SpaceShipOnDutyHandler();
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.coreEngineId);
+        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
         GameManager.Instance.LaunchSpaceShip(_shipData);
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler -= WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler -= WebResponseOnResponseIgniteMinerFailEventHandler;
     }
 
     private void OnNoButtonClickAddCoreEventHandler(object sender, EventArgs e)
@@ -220,6 +247,5 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         HideBorder();
         HideAllButton();
         launchButton.gameObject.SetActive(true);
-        // addCoreButton.gameObject.SetActive(true);
     }
 }

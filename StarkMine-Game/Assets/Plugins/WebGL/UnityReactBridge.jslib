@@ -48,9 +48,9 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
-  ResponseExtinguishMiner: function (minerId) {
+  RequestExtinguishMiner: function (minerId) {
     try {
-      window.dispatchReactUnityEvent("ResponseExtinguishMiner", minerId);
+      window.dispatchReactUnityEvent("RequestExtinguishMiner", minerId);
     } catch (e) {
       console.warn("Failed to dispatch event");
     }

@@ -1,6 +1,6 @@
 import { contracts } from "@/configs/contracts";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
-import { AccountInterface, CallData } from "starknet";
+import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
 
 const extinguishMiner = async (account: AccountInterface, minerId: number): Promise<MessageBase> => {
@@ -8,13 +8,13 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
         const tx = await account.execute({
             contractAddress: contracts.MinerNFT,
             entrypoint: "extinguish_miner",
-            calldata: CallData.compile({ token_id: minerId }),
+            calldata: CallData.compile({ token_id: uint256.bnToUint256(minerId) }),
         });
-    
+
         const receipt = await provider.waitForTransaction(tx.transaction_hash);
-    
+
         console.log(receipt);
-        
+
         if (receipt.isSuccess()) {
             return {
                 status: StatusEnum.SUCCESS,
@@ -23,7 +23,7 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 data: {
                     minerId: minerId,
                 }
-            } 
+            }
         } else {
             return {
                 status: StatusEnum.ERROR,

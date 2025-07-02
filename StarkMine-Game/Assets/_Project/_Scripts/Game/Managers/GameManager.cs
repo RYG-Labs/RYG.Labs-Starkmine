@@ -87,7 +87,6 @@ namespace _Project._Scripts.Game.Managers
         public void LaunchSpaceShip(ShipData shipData)
         {
             Ship ship = Instantiate(shipPrefab, new Vector3(2, 0, 0), Quaternion.identity, GameHolder);
-            shipData.onDuty = true;
             ship.SetUp(shipData, currentPlanet);
             ships.Add(ship);
         }
@@ -131,15 +130,6 @@ namespace _Project._Scripts.Game.Managers
         //     ships.Clear();
         // }
 
-        public void ResponseIgniteMiner(string responseString)
-        {
-            Debug.Log("ResponseIgniteMiner" + responseString);
-            MessageBase<JObject> response = JsonConvert.DeserializeObject<MessageBase<JObject>>(responseString);
-            if (!response.IsSuccess()) return;
-
-            Debug.Log("ResponseIgniteMiner To Object Success");
-            ResponseIgniteMinerDTO data = response.data.ToObject<ResponseIgniteMinerDTO>();
-            LaunchSpaceShip(data.coreEngineId, data.minerId);
-        }
+       
     }
 }

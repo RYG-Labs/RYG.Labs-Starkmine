@@ -149,15 +149,35 @@ public class ShipInformationUI : BasePopup
     private void OnYesButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         SoundManager.Instance.PlayBleepSound1();
-        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
-        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
-        ItemSpaceStationUI.SpaceShipOnCallbackHandler();
-        ItemSpaceStationUI.SpaceShipOnDutyHandler();
-        GameManager.Instance.LaunchSpaceShip(_shipData);
+
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
         yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
         yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
         SetUp(_shipData, _shipIndex);
+
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler += WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler += WebResponseOnResponseIgniteMinerFailEventHandler;
+        WebRequest.CallRequestIgniteMiner(_shipData.id, coreEngineData.id);
+        UIManager.Instance.loadingUI.Show();
+    }
+
+    private void WebResponseOnResponseIgniteMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler -= WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler -= WebResponseOnResponseIgniteMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseIgniteMinerEventHandler(object sender,
+        WebResponse.OnResponseIgniteMinerEventArgs e)
+    {
+        // ItemSpaceStationUI.SpaceShipOnCallbackHandler();
+        ItemSpaceStationUI.SpaceShipOnDutyHandler();
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.coreEngineId);
+        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
+        GameManager.Instance.LaunchSpaceShip(_shipData);
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler -= WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler -= WebResponseOnResponseIgniteMinerFailEventHandler;
     }
 
     private void OnNoButtonClickAddCoreEventHandler(object sender, EventArgs e)

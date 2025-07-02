@@ -43,4 +43,43 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 }
             });
     }
+
+    public void StartFakeResponseIgniteMinerCoroutine(int minerId, int coreEngineId)
+    {
+        StartCoroutine(FakeResponseResponseIgniteMinerCoroutine(minerId, coreEngineId));
+    }
+
+    private IEnumerator FakeResponseResponseIgniteMinerCoroutine(int minerId, int coreEngineId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseIgniteMiner(
+            new WebResponse.OnResponseIgniteMinerEventArgs
+            {
+                Data = new ResponseIgniteMinerDTO
+                {
+                    minerId = minerId,
+                    coreEngineId = coreEngineId
+                }
+            });
+    }
+
+    public void StartFakeInvokeResponseExtinguishMinerCoroutine(int minerId)
+    {
+        StartCoroutine(FakeInvokeResponseExtinguishMinerCoroutine(minerId));
+    }
+
+    private IEnumerator FakeInvokeResponseExtinguishMinerCoroutine(int minerId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseExtinguishMiner(
+            new WebResponse.OnResponseExtinguishMinerEventArgs
+            {
+                Data = new ResponseExtinguishMinerDTO
+                {
+                    minerId = minerId,
+                }
+            });
+    }
 }

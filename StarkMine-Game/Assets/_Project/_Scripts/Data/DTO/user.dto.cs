@@ -14,7 +14,7 @@ public class ShipDTO
     public int level;
     public int efficiency;
     public string lastMaintenance;
-    public string coreEngineId;
+    public int coreEngineId;
     public bool isIgnited;
 
     public override string ToString()
@@ -40,6 +40,10 @@ public class ResponseIgniteMinerDTO
 {
     public int minerId;
     public int coreEngineId;
+}
+public class ResponseExtinguishMinerDTO
+{
+    public int minerId;
 }
 
 public class StationDTO

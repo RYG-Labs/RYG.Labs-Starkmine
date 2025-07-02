@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: core-lv2
   m_EditorClassIdentifier: 
   sprite: {fileID: 21300000, guid: c7ecc4f3cabc90d4392f072e4d635a02, type: 3}
-  nameCoreEngine: Lv2
+  nameCoreEngine: Elite
   coreEngineType: 1
   cost: 2000

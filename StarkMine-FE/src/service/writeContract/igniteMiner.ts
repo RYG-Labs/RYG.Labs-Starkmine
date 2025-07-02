@@ -1,5 +1,5 @@
 import { contracts } from "@/configs/contracts";
-import { AccountInterface, CallData } from "starknet";
+import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 
@@ -9,13 +9,13 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
         const tx = await account.execute({
             contractAddress: contracts.MinerNFT,
             entrypoint: "ignite_miner",
-            calldata: CallData.compile({ miner_id: minerId, core_engine_id: coreEngineId }),
+            calldata: CallData.compile({ token_id: uint256.bnToUint256(minerId), core_engine_id: uint256.bnToUint256(coreEngineId) }),
         });
 
-       const receipt = await provider.waitForTransaction(tx.transaction_hash);
+        const receipt = await provider.waitForTransaction(tx.transaction_hash);
 
         console.log(receipt);
-        
+
         if (receipt.isSuccess()) {
             return {
                 status: StatusEnum.SUCCESS,
@@ -25,8 +25,8 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
                     minerId: minerId,
                     coreEngineId: coreEngineId,
                 }
-                
-            } 
+
+            }
         } else {
             return {
                 status: StatusEnum.ERROR,
@@ -38,7 +38,7 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
                 }
             }
         }
-    } catch (error: any) {        
+    } catch (error: any) {
         return {
             status: StatusEnum.ERROR,
             message: error.message,

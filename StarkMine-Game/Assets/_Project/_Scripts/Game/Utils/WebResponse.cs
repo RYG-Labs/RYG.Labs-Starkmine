@@ -231,49 +231,72 @@ public class WebResponse : StaticInstance<WebResponse>
 
     #region ResponseIgniteMiner
 
-    // public event EventHandler<OnResponseIgniteMinerEventArgs> OnResponseIgniteMinerEventHandler;
-    //
-    // public class OnResponseIgniteMinerEventArgs : EventArgs
-    // {
-    //     public ResponseIgniteMinerDTO Data;
-    // }
-    //
-    // private void ResponseIgniteMiner(string responseString)
-    // {
-    //     Debug.Log("ResponseAssignMinerToStation" + responseString);
-    //     UIManager.Instance.loadingUI.Hide();
-    //     MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
-    //     if (!response.IsSuccess())
-    //     {
-    //         HandleUnSuccess(response.level, response.message);
-    //         return;
-    //     }
-    //
-    //     _isLoadStationDataSuccess = true;
-    //     OnResponseAssignMinerToStationEventHandler?.Invoke(this,
-    //         new OnResponseAssignMinerToStationEventArgs { Data = response.data.ToObject<AssignMinerToStationDTO>() });
-    // }
-    //
-    // public void StartFakeResponseIgniteMinerCoroutine(int stationId, int minerId, int index)
-    // {
-    //     StartCoroutine(FakeResponseCoroutine(stationId, minerId, index));
-    // }
-    //
-    // private IEnumerator FakeResponseCoroutine(int stationId, int minerId, int index)
-    // {
-    //     yield return new WaitForSeconds(0.5f);
-    //     UIManager.Instance.loadingUI.Hide();
-    //     OnResponseAssignMinerToStationEventHandler?.Invoke(this,
-    //         new OnResponseAssignMinerToStationEventArgs()
-    //         {
-    //             Data = new AssignMinerToStationDTO()
-    //             {
-    //                 stationId = stationId,
-    //                 minerId = minerId,
-    //                 index = index
-    //             }
-    //         });
-    // }
+    public event EventHandler<OnResponseIgniteMinerEventArgs> OnResponseIgniteMinerEventHandler;
+    public event EventHandler OnResponseIgniteMinerFailEventHandler;
+
+    public class OnResponseIgniteMinerEventArgs : EventArgs
+    {
+        public ResponseIgniteMinerDTO Data;
+    }
+
+    private void ResponseIgniteMiner(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseIgniteMinerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        _isLoadStationDataSuccess = true;
+        OnResponseIgniteMinerEventHandler?.Invoke(this,
+            new OnResponseIgniteMinerEventArgs { Data = response.data.ToObject<ResponseIgniteMinerDTO>() });
+    }
+
+    public void InvokeResponseIgniteMiner(
+        OnResponseIgniteMinerEventArgs onResponseIgniteMinerEventArgs)
+    {
+        OnResponseIgniteMinerEventHandler?.Invoke(this, onResponseIgniteMinerEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseIgniteMiner
+
+    public event EventHandler<OnResponseExtinguishMinerEventArgs> OnResponseExtinguishMinerEventHandler;
+
+    public class OnResponseExtinguishMinerEventArgs : EventArgs
+    {
+        public ResponseExtinguishMinerDTO Data;
+    }
+
+    public event EventHandler OnResponseExtinguishMinerFailEventHandler;
+
+    private void ResponseExtinguishMiner(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseExtinguishMinerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        _isLoadStationDataSuccess = true;
+        OnResponseExtinguishMinerEventHandler?.Invoke(this,
+            new OnResponseExtinguishMinerEventArgs { Data = response.data.ToObject<ResponseExtinguishMinerDTO>() });
+    }
+
+    public void InvokeResponseExtinguishMiner(
+        OnResponseExtinguishMinerEventArgs onResponseExtinguishMinerEventArgs)
+    {
+        OnResponseExtinguishMinerEventHandler?.Invoke(this, onResponseExtinguishMinerEventArgs);
+    }
 
     #endregion
 }

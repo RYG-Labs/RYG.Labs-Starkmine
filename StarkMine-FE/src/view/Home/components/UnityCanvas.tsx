@@ -176,6 +176,8 @@ export function UnityCanvas() {
 
   const sendIgniteMiner = useCallback(
     async (minerId: number, coreEngineId: number) => {
+      console.log(minerId, coreEngineId);
+
       if (!account || !minerId || !coreEngineId) {
         sendMessage(
           "WebResponse",
@@ -344,14 +346,14 @@ export function UnityCanvas() {
     );
 
     return () => {
-      removeEventListener("RequestConnectWallet", () => {});
-      removeEventListener("RequestDisconnectWallet", () => {});
-      removeEventListener("RequestMinersData", () => {});
-      removeEventListener("RequestCoreEnginesData", () => {});
-      removeEventListener("RequestIgniteMiner", () => {});
-      removeEventListener("RequestExtinguishMiner", () => {});
-      removeEventListener("RequestAssignMinerToStation", () => {});
-      removeEventListener("RequestRemoveMinerFromStation", () => {});
+      removeEventListener("RequestConnectWallet", () => { });
+      removeEventListener("RequestDisconnectWallet", () => { });
+      removeEventListener("RequestMinersData", () => { });
+      removeEventListener("RequestCoreEnginesData", () => { });
+      removeEventListener("RequestIgniteMiner", () => { });
+      removeEventListener("RequestExtinguishMiner", () => { });
+      removeEventListener("RequestAssignMinerToStation", () => { });
+      removeEventListener("RequestRemoveMinerFromStation", () => { });
     };
   }, [account, address, isLoaded]);
 
