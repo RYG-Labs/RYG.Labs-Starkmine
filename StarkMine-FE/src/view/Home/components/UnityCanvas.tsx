@@ -24,6 +24,12 @@ import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
 import assignMinerToStation from "@/service/writeContract/assignMinerToStation";
 import extinguishMiner from "@/service/writeContract/extinguishMiner";
 import removeMinerFromStation from "@/service/writeContract/removeMinerFromStation";
+import upgradeMiner from "@/service/writeContract/upgradeMiner";
+import defuseEngine from "@/service/writeContract/defuseEngine";
+import upgradeStation from "@/service/writeContract/upgradeStation";
+import getLevelConfig from "@/service/readContract/getStaionLevelConfig";
+import getStationLevelsConfig from "@/service/readContract/getStaionLevelConfig";
+import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -308,6 +314,112 @@ export function UnityCanvas() {
     [account]
   );
 
+  const sendUpgradeMiner = useCallback(
+    async (minerId: number) => {
+      if (!account || !minerId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseUpgradeMiner",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await upgradeMiner(account, minerId);
+      sendMessage(
+        "WebResponse",
+        "ResponseUpgradeMiner",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
+  const sendDefuseEngine = useCallback(
+    async (engineId: number) => {
+      if (!account || !engineId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseDefuseEngine",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await defuseEngine(account, engineId);
+      sendMessage(
+        "WebResponse",
+        "ResponseDefuseEngine",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
+  const sendUpgradeStation = useCallback(
+    async (stationId: number, targetLevel: number) => {
+      if (!account || !stationId || !targetLevel) {
+        sendMessage(
+          "WebResponse",
+          "ResponseUpgradeStation",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await upgradeStation(account, stationId, targetLevel);
+      sendMessage(
+        "WebResponse",
+        "ResponseUpgradeStation",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
+  const sendMinerLevelsConfig = useCallback(async () => {
+    const levelsConfig = await getMinerLevelsConfig();
+    sendMessage(
+      "WebResponse",
+      "ResponseMinerLevelsConfig",
+      JSON.stringify({
+        status: StatusEnum.SUCCESS,
+        message: MessageEnum.SUCCESS,
+        level: ErrorLevelEnum.INFOR,
+        data: levelsConfig,
+      })
+    );
+  }, []);
+
+  const sendStationLevelsConfig = useCallback(async () => {
+    const levelsConfig = await getStationLevelsConfig();
+    sendMessage(
+      "WebResponse",
+      "ResponseStationLevelsConfig",
+      JSON.stringify({
+        status: StatusEnum.SUCCESS,
+        message: MessageEnum.SUCCESS,
+        level: ErrorLevelEnum.INFOR,
+        data: levelsConfig,
+      } as MessageBase)
+    );
+  }, []);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -345,15 +457,30 @@ export function UnityCanvas() {
       }
     );
 
+    addEventListener("RequestUpgradeMiner", (minerId) => {
+      sendUpgradeMiner(minerId as number);
+    });
+
+    addEventListener("RequestDefuseEngine", (engineId) => {
+      sendDefuseEngine(engineId as number);
+    });
+
+    addEventListener("RequestUpgradeStation", (stationId, targetLevel) => {
+      sendUpgradeStation(stationId as number, targetLevel as number);
+    });
+
     return () => {
-      removeEventListener("RequestConnectWallet", () => { });
-      removeEventListener("RequestDisconnectWallet", () => { });
-      removeEventListener("RequestMinersData", () => { });
-      removeEventListener("RequestCoreEnginesData", () => { });
-      removeEventListener("RequestIgniteMiner", () => { });
-      removeEventListener("RequestExtinguishMiner", () => { });
-      removeEventListener("RequestAssignMinerToStation", () => { });
-      removeEventListener("RequestRemoveMinerFromStation", () => { });
+      removeEventListener("RequestConnectWallet", () => {});
+      removeEventListener("RequestDisconnectWallet", () => {});
+      removeEventListener("RequestMinersData", () => {});
+      removeEventListener("RequestCoreEnginesData", () => {});
+      removeEventListener("RequestIgniteMiner", () => {});
+      removeEventListener("RequestExtinguishMiner", () => {});
+      removeEventListener("RequestAssignMinerToStation", () => {});
+      removeEventListener("RequestRemoveMinerFromStation", () => {});
+      removeEventListener("RequestUpgradeMiner", () => {});
+      removeEventListener("RequestDefuseEngine", () => {});
+      removeEventListener("RequestUpgradeStation", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -447,7 +574,7 @@ export function UnityCanvas() {
 
   return (
     <>
-      <div>
+      <div className="flex flex-col gap-1">
         <button
           onClick={() => {
             getCoreEnginesByOwner(
@@ -471,8 +598,12 @@ export function UnityCanvas() {
         {!isConnected && (
           <button onClick={connectWallet}>Connect wallet</button>
         )}
-        <p>account chain: {accountChainId}</p>
-        <p>target chain: {walletConfig.targetNetwork.id}</p>
+        <button onClick={() => getStationLevelsConfig()}>
+          get Station LevelConfig
+        </button>
+        <button onClick={() => getMinerLevelsConfig()}>
+          get Miner LevelConfig
+        </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
