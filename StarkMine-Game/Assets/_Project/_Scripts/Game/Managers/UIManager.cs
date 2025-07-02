@@ -1,7 +1,4 @@
 using _Project._Scripts.Game.Managers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using UnityEngine;
 
 public class UIManager : StaticInstance<UIManager>
 {
@@ -25,33 +22,15 @@ public class UIManager : StaticInstance<UIManager>
     public TabPlanetUI tabPlanetUI;
     public bool isHoverUI;
 
-    public void ResponseConnectWallet(string responseString)
+    private void Start()
     {
-        showNotificationCantOffUI.Hide();
-        showNotificationUI.Hide();
-        Debug.Log("ResponseConnectWallet:" + responseString);
-        MessageBase<JObject> response = JsonConvert.DeserializeObject<MessageBase<JObject>>(responseString);
-        if (!response.IsSuccess())
-        {
-            switch (response.level)
-            {
-                case MessageBase<JObject>.MessageEnum.WARNING:
-                    Debug.Log("showNotificationUI");
-                    showNotificationUI.SetUp(response.message);
-                    showNotificationUI.Show();
-                    break;
-                case MessageBase<JObject>.MessageEnum.ERROR:
-                    Debug.Log("showNotificationCantOffUI");
-                    showNotificationCantOffUI.SetUp(response.message);
-                    showNotificationCantOffUI.Show();
-                    break;
-            }
+        WebResponse.Instance.OnResponseConnectWalletEventHandler += WebResponseOnResponseConnectWalletEventHandler;
+    }
 
-            return;
-        }
-
-        UserDTO userDto = response.data.ToObject<UserDTO>();
-        Debug.Log("Address:" + userDto.address);
+    private void WebResponseOnResponseConnectWalletEventHandler(object sender,
+        WebResponse.OnResponseConnectWalletEventArgs e)
+    {
+        UserDTO userDto = e.Data;
         DataManager.Instance.UserData = new UserData
         {
             Address = userDto.address,

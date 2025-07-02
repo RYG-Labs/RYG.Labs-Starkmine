@@ -12,19 +12,20 @@ namespace _Project._Scripts.Game.Managers
 {
     public class GameManager : Singleton<GameManager>
     {
-        public event EventHandler<OnChangePlanetEventHandlerEventArgs> OnChangePlanetEventHandler;
+        public event EventHandler<OnChangeStationEventHandlerEventArgs> OnChangeStationEventHandler;
 
-        public class OnChangePlanetEventHandlerEventArgs : EventArgs
+        public class OnChangeStationEventHandlerEventArgs : EventArgs
         {
-            public PlanetSO CurrentPlanet { get; set; }
-            public PlanetSO NewPlanet { get; set; }
             public ShipData[] ListShipInNewPlanet { get; set; }
             public StationData CurrentStation { get; set; }
         }
 
         [SerializeField] private Ship shipPrefab;
+
         [SerializeField] private Planet planetPrefab;
-        public PlanetSO CurrentPlanetId;
+
+        // public PlanetSO CurrentPlanetId;
+        public StationData CurrentStation;
 
         [SerializeField] private Planet currentPlanet;
 
@@ -33,19 +34,19 @@ namespace _Project._Scripts.Game.Managers
 
         private void Start()
         {
+            CurrentStation = DataManager.Instance.listStationData[0];
             currentPlanet = Instantiate(planetPrefab, new Vector3(0, 0, 0), Quaternion.identity, GameHolder);
         }
 
-        public void MoveToNewPlanet(PlanetSO planetSO)
+        public void MoveToNewStation(StationData station)
         {
             BulletPooling.Instance.ClearPool();
             GameHolder.DestroyChildren();
             ships.Clear();
-            CurrentPlanetId = planetSO;
+            CurrentStation = station;
             currentPlanet = Instantiate(planetPrefab, new Vector3(0, 0, 0), Quaternion.identity, GameHolder);
-            currentPlanet.spriteRenderer.sprite = planetSO.planetSprite;
-            Dictionary<PlanetSO, ShipData[]> shipInInventory = DataManager.Instance.PlanetShipDictionary;
-            foreach (ShipData shipData in shipInInventory[CurrentPlanetId])
+            currentPlanet.spriteRenderer.sprite = station.planetSo.planetSprite;
+            foreach (ShipData shipData in CurrentStation.ListShipData)
             {
                 if (shipData == null || !shipData.onDuty) continue;
                 Ship ship = Instantiate(shipPrefab, new Vector3(-2, 0, 0), Quaternion.identity, GameHolder);
@@ -53,26 +54,24 @@ namespace _Project._Scripts.Game.Managers
                 ship.SetUp(shipData, currentPlanet);
             }
 
-            OnChangePlanetEventHandler?.Invoke(this, new OnChangePlanetEventHandlerEventArgs
+            OnChangeStationEventHandler?.Invoke(this, new OnChangeStationEventHandlerEventArgs
             {
-                CurrentPlanet = CurrentPlanetId,
-                NewPlanet = planetSO,
-                ListShipInNewPlanet = shipInInventory[CurrentPlanetId],
-                CurrentStation = GetCurrentStation()
+                ListShipInNewPlanet = CurrentStation.ListShipData,
+                CurrentStation = CurrentStation
             });
         }
 
-        public void AddShipToCurrentPlanet(ShipData shipData, int index)
+        public void AddShipToCurrentStation(ShipData shipData, int index)
         {
             List<ShipData> listShipData = DataManager.Instance.ShipInInventory;
-            DataManager.Instance.AddShipToPlanet(CurrentPlanetId, shipData, index);
+            DataManager.Instance.AddShipToStation(CurrentStation, shipData, index);
             listShipData.Remove(shipData);
         }
 
-        public void RemoveShipToCurrentPlanet(ShipData shipData, int index)
+        public void RemoveShipToCurrentStation(ShipData shipData, int index)
         {
             List<ShipData> listShipData = DataManager.Instance.ShipInInventory;
-            DataManager.Instance.RemoveShipToPlanet(CurrentPlanetId, shipData, index);
+            DataManager.Instance.RemoveShipToStation(CurrentStation, shipData, index);
             listShipData.Add(shipData);
         }
 
@@ -100,6 +99,10 @@ namespace _Project._Scripts.Game.Managers
             shipData.onDuty = false;
             ships.Remove(ship);
             Destroy(ship.gameObject);
+            CoreEngineData coreEngineData = shipData.CoreEngineData;
+            coreEngineData.isActive = false;
+            DataManager.Instance.AddCoreEngine(coreEngineData);
+            shipData.CoreEngineData = null;
             return true;
         }
 
@@ -110,14 +113,14 @@ namespace _Project._Scripts.Game.Managers
 
         public ShipData[] GetShipOnCurrentPlanet()
         {
-            return DataManager.Instance.PlanetShipDictionary[CurrentPlanetId];
+            return CurrentStation.ListShipData;
         }
 
-        public StationData GetCurrentStation()
-        {
-            int index = DataManager.Instance.planets.IndexOf(CurrentPlanetId);
-            return DataManager.Instance.listStationData[index];
-        }
+        // public StationData GetCurrentStation()
+        // {
+        //     // int index = DataManager.Instance.planets.IndexOf(CurrentPlanetId);
+        //     return DataManager.Instance.listStationData[index];
+        // }
         // public void DestroyAllShip()
         // {
         //     foreach (var ship in ships)

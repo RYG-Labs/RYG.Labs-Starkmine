@@ -54,3 +54,15 @@ public class StationDTO
     public int unlockTimestamp;
     public JArray minerIds;
 }
+
+public class AssignMinerToStationDTO
+{
+    public int stationId;
+    public int minerId;
+    public int index;
+}
+public class RemoveMinerFromStationDTO
+{
+    public int stationId;
+    public int minerSlot;
+}

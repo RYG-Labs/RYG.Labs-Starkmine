@@ -12,17 +12,17 @@ public class TabPlanetUI : BasePopup
     protected override void Start()
     {
         base.Start();
-        List<PlanetSO> planetSoList = DataManager.Instance.PlanetShipDictionary.Keys.ToList();
-        foreach (PlanetSO planetSo in planetSoList)
+        List<StationData> listStationData = DataManager.Instance.listStationData;
+        for (int i = 0; i < listStationData.Count; i++)
         {
             ItemTabPlanetUI itemTabPlanetUI = Instantiate(itemTabPlanetUIPrefab, itemContainer);
-            itemTabPlanetUI.Setup(planetSo.planetSprite, planetSo.planetName, planetSo);
+            itemTabPlanetUI.Setup(listStationData[i].planetSo, listStationData[i]);
             itemTabPlanetUI.OnUse += ItemTabPlanetUIOnOnUse;
         }
     }
 
     private void ItemTabPlanetUIOnOnUse(object sender, ItemTabPlanetUI.OnUseEventArgs e)
     {
-        GameManager.Instance.MoveToNewPlanet(e.PlanetSo);
+        GameManager.Instance.MoveToNewStation(e.StationData);
     }
 }

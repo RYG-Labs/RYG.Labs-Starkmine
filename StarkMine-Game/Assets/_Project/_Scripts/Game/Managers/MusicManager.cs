@@ -30,13 +30,14 @@ public class MusicManager : PersistentSingleton<MusicManager>
         volume = GetMusicVolume();
         audioSource.loop = true;
         audioSource.volume = volume;
-        GameManager.Instance.OnChangePlanetEventHandler += GameManagerOnChangePlanetEventHandler;
-        PlayMusic(GameManager.Instance.CurrentPlanetId.listPlanetMusic);
+        GameManager.Instance.OnChangeStationEventHandler += GameManagerOnChangeStationEventHandler;
+        PlayMusic(DataManager.Instance.listStationData[0].planetSo.listPlanetMusic);
     }
 
-    private void GameManagerOnChangePlanetEventHandler(object sender, GameManager.OnChangePlanetEventHandlerEventArgs e)
+    private void GameManagerOnChangeStationEventHandler(object sender,
+        GameManager.OnChangeStationEventHandlerEventArgs e)
     {
-        PlayMusic(e.NewPlanet.listPlanetMusic);
+        PlayMusic(e.CurrentStation.planetSo.listPlanetMusic);
     }
 
     public void PlayMusic(List<AudioClip> newClips)

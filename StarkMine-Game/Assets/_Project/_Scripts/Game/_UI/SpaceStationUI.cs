@@ -22,7 +22,7 @@ public class SpaceStationUI : BasePopup
     protected override void Start()
     {
         base.Start();
-        GameManager.Instance.OnChangePlanetEventHandler += GameManagerOnOnChangePlanetEventHandler;
+        GameManager.Instance.OnChangeStationEventHandler += GameManagerOnOnChangeStationEventHandler;
         upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
         downgradeButton.onClick.AddListener(OnDowngradeButtonClick);
     }
@@ -43,8 +43,8 @@ public class SpaceStationUI : BasePopup
         upgradeSpaceShipUI.Show();
     }
 
-    private void GameManagerOnOnChangePlanetEventHandler(object sender,
-        GameManager.OnChangePlanetEventHandlerEventArgs e)
+    private void GameManagerOnOnChangeStationEventHandler(object sender,
+        GameManager.OnChangeStationEventHandlerEventArgs e)
     {
         Refresh(e.ListShipInNewPlanet);
         _stationData = e.CurrentStation;
@@ -54,7 +54,7 @@ public class SpaceStationUI : BasePopup
     private void OnEnable()
     {
         ShipData[] listShipData = GameManager.Instance.GetShipOnCurrentPlanet();
-        _stationData = GameManager.Instance.GetCurrentStation();
+        _stationData = GameManager.Instance.CurrentStation;
         RefreshStationInformation(_stationData);
         Refresh(listShipData);
         DataManager.Instance.OnAddShipToPlanetHandler += DataManagerOnOnAddShipToPlanetHandler;
@@ -94,20 +94,23 @@ public class SpaceStationUI : BasePopup
 
     private void ItemSpaceStationUIOnOnClickHandler(object sender, ItemSpaceStationUI.OnClickHandlerEventArgs e)
     {
+        ItemSpaceStationUI itemSpaceStationUI = sender as ItemSpaceStationUI;
+        if (itemSpaceStationUI == null) return;
         SoundManager.Instance.PlayConfirmSound3();
         _indexSelected = e.ItemIndex;
         if (e.IsEmpty)
         {
             ChooseSpaceShipUI chooseSpaceShipUI = UIManager.Instance.chooseSpaceShipUI;
-            chooseSpaceShipUI.Show();
             chooseSpaceShipUI.spaceShipSelectedIndex = _indexSelected;
+            chooseSpaceShipUI.Show();
         }
         else
         {
-            ShipData[] listShipData = GameManager.Instance.GetShipOnCurrentPlanet();
+            // ShipData[] listShipData = GameManager.Instance.GetShipOnCurrentPlanet();
             ShipInformationUI shipInformationUI = UIManager.Instance.shipInformationUI;
+            shipInformationUI.ItemSpaceStationUI = itemSpaceStationUI;
+            shipInformationUI.SetUp(itemSpaceStationUI.ShipData, _indexSelected);
             shipInformationUI.Show();
-            shipInformationUI.SetUp(listShipData[_indexSelected], _indexSelected);
             // UIManager.Instance.shipInformationUI.transform.position = transform.position;
         }
     }

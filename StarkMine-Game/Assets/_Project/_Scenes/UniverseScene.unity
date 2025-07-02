@@ -4576,7 +4576,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipPrefab: {fileID: 3367502227761008266, guid: 26bd3317c59e6c64ea3f519d32978900, type: 3}
   planetPrefab: {fileID: 1789042251937363857, guid: 55821b0612f17c74191ec9d4da4e7fe8, type: 3}
-  CurrentPlanetId: {fileID: 11400000, guid: 7a1b82cd07f6784418c5b946902ae604, type: 2}
+  CurrentStation:
+    id: 0
+    level: 0
+    spaceStationSo: {fileID: 0}
+    planetSo: {fileID: 0}
   currentPlanet: {fileID: 0}
   ships: []
   GameHolder: {fileID: 1833574534}
@@ -7133,6 +7137,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d912f737c386144a889e8acc3d7631, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!21 &333618578
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _OuterUV: {r: 0.425, g: 0.71999997, b: 0.45000002, a: 0.76}
+    - _WidthHeightRadius: {r: 72, g: 72, b: 72, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &333855385
 GameObject:
   m_ObjectHideFlags: 0
@@ -9815,7 +9860,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1888, y: 32}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &442958674
 MonoBehaviour:
@@ -20599,7 +20644,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1131539520}
+  m_Material: {fileID: 333618578}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -23963,8 +24008,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1815323602}
         m_TargetAssemblyTypeName: ConnectWalletUI, Assembly-CSharp
-        m_MethodName: OnClickTestButton
-        m_Mode: 5
+        m_MethodName: Test
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -27988,47 +28033,6 @@ MonoBehaviour:
   - {fileID: 780942983}
   - {fileID: 495261164}
   listToggleIndexSelected: 
---- !u!21 &1131539520
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _OuterUV: {r: 0.425, g: 0.71999997, b: 0.45000002, a: 0.76}
-    - _WidthHeightRadius: {r: 72, g: 72, b: 72, a: 0}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &1133420760
 GameObject:
   m_ObjectHideFlags: 0
@@ -28747,6 +28751,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153733131}
   m_CullTransparentMesh: 1
+--- !u!1 &1154466251
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1154466253}
+  - component: {fileID: 1154466252}
+  m_Layer: 0
+  m_Name: FakeRespone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1154466252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154466251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec5270c45dcdc494cb9160fa89ab207d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1154466253
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154466251}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.53163, y: 0.56051, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1155216546
 GameObject:
   m_ObjectHideFlags: 0
@@ -31593,6 +31641,50 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &1275720846
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1275720848}
+  - component: {fileID: 1275720847}
+  m_Layer: 0
+  m_Name: WebResponse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1275720847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275720846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d1784c65a945794e94df345152ec225, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1275720848
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1275720846}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1276677629
 GameObject:
   m_ObjectHideFlags: 0
@@ -40504,7 +40596,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1749128486
 RectTransform:
   m_ObjectHideFlags: 0
@@ -40524,7 +40616,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 56.440002}
+  m_AnchoredPosition: {x: 0, y: 56.43994}
   m_SizeDelta: {x: 0, y: 112.87}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1749128489
@@ -41864,7 +41956,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1815323601
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44700,7 +44792,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: ae27bef4a53b6e84690706337729927c, type: 2}
     level: 1
-    coreEngine: {fileID: 0}
     maintenanceLevel: 82
     maintenanceDown: 1
     onDuty: 0
@@ -44708,7 +44799,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: 36cb209064f02534385a66afac03b4a0, type: 2}
     level: 2
-    coreEngine: {fileID: 0}
     maintenanceLevel: 69
     maintenanceDown: 10
     onDuty: 0
@@ -44716,7 +44806,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 1
-    coreEngine: {fileID: 0}
     maintenanceLevel: 39
     maintenanceDown: 15
     onDuty: 0
@@ -44724,7 +44813,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: a57c8401a63b9d74388ebf8cad25797a, type: 2}
     level: 3
-    coreEngine: {fileID: 0}
     maintenanceLevel: 14
     maintenanceDown: 20
     onDuty: 0
@@ -44732,7 +44820,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: ae27bef4a53b6e84690706337729927c, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44740,7 +44827,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44748,7 +44834,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44756,7 +44841,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44764,7 +44848,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44772,7 +44855,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44780,7 +44862,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44788,7 +44869,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44796,7 +44876,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44804,7 +44883,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44812,7 +44890,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44820,7 +44897,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44828,7 +44904,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44836,7 +44911,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44844,7 +44918,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44852,7 +44925,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44860,7 +44932,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44868,7 +44939,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44876,7 +44946,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44884,7 +44953,6 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
@@ -44892,44 +44960,52 @@ MonoBehaviour:
   - id: 0
     shipSO: {fileID: 11400000, guid: afb97e99e6ab49446a17fa728d018774, type: 2}
     level: 5
-    coreEngine: {fileID: 0}
     maintenanceLevel: 5
     maintenanceDown: 25
     onDuty: 0
     hashPower: 0
   _mineCoin: 100000
-  planets:
-  - {fileID: 11400000, guid: 7a1b82cd07f6784418c5b946902ae604, type: 2}
-  - {fileID: 11400000, guid: 742a4a1cf5aff1546b0b7c315690e624, type: 2}
-  - {fileID: 11400000, guid: 7738aebf8c18ba744be2d916871177c9, type: 2}
-  - {fileID: 11400000, guid: f572dec047f284948ba342f5aad63b32, type: 2}
-  - {fileID: 11400000, guid: 2dbc1d0ce5acdab44a98d807d6c5be63, type: 2}
-  - {fileID: 11400000, guid: 744477a760299514b8383bae9e4e1aaf, type: 2}
-  - {fileID: 11400000, guid: 9749c403ab58f664aa65dd01b81a58de, type: 2}
-  - {fileID: 11400000, guid: 251ba545a3d408d4bb992b6e9daa17a9, type: 2}
-  - {fileID: 11400000, guid: 1f7a261887b3c324e9d866cf479f2612, type: 2}
-  - {fileID: 11400000, guid: f6ccf425eb2b1a34bbca62cd7251dd25, type: 2}
   listStationData:
-  - level: 1
+  - id: 0
+    level: 1
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 7a1b82cd07f6784418c5b946902ae604, type: 2}
+  - id: 1
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 742a4a1cf5aff1546b0b7c315690e624, type: 2}
+  - id: 2
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 7738aebf8c18ba744be2d916871177c9, type: 2}
+  - id: 3
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: f572dec047f284948ba342f5aad63b32, type: 2}
+  - id: 4
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 2dbc1d0ce5acdab44a98d807d6c5be63, type: 2}
+  - id: 5
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 744477a760299514b8383bae9e4e1aaf, type: 2}
+  - id: 6
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 9749c403ab58f664aa65dd01b81a58de, type: 2}
+  - id: 7
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 251ba545a3d408d4bb992b6e9daa17a9, type: 2}
+  - id: 8
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
-  - level: 2
+    planetSo: {fileID: 11400000, guid: 1f7a261887b3c324e9d866cf479f2612, type: 2}
+  - id: 9
+    level: 2
     spaceStationSo: {fileID: 11400000, guid: d513fb41aefa8c040a1fcf1a82da2776, type: 2}
+    planetSo: {fileID: 11400000, guid: f6ccf425eb2b1a34bbca62cd7251dd25, type: 2}
   listCoreEngineSO:
   - {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
   - {fileID: 11400000, guid: f9ff6bda28437ff4a8566bcee67021a1, type: 2}
@@ -44945,6 +45021,32 @@ MonoBehaviour:
   - coreEngineSO: {fileID: 11400000, guid: 7d204a224aeb00f42b07b69a8434b031, type: 2}
     amount: 0
   listCoreEngineData: []
+  listCoreEngineDataBase:
+  - id: 0
+    coreEngineSO: {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
+    isActive: 0
+  - id: 1
+    coreEngineSO: {fileID: 11400000, guid: f9ff6bda28437ff4a8566bcee67021a1, type: 2}
+    isActive: 0
+  - id: 2
+    coreEngineSO: {fileID: 11400000, guid: a4bcb0587599a854586c4e3a7460ecaf, type: 2}
+    isActive: 0
+  - id: 3
+    coreEngineSO: {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
+    isActive: 0
+  - id: 4
+    coreEngineSO: {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
+    isActive: 0
+  - id: 5
+    coreEngineSO: {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
+    isActive: 0
+  - id: 6
+    coreEngineSO: {fileID: 11400000, guid: 41122210611ae8c4a953e0d8518332fe, type: 2}
+    isActive: 0
+  - id: 7
+    coreEngineSO: {fileID: 11400000, guid: f9ff6bda28437ff4a8566bcee67021a1, type: 2}
+    isActive: 0
+  allShip: []
   allShipLevel: {fileID: 11400000, guid: 1388eaef4395e664497b1a6e3c229f42, type: 2}
   AllShipSO:
   - {fileID: 11400000, guid: a57c8401a63b9d74388ebf8cad25797a, type: 2}
@@ -59705,3 +59807,5 @@ SceneRoots:
   - {fileID: 716033566}
   - {fileID: 1305857598}
   - {fileID: 123209250}
+  - {fileID: 1275720848}
+  - {fileID: 1154466253}

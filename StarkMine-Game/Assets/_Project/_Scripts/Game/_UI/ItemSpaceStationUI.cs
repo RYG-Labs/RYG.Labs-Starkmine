@@ -48,22 +48,22 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        if (ship.onDuty)
+        // if (ship.onDuty)
+        // {
+        //     callbackButton.gameObject.SetActive(true);
+        //     ShowBorderGreen();
+        // }
+        // else
+        // {
+        if (ship.CoreEngineData == null)
         {
-            callbackButton.gameObject.SetActive(true);
-            ShowBorderGreen();
+            launchButton.gameObject.SetActive(true);
         }
         else
         {
-            if (ship.CoreEngine == null)
-            {
-                addCoreButton.gameObject.SetActive(true);
-            }
-            else
-            {
-                launchButton.gameObject.SetActive(true);
-            }
+            callbackButton.gameObject.SetActive(true);
         }
+        // }
 
         warningImage.gameObject.SetActive(ship.maintenanceLevel < 80);
         shipImage.gameObject.SetActive(true);
@@ -87,14 +87,16 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
 
     private void Start()
     {
-        addCoreButton.onClick.AddListener(OnClickAddCoreButton);
-        // launchButton.onClick.AddListener(OnClickLaunchButton);
+        // addCoreButton.onClick.AddListener(OnClickAddCoreButton);
+        launchButton.onClick.AddListener(OnClickLaunchButton);
         callbackButton.onClick.AddListener(OnClickCallbackButton);
     }
 
     private void OnClickCallbackButton()
     {
+
         bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
+
         SoundManager.Instance.PlayDataPointSound1();
         if (success)
         {
@@ -104,9 +106,28 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
 
     private void OnClickLaunchButton()
     {
-        SoundManager.Instance.PlayCompleteSound1();
-        SpaceShipOnDutyHandler();
-        GameManager.Instance.LaunchSpaceShip(_shipData);
+        bool isContainCoreEngineRequire =
+            DataManager.Instance.IsContainCoreEngineRequireInInventory(_shipData.shipSO.shipType);
+        SoundManager.Instance.PlayConfirmSound3();
+        if (!isContainCoreEngineRequire)
+        {
+            DontHaveRequireCoreEngineUI dontHaveRequireCoreEngineUI = UIManager.Instance.dontHaveRequireCoreEngineUI;
+            CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
+            dontHaveRequireCoreEngineUI.SetUp(coreEngineRequire);
+            dontHaveRequireCoreEngineUI.Show();
+            return;
+        }
+
+        YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
+        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickAddCoreEventHandler;
+        yesNoUI.SetUp(
+            $"Use 1 core engine <color=#FEE109>{DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType).nameCoreEngine}</color> for this spaceship?");
+        yesNoUI.Show();
+
+        // SoundManager.Instance.PlayCompleteSound1();
+        // SpaceShipOnDutyHandler();
+        // GameManager.Instance.LaunchSpaceShip(_shipData);
     }
 
     private void OnClickAddCoreButton()
@@ -124,31 +145,33 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         }
 
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickAddCoreEventHandler;
         yesNoUI.SetUp(
             $"Use 1 core engine <color=#FEE109>{DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType).nameCoreEngine}</color> for this spaceship?");
         yesNoUI.Show();
     }
 
-    private void OnYesButtonClickEventHandler(object sender, EventArgs e)
+    private void OnYesButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         SoundManager.Instance.PlayBleepSound1();
-
-        CoreEngineSO coreEngineSo = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
-        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineSo, _shipData);
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
+        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
+        // SoundManager.Instance.PlayCompleteSound1();
 
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
         SpaceShipOnCallbackHandler();
+        SpaceShipOnDutyHandler();
+        GameManager.Instance.LaunchSpaceShip(_shipData);
     }
 
-    private void OnNoButtonClickEventHandler(object sender, EventArgs e)
+    private void OnNoButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
     }
 
 
@@ -197,5 +220,6 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         HideBorder();
         HideAllButton();
         launchButton.gameObject.SetActive(true);
+        // addCoreButton.gameObject.SetActive(true);
     }
 }

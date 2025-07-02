@@ -15,8 +15,11 @@ public class ShipData
 
     [SerializeField] public int id;
     [SerializeField] public ShipSO shipSO;
+
     [SerializeField] public int level;
-    [SerializeField] private CoreEngineSO coreEngine;
+
+    // [SerializeField] private CoreEngineSO coreEngine;
+    private CoreEngineData coreEngineDataData;
     [SerializeField] public int maintenanceLevel;
     [SerializeField] public int maintenanceDown;
     [SerializeField] public bool onDuty;
@@ -50,12 +53,12 @@ public class ShipData
         this.onDuty = onDuty;
     }
 
-    public CoreEngineSO CoreEngine
+    public CoreEngineData CoreEngineData
     {
-        get => coreEngine;
+        get => coreEngineDataData;
         set
         {
-            coreEngine = value;
+            coreEngineDataData = value;
             OnShipDataChangedEventHandler?.Invoke(this, new OnShipDataChangedEventArgs()
             {
                 NewShipData = this

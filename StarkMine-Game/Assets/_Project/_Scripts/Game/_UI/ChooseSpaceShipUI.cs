@@ -19,16 +19,22 @@ public class ChooseSpaceShipUI : BasePopup
     protected override void Start()
     {
         base.Start();
+        WebResponse.Instance.OnResponseAssignMinerToStationEventHandler +=
+            WebResponseOnResponseAssignMinerToStationEventHandler;
         SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
             isAll: true, isAllType: true));
     }
 
+
     private void OnEnable()
     {
-        countBasicShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Basic).ToString();
-        countEliteShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Elite).ToString();
+        countBasicShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Basic).ToString();
+        countEliteShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Elite).ToString();
         countProShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.Pro).ToString();
-        countGIGAShipText.text = DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.GIGA).ToString();
+        countGIGAShipText.text =
+            DataManager.Instance.CountAllSpaceShipInInventoryByType(ShipSO.ShipType.GIGA).ToString();
         SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
             isAll: true));
         filterSpaceShipUI.OnOptionFilterChangeEventHandler += FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
@@ -57,8 +63,17 @@ public class ChooseSpaceShipUI : BasePopup
         ItemChooseSpaceShipUI.OnYesButtonClickHandlerEventArgs e)
     {
         SoundManager.Instance.PlayConfirmSound1();
-        GameManager.Instance.AddShipToCurrentPlanet(e.ShipData, spaceShipSelectedIndex);
+        UIManager.Instance.loadingUI.Show();
+        WebRequest.CallRequestAssignMinerToStation(GameManager.Instance.CurrentStation.id, e.ShipData.id,
+            spaceShipSelectedIndex);
         Hide();
+    }
+
+    private void WebResponseOnResponseAssignMinerToStationEventHandler(object sender,
+        WebResponse.OnResponseAssignMinerToStationEventArgs e)
+    {
+        ShipData shipData = DataManager.Instance.GetShipDataById(e.Data.minerId);
+        GameManager.Instance.AddShipToCurrentStation(shipData, e.Data.index);
     }
 
     private void OnDisable()

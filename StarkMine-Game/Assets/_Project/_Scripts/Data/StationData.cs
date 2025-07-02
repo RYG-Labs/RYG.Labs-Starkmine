@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
@@ -11,9 +12,41 @@ public class StationData
         public StationData NewStationData;
     }
 
+    [SerializeField] public int id;
     [SerializeField] public int level;
-
     [SerializeField] public SpaceStationSO spaceStationSo;
+    [SerializeField] public PlanetSO planetSo;
+    private ShipData[] _listShipData = new ShipData[6];
+
+    public ShipData[] ListShipData => _listShipData;
+
+    public void AddShipData(ShipData shipData)
+    {
+        for (int i = 0; i < _listShipData.Length; i++)
+        {
+            if (_listShipData[i] != null) continue;
+            _listShipData[i] = shipData;
+            return;
+        }
+    }
+
+    public void RemoveShipData(ShipData shipData)
+    {
+        for (int i = 0; i < _listShipData.Length; i++)
+        {
+            if (_listShipData[i] == shipData) continue;
+            _listShipData[i] = null;
+            return;
+        }
+    }
+
+    public void ResetShipData()
+    {
+        for (int i = 0; i < _listShipData.Length; i++)
+        {
+            _listShipData[i] = null;
+        }
+    }
 
     public void Upgrade()
     {

@@ -23,11 +23,12 @@ public class StationInformationUI : MonoBehaviour
     public void CreateItemStationInformationUI(ShipSO.ShipType shipType)
     {
         ItemStationInformationUI basicMiner = Instantiate(prefabItemStationInformationUI, containerItem);
-        PlanetSO currentPlanet = GameManager.Instance.CurrentPlanetId;
+        PlanetSO currentPlanet = GameManager.Instance.CurrentStation.planetSo;
         string minerType = $"{shipType.ToString()} Miner";
-        int amount = DataManager.Instance.SumAmountOfTypeShipInPlanet(shipType, currentPlanet);
-        float hashPower = DataManager.Instance.SumHashPowerOfTypeShipInPlanet(shipType, currentPlanet);
-        basicMiner.SetUp(minerType, amount, hashPower);
+        // int amount = DataManager.Instance.SumAmountOfTypeShipInPlanet(shipType, currentPlanet);
+        // float hashPower = DataManager.Instance.SumHashPowerOfTypeShipInPlanet(shipType, currentPlanet);
+        // basicMiner.SetUp(minerType, amount, hashPower);
+        basicMiner.SetUp(minerType, 0, 0);
         listItem.Add(basicMiner);
     }
 

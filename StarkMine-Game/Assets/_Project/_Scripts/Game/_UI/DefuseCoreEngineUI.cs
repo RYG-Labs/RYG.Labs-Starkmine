@@ -29,8 +29,8 @@ public class DefuseCoreEngineUI : BasePopup
     private void OnDefuseButtonButtonClick()
     {
         CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
-
-        bool success = DataManager.Instance.RemoveCoreEngine(coreEngineSelected, 1);
+        CoreEngineData coreEngineData =  DataManager.Instance.GetCoreEngineRandomByType(coreEngineSelected.coreEngineType);
+        bool success = DataManager.Instance.RemoveCoreEngine(coreEngineData);
         if (!success)
         {
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;

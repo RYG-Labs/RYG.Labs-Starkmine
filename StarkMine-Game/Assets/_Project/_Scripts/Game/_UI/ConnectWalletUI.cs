@@ -20,25 +20,16 @@ public class ConnectWalletUI : BasePopup
     private void OnClickConnectWalletButton()
     {
         SoundManager.Instance.PlayConfirmSound3();
-#if UNITY_WEBGL && !UNITY_EDITOR
-        RequestConnectWallet();
-#endif
+        WebRequest.CallRequestConnectWallet();
     }
-
-    [DllImport("__Internal")]
-    private static extern void RequestConnectWallet();
-
-    [DllImport("__Internal")]
-    private static extern void RequestDisconnectConnectWallet();
 
     public void OnClickDisconnectWalletButton()
     {
         SoundManager.Instance.PlayConfirmSound3();
-// #if UNITY_WEBGL && !UNITY_EDITOR
-        // RequestDisconnectConnectWallet();
-        DataManager.Instance.HandleDisconnectConnectWallet();
-// #endif
+        WebRequest.CallRequestDisconnectWallet();
         UIManager.Instance.userInfoUI.Hide();
+        UIManager.Instance.spaceStationUI.Hide();
+
         Show();
     }
 
@@ -58,8 +49,8 @@ public class ConnectWalletUI : BasePopup
         UIManager.Instance.tabPlanetUI.Show();
     }
 
-    public void OnClickTestButton(string text)
+    public void Test()
     {
-        UIManager.Instance.ResponseConnectWallet(text);
+        WebRequest.CallRequestAssignMinerToStation(1, 2, 3);
     }
 }

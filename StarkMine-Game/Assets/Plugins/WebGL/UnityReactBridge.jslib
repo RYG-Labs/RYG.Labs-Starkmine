@@ -6,9 +6,9 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
-  RequestDisconnectConnectWallet: function () {
+  RequestDisconnectWallet: function () {
     try {
-      window.dispatchReactUnityEvent("RequestDisconnectConnectWallet");
+      window.dispatchReactUnityEvent("RequestDisconnectWallet");
     } catch (e) {
       console.warn("Failed to dispatch event");
     }
@@ -23,6 +23,34 @@ mergeInto(LibraryManager.library, {
   RequestCoreEnginesData: function () {
     try {
       window.dispatchReactUnityEvent("RequestCoreEnginesData");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestAssignMinerToStation: function (stationId, minerId, index) {
+    try {
+      window.dispatchReactUnityEvent("RequestAssignMinerToStation",stationId, minerId, index);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestRemoveMinerFromStation: function (stationId, minerSlot) {
+    try {
+      window.dispatchReactUnityEvent("RequestRemoveMinerFromStation",stationId, minerSlot);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestIgniteMiner: function (minerId, coreEngineId) {
+    try {
+      window.dispatchReactUnityEvent("RequestIgniteMiner", minerId, coreEngineId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  ResponseExtinguishMiner: function (minerId) {
+    try {
+      window.dispatchReactUnityEvent("ResponseExtinguishMiner", minerId);
     } catch (e) {
       console.warn("Failed to dispatch event");
     }

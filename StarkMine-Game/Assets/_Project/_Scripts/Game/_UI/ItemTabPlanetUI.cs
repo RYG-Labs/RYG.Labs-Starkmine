@@ -10,6 +10,7 @@ public class ItemTabPlanetUI : MonoBehaviour
     public class OnUseEventArgs : EventArgs
     {
         public PlanetSO PlanetSo;
+        public StationData StationData;
     }
 
     [SerializeField] private Button useButton;
@@ -17,12 +18,14 @@ public class ItemTabPlanetUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI planetNameTextMeshPro;
     public int indexButton = -1;
     public PlanetSO PlanetSo;
+    public StationData StationData { get; set; }
 
-    public void Setup(Sprite planetImageSprite, string planetName, PlanetSO planetSo)
+    public void Setup(PlanetSO planetSo, StationData stationData)
     {
-        planetImage.sprite = planetImageSprite;
-        planetNameTextMeshPro.text = planetName;
+        planetImage.sprite = planetSo.planetSprite;
+        planetNameTextMeshPro.text = planetSo.planetName;
         PlanetSo = planetSo;
+        StationData = stationData;
     }
 
     private void Start()
@@ -32,6 +35,10 @@ public class ItemTabPlanetUI : MonoBehaviour
 
     public void OnUseButtonClicked()
     {
-        OnUse.Invoke(this, new OnUseEventArgs() { PlanetSo = PlanetSo });
+        OnUse.Invoke(this, new OnUseEventArgs()
+        {
+            PlanetSo = PlanetSo,
+            StationData = StationData
+        });
     }
 }

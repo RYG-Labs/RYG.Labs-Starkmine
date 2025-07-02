@@ -24,8 +24,10 @@ public class ShipInformationUI : BasePopup
     [SerializeField] private Button noRemoveCoreEngineButton;
     [SerializeField] private Button coreEngineButton;
     [SerializeField] private Button callbackToRemoveButton;
+    [SerializeField] public ItemSpaceStationUI ItemSpaceStationUI { get; set; }
     private int _shipIndex = -1;
     private ShipData _shipData;
+
 
     public void SetUp(ShipData shipData, int shipIndex)
     {
@@ -52,7 +54,7 @@ public class ShipInformationUI : BasePopup
         }
 
 
-        if (shipData.CoreEngine == null)
+        if (shipData.CoreEngineData == null)
         {
             CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineRequire(shipData.shipSO.shipType);
             requireCoreEngineText.text = $"Core {coreEngineRequire.nameCoreEngine} required";
@@ -62,9 +64,9 @@ public class ShipInformationUI : BasePopup
         }
         else
         {
-            coreEngineLevel.text = shipData.CoreEngine.nameCoreEngine;
+            coreEngineLevel.text = shipData.CoreEngineData.coreEngineSO.nameCoreEngine;
             requireCoreEngineGroup.gameObject.SetActive(false);
-            coreEngineImage.sprite = shipData.CoreEngine.sprite;
+            coreEngineImage.sprite = shipData.CoreEngineData.coreEngineSO.sprite;
             coreEngineImage.gameObject.SetActive(true);
         }
     }
@@ -91,12 +93,14 @@ public class ShipInformationUI : BasePopup
 
     private void OnClickYesRemoveCoreEngineButton()
     {
-        SoundManager.Instance.PlayDataPointSound3();
+        // SoundManager.Instance.PlayDataPointSound3();
         removeGroup.gameObject.SetActive(false);
-        CoreEngineSO coreEngineSo = _shipData.CoreEngine;
-        DataManager.Instance.AddCoreEngine(coreEngineSo, 1);
-        _shipData.CoreEngine = null;
-        SetUp(_shipData, _shipIndex);
+        bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
+        SoundManager.Instance.PlayDataPointSound1();
+        if (success)
+        {
+            ItemSpaceStationUI.SpaceShipOnCallbackHandler();
+        }
     }
 
     private void OnClickCallbackToRemoveButton()
@@ -109,14 +113,14 @@ public class ShipInformationUI : BasePopup
     {
         SoundManager.Instance.PlayConfirmSound3();
 
-        if (_shipData.onDuty)
-        {
-            callbackToRemoveButton.gameObject.SetActive(true);
-        }
-        else
-        {
-            removeGroup.gameObject.SetActive(true);
-        }
+        // if (_shipData.onDuty)
+        // {
+        //     callbackToRemoveButton.gameObject.SetActive(true);
+        // }
+        // else
+        // {
+        removeGroup.gameObject.SetActive(true);
+        // }
     }
 
     private void OnClickRequireCoreEngineButton()
@@ -135,30 +139,32 @@ public class ShipInformationUI : BasePopup
         }
 
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickAddCoreEventHandler;
         yesNoUI.SetUp(
             $"Use 1 core engine <color=#FEE109>{DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType).nameCoreEngine}</color> for this spaceship?");
         yesNoUI.Show();
     }
 
-    private void OnYesButtonClickEventHandler(object sender, EventArgs e)
+    private void OnYesButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         SoundManager.Instance.PlayBleepSound1();
-        CoreEngineSO coreEngineSo = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
-        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineSo, _shipData);
-
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineRandomByShipType(_shipData.shipSO.shipType);
+        DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
+        ItemSpaceStationUI.SpaceShipOnCallbackHandler();
+        ItemSpaceStationUI.SpaceShipOnDutyHandler();
+        GameManager.Instance.LaunchSpaceShip(_shipData);
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
         SetUp(_shipData, _shipIndex);
     }
 
-    private void OnNoButtonClickEventHandler(object sender, EventArgs e)
+    private void OnNoButtonClickAddCoreEventHandler(object sender, EventArgs e)
     {
         YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickEventHandler;
+        yesNoUI.OnYesButtonClickEventHandler -= OnYesButtonClickAddCoreEventHandler;
+        yesNoUI.OnNoButtonClickEventHandler -= OnNoButtonClickAddCoreEventHandler;
     }
 
     private void OnClickLaunchButton()
@@ -176,7 +182,7 @@ public class ShipInformationUI : BasePopup
             return;
         }
 
-        if (_shipData.CoreEngine != null)
+        if (_shipData.CoreEngineData != null)
         {
             SoundManager.Instance.PlayConfirmSound3();
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
@@ -185,10 +191,22 @@ public class ShipInformationUI : BasePopup
             return;
         }
 
-        GameManager.Instance.RemoveShipToCurrentPlanet(_shipData, _shipIndex);
+        WebResponse.Instance.OnResponseRemoveMinerFromStationEventHandler +=
+            WebResponseOnResponseRemoveMinerFromStationEventHandler;
+        WebRequest.CallRequestRemoveMinerFromStation(GameManager.Instance.CurrentStation.id, _shipIndex);
+        UIManager.Instance.loadingUI.Show();
+    }
+
+    private void WebResponseOnResponseRemoveMinerFromStationEventHandler(object sender,
+        WebResponse.OnResponseRemoveMinerFromStationEventArgs e)
+    {
+        GameManager.Instance.RemoveShipToCurrentStation(_shipData, _shipIndex);
         SoundManager.Instance.PlayDataPointSound1();
+        WebResponse.Instance.OnResponseRemoveMinerFromStationEventHandler -=
+            WebResponseOnResponseRemoveMinerFromStationEventHandler;
         Hide();
     }
+
 
     private void OnClickRepairButton()
     {

@@ -32,7 +32,6 @@ namespace _Project._Scripts.Game.Managers
 
         public class OnAddShipToPlanetHandlerEventArgs : EventArgs
         {
-            public PlanetSO PlanetSo;
             public ShipData NewShipData;
         }
 
@@ -145,23 +144,23 @@ namespace _Project._Scripts.Game.Managers
             }
         }
 
-        [SerializeField] public List<PlanetSO> planets = new();
         [SerializeField] public List<StationData> listStationData = new();
-
-        private void Start()
-        {
-            foreach (PlanetSO planet in planets)
-            {
-                _planetShipDictionary.Add(planet, new ShipData[6]);
-            }
-        }
+        [SerializeField] public List<StationDTO> listStationDto = new();
 
         public void AddShipToPlanet(PlanetSO planetSo, ShipData shipData, int index)
         {
             PlanetShipDictionary[planetSo][index] = shipData;
             OnAddShipToPlanetHandler?.Invoke(this, new OnAddShipToPlanetHandlerEventArgs
             {
-                PlanetSo = planetSo,
+                NewShipData = shipData
+            });
+        }
+
+        public void AddShipToStation(StationData stationData, ShipData shipData, int index)
+        {
+            stationData.ListShipData[index] = shipData;
+            OnAddShipToPlanetHandler?.Invoke(this, new OnAddShipToPlanetHandlerEventArgs
+            {
                 NewShipData = shipData
             });
         }
@@ -172,6 +171,19 @@ namespace _Project._Scripts.Game.Managers
             OnRemoveShipToPlanetHandler?.Invoke(this, new OnRemoveShipToPlanetEventArgs()
             {
                 PlanetSo = planetSo,
+                ShipRemoved = shipData
+            });
+        }
+
+        public void RemoveShipToStation(StationData stationData, ShipData shipData, int index)
+        {
+            // PlanetShipDictionary[planetSo][index] = null;
+            // stationData.ListShipData.Remove(shipData);
+            stationData.ListShipData[index] = null;
+
+            OnRemoveShipToPlanetHandler?.Invoke(this, new OnRemoveShipToPlanetEventArgs()
+            {
+                // PlanetSo = planetSo,
                 ShipRemoved = shipData
             });
         }
@@ -189,6 +201,7 @@ namespace _Project._Scripts.Game.Managers
         public List<CoreEngineSO> listCoreEngineSO;
         public List<CoreEngineAmountData> listCoreEngineAmountInInventory;
         public List<CoreEngineData> listCoreEngineData;
+        public List<ShipData> allShip;
 
         public CoreEngineData GetCoreEngineDataUnActiveByType(CoreEngineSO.CoreEngineType type)
         {
@@ -209,13 +222,12 @@ namespace _Project._Scripts.Game.Managers
             }
         }
 
-        public void AddCoreEngine(CoreEngineSO coreEngineSO, int amount)
+        public void AddCoreEngine(CoreEngineData coreEngineData)
         {
             CoreEngineAmountData coreEngineAmountData =
-                listCoreEngineAmountInInventory.Find(item => item.coreEngineSO == coreEngineSO);
-
-            coreEngineAmountData.amount += amount;
-
+                listCoreEngineAmountInInventory.Find(item => item.coreEngineSO == coreEngineData.coreEngineSO);
+            coreEngineAmountData.amount++;
+            // listCoreEngineData.Add(coreEngineData);
             OnUpdateAmountCoreEngineHandler?.Invoke(this, new OnUpdateAmountCoreEngineHandlerEventArgs
             {
                 NewAmount = coreEngineAmountData.amount,
@@ -223,16 +235,31 @@ namespace _Project._Scripts.Game.Managers
             });
         }
 
-        public bool RemoveCoreEngine(CoreEngineSO coreEngineSO, int amount)
+        public void CreateCoreEngine(CoreEngineData coreEngineData)
         {
             CoreEngineAmountData coreEngineAmountData =
-                listCoreEngineAmountInInventory.Find(item => item.coreEngineSO == coreEngineSO);
-            if (coreEngineAmountData.amount < amount)
+                listCoreEngineAmountInInventory.Find(item => item.coreEngineSO == coreEngineData.coreEngineSO);
+            coreEngineAmountData.amount++;
+            listCoreEngineData.Add(coreEngineData);
+            OnUpdateAmountCoreEngineHandler?.Invoke(this, new OnUpdateAmountCoreEngineHandlerEventArgs
+            {
+                NewAmount = coreEngineAmountData.amount,
+                CoreEngine = coreEngineAmountData.coreEngineSO
+            });
+        }
+
+        public bool RemoveCoreEngine(CoreEngineData coreEngineData)
+        {
+            CoreEngineAmountData coreEngineAmountData =
+                listCoreEngineAmountInInventory.Find(item => item.coreEngineSO == coreEngineData.coreEngineSO);
+            if (coreEngineAmountData.amount < 1)
             {
                 return false;
             }
 
-            coreEngineAmountData.amount -= amount;
+            coreEngineAmountData.amount -= 1;
+
+            listCoreEngineData.Remove(coreEngineData);
 
             OnUpdateAmountCoreEngineHandler?.Invoke(this, new OnUpdateAmountCoreEngineHandlerEventArgs
             {
@@ -274,38 +301,41 @@ namespace _Project._Scripts.Game.Managers
             return false;
         }
 
-        public void AddCoreEngineToSpaceShip(CoreEngineSO coreEngine, ShipData shipData)
+        public void AddCoreEngineToSpaceShip(CoreEngineData coreEngine, ShipData shipData)
         {
-            foreach (PlanetSO planet in _planetShipDictionary.Keys)
-            {
-                foreach (ShipData item in _planetShipDictionary[planet])
-                {
-                    if (item == shipData)
-                    {
-                        item.CoreEngine = coreEngine;
-                        RemoveCoreEngine(coreEngine, 1);
-                    }
-                }
-            }
+            coreEngine.isActive = true;
+            shipData.CoreEngineData = coreEngine;
+            // foreach (PlanetSO planet in _planetShipDictionary.Keys)
+            // {
+            //     foreach (ShipData item in _planetShipDictionary[planet])
+            //     {
+            //         if (item == shipData)
+            //         {
+            //             coreEngine.isActive = true;
+            //             item.CoreEngineData = coreEngine;
+            //             RemoveCoreEngine(coreEngine);
+            //         }
+            //     }
+            // }
         }
 
         public ShipData AddCoreEngineToSpaceShip(int coreEngineId, int shipId)
         {
             CoreEngineData coreEngineData = GetCoreEngineDataById(coreEngineId);
             ShipData shipData = GetShipDataById(shipId);
-            AddCoreEngineToSpaceShip(coreEngineData.coreEngineSO, shipData);
+            AddCoreEngineToSpaceShip(coreEngineData, shipData);
             return shipData;
         }
 
         public ShipData GetShipDataById(int id)
         {
-            return null;
+            return allShip.Find(data => data.id == id);
         }
 
-        public int SumAmountOfTypeShipAllPlanet(ShipSO.ShipType shipType)
-        {
-            return planets.Sum(planets => SumAmountOfTypeShipInPlanet(shipType, planets));
-        }
+        // public int SumAmountOfTypeShipAllPlanet(ShipSO.ShipType shipType)
+        // {
+        //     return planets.Sum(planets => SumAmountOfTypeShipInPlanet(shipType, planets));
+        // }
 
         public int SumAmountOfTypeShipInPlanet(ShipSO.ShipType shipType, PlanetSO planet)
         {
@@ -319,10 +349,10 @@ namespace _Project._Scripts.Game.Managers
                 .Sum(shipData => shipData.GetHashPower());
         }
 
-        public float SumHashPowerInAllPlanet(ShipSO.ShipType shipType, PlanetSO planet)
-        {
-            return planets.Sum(planets => SumHashPowerOfTypeShipInPlanet(shipType, planets));
-        }
+        // public float SumHashPowerInAllPlanet(ShipSO.ShipType shipType, PlanetSO planet)
+        // {
+        //     return planets.Sum(planets => SumHashPowerOfTypeShipInPlanet(shipType, planets));
+        // }
 
         public CoreEngineSO GetCoreEngineRequire(ShipSO.ShipType shipType)
         {
@@ -334,6 +364,19 @@ namespace _Project._Scripts.Game.Managers
                 case ShipSO.ShipType.Pro: return listCoreEngineSO[3];
                 default: return listCoreEngineSO[0];
             }
+        }
+
+        public CoreEngineData GetCoreEngineRandomByShipType(ShipSO.ShipType shipType)
+        {
+            CoreEngineSO coreEngineSO = GetCoreEngineRequire(shipType);
+            return listCoreEngineData.Find(data =>
+                !data.isActive && data.coreEngineSO.coreEngineType == coreEngineSO.coreEngineType);
+        }
+
+        public CoreEngineData GetCoreEngineRandomByType(CoreEngineSO.CoreEngineType type)
+        {
+            return listCoreEngineData.Find(data =>
+                !data.isActive && data.coreEngineSO.coreEngineType == type);
         }
 
         public AllShipLevel allShipLevel;
@@ -386,7 +429,7 @@ namespace _Project._Scripts.Game.Managers
         public int CountCoreEngineEquipped()
         {
             return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
-                .Count(shipData => shipData != null && shipData.CoreEngine != null);
+                .Count(shipData => shipData != null && shipData.CoreEngineData != null);
         }
 
         public int CountCoreEngineUnequippedByType(CoreEngineSO.CoreEngineType coreEngineType)
@@ -399,15 +442,14 @@ namespace _Project._Scripts.Game.Managers
         public int CountCoreEngineEquippedByType(CoreEngineSO.CoreEngineType coreEngineType)
         {
             return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
-                .Count(shipData => shipData != null && shipData.CoreEngine != null &&
-                                   shipData.CoreEngine.coreEngineType == coreEngineType);
+                .Count(shipData => shipData != null && shipData.CoreEngineData != null &&
+                                   shipData.CoreEngineData.coreEngineSO.coreEngineType == coreEngineType);
         }
 
         public int CountAllCoreEngineByType(CoreEngineSO.CoreEngineType coreEngineType)
         {
             return CountCoreEngineUnequippedByType(coreEngineType) + CountCoreEngineEquippedByType(coreEngineType);
         }
-
 
         public List<ShipData> ShipDataInInventoryFilter(List<ShipSO.ShipType> shipTypes, int page, int size,
             bool isAll = false, bool isAllType = false)
@@ -439,79 +481,6 @@ namespace _Project._Scripts.Game.Managers
 
         public List<ShipSO> AllShipSO;
 
-        [DllImport("__Internal")]
-        private static extern void RequestMinersData();
-
-        [DllImport("__Internal")]
-        private static extern void RequestCoreEnginesData();
-
-        private void ResponseMinersData(string responseString)
-        {
-            Debug.Log("ResponseMinersData" + responseString);
-            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess())
-            {
-                UIManager.Instance.loadingUI.Hide();
-                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
-                showNotificationCantOffUI.SetUp(response.message);
-                showNotificationCantOffUI.Show();
-                UIManager.Instance.connectWalletUI.Show();
-#if UNITY_WEBGL && !UNITY_EDITOR
-                RequestDisconnectConnectWallet();
-#endif
-                return;
-            }
-
-            IsLoadShipDataSuccess = true;
-            shipInInventory.Clear();
-            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
-            Debug.Log("ResponseMinersData To Array Success" + listJObject.Count);
-            Debug.Log(IsLoadShipDataSuccess);
-            foreach (JObject jObject in listJObject)
-            {
-                ShipDTO shipDto = jObject.ToObject<ShipDTO>();
-                Debug.Log(shipDto.ToString());
-                ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
-                    shipDto.hashPower, shipDto.isIgnited);
-                ShipInInventory.Add(shipData);
-            }
-        }
-
-        private void ResponseCoreEnginesData(string responseString)
-        {
-            Debug.Log("ResponseCoreEnginesData" + responseString);
-
-            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess())
-            {
-                UIManager.Instance.loadingUI.Hide();
-                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
-                showNotificationCantOffUI.SetUp(response.message);
-                showNotificationCantOffUI.Show();
-                UIManager.Instance.connectWalletUI.Show();
-#if UNITY_WEBGL && !UNITY_EDITOR
-                RequestDisconnectConnectWallet();
-#endif
-                return;
-            }
-
-            IsLoadCoreEngineSuccess = true;
-            ResetListCoreEngineAmountInInventory();
-            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
-            Debug.Log("ResponseCoreEnginesData " + listJObject.Count);
-            Debug.Log(IsLoadCoreEngineSuccess);
-
-            foreach (JObject jObject in listJObject)
-            {
-                CoreEngineDTO coreEngineDto = jObject.ToObject<CoreEngineDTO>();
-                CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
-                CoreEngineData coreEngineData =
-                    new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
-                listCoreEngineData.Add(coreEngineData);
-                AddCoreEngine(coreEngineSo, 1);
-            }
-        }
-
         public ShipSO GetShipSoByType(string type)
         {
             switch (type)
@@ -538,56 +507,105 @@ namespace _Project._Scripts.Game.Managers
             return listCoreEngineSO[0];
         }
 
-        public void ResponseStationsData(string responseString)
+        private void Start()
         {
-            Debug.Log("ResponseStationsData" + responseString);
+            // foreach (PlanetSO planet in planets)
+            // {
+            //     _planetShipDictionary.Add(planet, new ShipData[6]);
+            // }
 
-            MessageBase<JArray> response = JsonConvert.DeserializeObject<MessageBase<JArray>>(responseString);
-            if (!response.IsSuccess())
+#if UNITY_EDITOR
+            for (int i = 0; i < ShipInInventory.Count; i++)
             {
-                UIManager.Instance.loadingUI.Hide();
-                ShowNotificationUI showNotificationCantOffUI = UIManager.Instance.showNotificationUI;
-                showNotificationCantOffUI.SetUp(response.message);
-                showNotificationCantOffUI.Show();
-                UIManager.Instance.connectWalletUI.Show();
-                HandleDisconnectConnectWallet();
-                return;
+                shipInInventory[i].id = i;
             }
 
-            IsLoadStationDataSuccess = true;
-            // listStationData.Clear();
-            List<JObject> listJObject = response.data.ToObject<List<JObject>>();
-            Debug.Log("ResponseMinersData To Array Success" + listJObject.Count);
-            Debug.Log(IsLoadStationDataSuccess);
-            for (int i = 0; i < listJObject.Count; i++)
+            foreach (var shipData in shipInInventory)
             {
-                StationDTO stationDto = listJObject[i].ToObject<StationDTO>();
-                listStationData[i].level = stationDto.level;
+                allShip.Add(shipData);
             }
-        }
 
-        [DllImport("__Internal")]
-        private static extern void RequestDisconnectConnectWallet();
-
-        public void HandleDisconnectConnectWallet()
-        {
-            IsLoadShipDataSuccess = false;
-            IsLoadCoreEngineSuccess = false;
-            IsLoadStationDataSuccess = false;
-#if UNITY_WEBGL && !UNITY_EDITOR
-            RequestDisconnectConnectWallet();
+            foreach (CoreEngineData coreEngineData in listCoreEngineData)
+            {
+                AddCoreEngine(coreEngineData);
+            }
 #endif
+
+            WebResponse.Instance.OnLoadFullBaseData += WebResponseOnLoadFullBaseData;
+            WebResponse.Instance.OnResponseMinersDataEventHandler += WebResponseOnResponseMinersDataEventHandler;
+            WebResponse.Instance.OnResponseCoreEnginesDataEventHandler +=
+                WebResponseOnResponseCoreEnginesDataEventHandler;
+            WebResponse.Instance.OnResponseStationsDataEventHandler += WebResponseOnResponseStationsDataEventHandler;
         }
 
-        public bool IsLoadShipDataSuccess;
-        public bool IsLoadCoreEngineSuccess;
-        public bool IsLoadStationDataSuccess;
-
-        private void Update()
+        private void WebResponseOnLoadFullBaseData(object sender, EventArgs e)
         {
-            if (IsLoadShipDataSuccess && IsLoadCoreEngineSuccess && IsLoadStationDataSuccess)
+            shipInInventory.Clear();
+
+            Debug.Log("1 " + shipInInventory.Count);
+            List<ShipData> listShipIgnore = new List<ShipData>();
+            for (int i = 0; i < listStationDto.Count; i++)
             {
-                UIManager.Instance.loadingUI.Hide();
+                StationDTO stationDto = listStationDto[i];
+                foreach (int shipId in stationDto.minerIds.ToObject<List<int>>())
+                {
+                    ShipData shipData = allShip.Find(shipData => shipData.id == shipId);
+                    listStationData[i].AddShipData(shipData);
+                    listShipIgnore.Add(shipData);
+                }
+            }
+
+            Debug.Log("============== " + listShipIgnore.Count);
+            foreach (ShipData shipData in allShip)
+            {
+                if (listShipIgnore.Contains(shipData)) continue;
+                shipInInventory.Add(shipData);
+                Debug.Log(shipData.id);
+            }
+
+            Debug.Log("5 " + shipInInventory.Count);
+        }
+
+        private void WebResponseOnResponseStationsDataEventHandler(object sender,
+            WebResponse.OnResponseStationsDataEventArgs e)
+        {
+            listStationDto = e.Data;
+
+            for (int i = 0; i < listStationDto.Count; i++)
+            {
+                listStationData[i].level = listStationDto[i].level;
+                listStationData[i].id = listStationDto[i].id;
+                listStationData[i].ResetShipData();
+            }
+        }
+
+        private void WebResponseOnResponseCoreEnginesDataEventHandler(object sender,
+            WebResponse.OnResponseCoreEnginesDataEventArgs e)
+        {
+            ResetListCoreEngineAmountInInventory();
+            List<CoreEngineDTO> listCoreEngineDtos = e.Data;
+            foreach (CoreEngineDTO coreEngineDto in listCoreEngineDtos)
+            {
+                CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
+                CoreEngineData coreEngineData =
+                    new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
+                listCoreEngineData.Add(coreEngineData);
+                AddCoreEngine(coreEngineData);
+            }
+        }
+
+        private void WebResponseOnResponseMinersDataEventHandler(object sender,
+            WebResponse.OnResponseMinersDataEventArgs e)
+        {
+            shipInInventory.Clear();
+            allShip.Clear();
+            List<ShipDTO> listShipDto = e.Data;
+            foreach (ShipDTO shipDto in listShipDto)
+            {
+                ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
+                    shipDto.hashPower, shipDto.isIgnited);
+                // ShipInInventory.Add(shipData);
+                allShip.Add(shipData);
             }
         }
     }
