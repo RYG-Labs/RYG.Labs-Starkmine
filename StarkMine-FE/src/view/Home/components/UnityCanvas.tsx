@@ -23,6 +23,7 @@ import { igniteMiner } from "@/service/writeContract/igniteMiner";
 import { getStationsByOwner } from "@/service/readContract/getStationByOwner";
 import assignMinerToStation from "@/service/writeContract/assignMinerToStation";
 import extinguishMiner from "@/service/writeContract/extinguishMiner";
+import removeMinerFromStation from "@/service/writeContract/removeMinerFromStation";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -275,6 +276,36 @@ export function UnityCanvas() {
     [account]
   );
 
+  const sendRemoveMinerFromStation = useCallback(
+    async (stationId: number, minerSlot: number) => {
+      if (!account || !stationId || !minerSlot) {
+        sendMessage(
+          "WebResponse",
+          "ResponseRemoveMinerFromStation",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await removeMinerFromStation(
+        account,
+        stationId,
+        minerSlot
+      );
+      sendMessage(
+        "WebResponse",
+        "ResponseRemoveMinerFromStation",
+        JSON.stringify(result)
+      );
+    },
+    [account]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -305,6 +336,12 @@ export function UnityCanvas() {
         );
       }
     );
+    addEventListener(
+      "RequestRemoveMinerFromStation",
+      (stationId, minerSlot) => {
+        sendRemoveMinerFromStation(stationId as number, minerSlot as number);
+      }
+    );
 
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
@@ -314,6 +351,7 @@ export function UnityCanvas() {
       removeEventListener("RequestIgniteMiner", () => {});
       removeEventListener("RequestExtinguishMiner", () => {});
       removeEventListener("RequestAssignMinerToStation", () => {});
+      removeEventListener("RequestRemoveMinerFromStation", () => {});
     };
   }, [account, address, isLoaded]);
 

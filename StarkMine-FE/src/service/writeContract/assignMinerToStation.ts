@@ -1,3 +1,5 @@
+
+
 import { contracts } from "@/configs/contracts";
 import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
@@ -38,10 +40,11 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
                 }
             }
         };
-    } catch (error) {
+    } catch (error: any) {
+        console.log(error.message);
         return {
             status: StatusEnum.ERROR,
-            message: MessageEnum.ERROR,
+            message: error.message,
             level: ErrorLevelEnum.WARNING,
             data: {
                 minerId: minerId,

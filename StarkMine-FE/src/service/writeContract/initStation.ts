@@ -1,5 +1,4 @@
 import { contracts } from "@/configs/contracts";
-import { MessageBase } from "@/type/common";
 import { AccountInterface } from "starknet";
 import { provider } from "../readContract";
 

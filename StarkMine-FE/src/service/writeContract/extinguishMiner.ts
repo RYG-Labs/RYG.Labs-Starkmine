@@ -34,10 +34,10 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 }
             }
         };
-    } catch (error) {
+    } catch (error: any) {
         return {
             status: StatusEnum.ERROR,
-            message: MessageEnum.ERROR,
+            message: error.message,
             level: ErrorLevelEnum.WARNING,
             data: {
                 minerId: minerId,
