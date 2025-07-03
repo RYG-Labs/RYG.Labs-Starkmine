@@ -68,6 +68,7 @@ export function UnityCanvas() {
   });
   const [accountChainId, setAccountChainId] = useState<bigint>();
   const [currentAddress, setCurrentAddress] = useState<string>("");
+  const [isSent, setIsSent] = useState<boolean>(false);
 
   const getChainId = useCallback(async () => {
     if (!connector) return;
@@ -659,6 +660,7 @@ export function UnityCanvas() {
 
   useEffect(() => {
     if (isLoaded && address && account && accountChainId) {
+      if (isSent) return;
       sendDataConnectWallet();
       sendMinersData(address);
       sendCoreEnginesData(address);
@@ -666,6 +668,7 @@ export function UnityCanvas() {
       sendStationLevelsConfig();
       sendTiersConfig();
       sendStationsData();
+      setIsSent(true);
     }
   }, [isLoaded, address, account, accountChainId]);
 
@@ -691,6 +694,7 @@ export function UnityCanvas() {
     }
     if (!currentAddress && address) {
       setCurrentAddress(address);
+      setIsSent(false);
       return;
     }
     if (currentAddress == address) return;
