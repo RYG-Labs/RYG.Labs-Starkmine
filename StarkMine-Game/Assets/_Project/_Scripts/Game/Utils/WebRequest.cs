@@ -29,6 +29,12 @@ public class WebRequest
     [DllImport("__Internal")]
     private static extern void RequestExtinguishMiner(int minerId);
 
+    [DllImport("__Internal")]
+    private static extern void RequestUpgradeStation(int stationId, int targetLevel);
+
+    [DllImport("__Internal")]
+    private static extern void RequestMintCoreEngine(string engineType);
+
     public static void CallRequestConnectWallet()
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -90,6 +96,24 @@ public class WebRequest
         RequestExtinguishMiner(minerId);
 #else
         FakeResponse.Instance.StartFakeInvokeResponseExtinguishMinerCoroutine(minerId);
+#endif
+    }
+
+    public static void CallRequestUpgradeStation(int stationId, int targetLevel)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestUpgradeStation(stationId, targetLevel);
+#else
+        FakeResponse.Instance.StartFakeInvokeResponseUpgradeStationCoroutine(stationId, targetLevel);
+#endif
+    }
+
+    public static void CallRequestMintCoreEngine(string engineType)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestMintCoreEngine(engineType);
+#else
+        // FakeResponse.Instance.StartFakeInvokeResponseUpgradeStationCoroutine(stationId, targetLevel);
 #endif
     }
 }

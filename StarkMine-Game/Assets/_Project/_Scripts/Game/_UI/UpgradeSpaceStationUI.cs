@@ -1,3 +1,4 @@
+using System;
 using _Project._Scripts.Game.Managers;
 using TMPro;
 using UnityEngine;
@@ -17,7 +18,7 @@ public class UpgradeSpaceStationUI : BasePopup
     {
         _stationData = stationData;
         descriptionText.text =
-            $"From <color=#32DEAB>Lv{stationData.level}</color> to <color=#32DEAB>Lv{stationData.level + 1}</color> will increase <color=#FEE109>x{stationData.GetIncreaseMultiplierForNextLevel()}</color> power";
+            $"From <color=#32DEAB>Lv{stationData.level}</color> to <color=#32DEAB>Lv{stationData.level + 1}</color> will increase <color=#FEE109>x1,{stationData.level + 1}</color> power";
         mineRequirementText.text = Helpers.FormatCurrencyNumber(_stationData.GetCostForNextLevel());
     }
 
@@ -33,6 +34,23 @@ public class UpgradeSpaceStationUI : BasePopup
     }
 
     private void OnUpgradeButtonClick()
+    {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseUpgradeStationEventHandler += InstanceOnOnResponseUpgradeStationEventHandler;
+        WebResponse.Instance.OnResponseUpgradeStationFailEventHandler +=
+            InstanceOnOnResponseUpgradeStationFailEventHandler;
+        WebRequest.CallRequestUpgradeStation(_stationData.id, _stationData.level + 1);
+    }
+
+    private void InstanceOnOnResponseUpgradeStationFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseUpgradeStationEventHandler -= InstanceOnOnResponseUpgradeStationEventHandler;
+        WebResponse.Instance.OnResponseUpgradeStationFailEventHandler -=
+            InstanceOnOnResponseUpgradeStationFailEventHandler;
+    }
+
+    private void InstanceOnOnResponseUpgradeStationEventHandler(object sender,
+        WebResponse.OnResponseUpgradeStationEventArgs e)
     {
         DataManager.Instance.MineCoin -= _stationData.GetCostForNextLevel();
         _stationData.Upgrade();
@@ -52,6 +70,10 @@ public class UpgradeSpaceStationUI : BasePopup
             SetUp(_stationData);
             showNotificationUI.Show();
         }
+
+        WebResponse.Instance.OnResponseUpgradeStationEventHandler -= InstanceOnOnResponseUpgradeStationEventHandler;
+        WebResponse.Instance.OnResponseUpgradeStationFailEventHandler -=
+            InstanceOnOnResponseUpgradeStationFailEventHandler;
     }
 
     private void OnEnable()

@@ -55,4 +55,18 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
+  RequestUpgradeStation: function (stationId, targetLevel) {
+    try {
+      window.dispatchReactUnityEvent("RequestUpgradeStation", stationId, targetLevel);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestMintCoreEngine: function (engineType) {
+    try {
+      window.dispatchReactUnityEvent("RequestMintCoreEngine", engineType);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
 });

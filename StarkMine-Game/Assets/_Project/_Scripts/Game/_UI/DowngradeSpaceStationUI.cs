@@ -27,6 +27,12 @@ public class DowngradeSpaceStationUI : BasePopup
 
     private void OnDowngradeButtonClick()
     {
+        // UIManager.Instance.loadingUI.Show();
+        // WebResponse.Instance.OnResponseUpgradeStationEventHandler += InstanceOnOnResponseUpgradeStationEventHandler;
+        // WebResponse.Instance.OnResponseUpgradeStationFailEventHandler +=
+        //     InstanceOnOnResponseUpgradeStationFailEventHandler;
+        // WebRequest.CallRequestUpgradeStation(_stationData.id, _stationData.level + 1);
+        
         DataManager.Instance.MineCoin += _stationData.GetCostForPrevLevel();
         _stationData.Downgrade();
         downgradeButton.interactable = !_stationData.IsMinLevel();

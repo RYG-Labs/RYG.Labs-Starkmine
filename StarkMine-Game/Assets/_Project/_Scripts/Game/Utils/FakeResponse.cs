@@ -82,4 +82,24 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 }
             });
     }
+
+    public void StartFakeInvokeResponseUpgradeStationCoroutine(int stationId, int targetLevel)
+    {
+        StartCoroutine(FakeInvokeResponseUpgradeStationCoroutine(stationId, targetLevel));
+    }
+
+    private IEnumerator FakeInvokeResponseUpgradeStationCoroutine(int stationId, int targetLevel)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseUpgradeStation(
+            new WebResponse.OnResponseUpgradeStationEventArgs()
+            {
+                Data = new ResponseUpgradeStationDTO
+                {
+                    stationId = stationId,
+                    targetLevel = targetLevel
+                }
+            });
+    }
 }

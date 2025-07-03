@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 public class UserDTO
@@ -41,6 +42,7 @@ public class ResponseIgniteMinerDTO
     public int minerId;
     public int coreEngineId;
 }
+
 public class ResponseExtinguishMinerDTO
 {
     public int minerId;
@@ -59,14 +61,40 @@ public class StationDTO
     public JArray minerIds;
 }
 
+public class ResponseMinerLevelsConfigDTO
+{
+    public int level;
+    public int mineRequired;
+}
+
+public class ResponseStationLevelsConfigDTO
+{
+    public int level;
+    public int mineRequired;
+    public int multiplier;
+    public int unlockPeriod;
+}
+
 public class AssignMinerToStationDTO
 {
     public int stationId;
     public int minerId;
     public int index;
 }
+
 public class RemoveMinerFromStationDTO
 {
     public int stationId;
     public int minerSlot;
+}
+
+public class ResponseUpgradeStationDTO
+{
+    public int stationId;
+    public int targetLevel;
+}
+
+public class ResponseMintCoreEngineDTO
+{
+    public string engineType;
 }

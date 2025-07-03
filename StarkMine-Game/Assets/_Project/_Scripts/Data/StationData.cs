@@ -68,7 +68,7 @@ public class StationData
 
     public bool CanDowngrade()
     {
-        return level > 1;
+        return level > 0;
     }
 
     public float GetIncreaseMultiplierForNextLevel()
@@ -102,6 +102,6 @@ public class StationData
 
     public bool IsMinLevel()
     {
-        return level <= 1;
+        return level <= 0;
     }
 }

@@ -104,7 +104,6 @@ public class MergeSpaceshipUI : BasePopup
     private void SelectSpaceShipInUIOnOnSelectSpaceShipEventHandler(object sender,
         SelectSpaceShipInUI.OnSelectSpaceShipEventArgs e)
     {
-        List<ShipSO> shipSos = DataManager.Instance.allShipLevel.GetNextShips(e.ListShipSelected[0].shipSO.shipType);
         // selectSpaceShipResultUI.SetUp(shipSos);
         mergeButton.interactable = true;
     }

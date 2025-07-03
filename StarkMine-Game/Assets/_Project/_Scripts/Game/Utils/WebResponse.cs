@@ -15,14 +15,18 @@ public class WebResponse : StaticInstance<WebResponse>
     private bool _isLoadShipDataSuccess;
     private bool _isLoadCoreEngineSuccess;
     private bool _isLoadStationDataSuccess;
+    private bool _isLoadMinerLevelConfigSuccess;
+    private bool _isLoadStationLevelsConfigSuccess;
+    private bool _isFirstLoad;
 
     private void Update()
     {
-        if (_isLoadShipDataSuccess && _isLoadCoreEngineSuccess && _isLoadStationDataSuccess)
+        if (IsLoadBaseDataSuccess() && !_isFirstLoad)
         {
             OnLoadFullBaseData?.Invoke(this, EventArgs.Empty);
             UIManager.Instance.loadingUI.Hide();
-            ResetLoadData();
+            _isFirstLoad = true;
+            Debug.Log("================Load Full Data===================");
         }
     }
 
@@ -46,11 +50,20 @@ public class WebResponse : StaticInstance<WebResponse>
         }
     }
 
-    private void ResetLoadData()
+    private bool IsLoadBaseDataSuccess()
+    {
+        return _isLoadShipDataSuccess && _isLoadCoreEngineSuccess && _isLoadStationDataSuccess &&
+               _isLoadMinerLevelConfigSuccess && _isLoadStationLevelsConfigSuccess;
+    }
+
+    public void ResetLoadData()
     {
         _isLoadShipDataSuccess = false;
         _isLoadCoreEngineSuccess = false;
         _isLoadStationDataSuccess = false;
+        _isLoadMinerLevelConfigSuccess = false;
+        _isLoadStationLevelsConfigSuccess = false;
+        Debug.Log("================Reset Load Data===================");
     }
 
     #endregion
@@ -66,7 +79,7 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseConnectWallet(string responseString)
     {
-        Debug.Log("===ResponseConnectWallet===:" + responseString);
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
         UIManager.Instance.showNotificationCantOffUI.Hide();
         UIManager.Instance.showNotificationUI.Hide();
         MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
@@ -93,7 +106,9 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseMinersData(string responseString)
     {
-        Debug.Log("ResponseMinersData" + responseString);
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadShipDataSuccess) return;
         MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
 
         if (!response.IsSuccess())
@@ -120,7 +135,10 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseCoreEnginesData(string responseString)
     {
-        Debug.Log("ResponseCoreEnginesData" + responseString);
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadCoreEngineSuccess) return;
+
         MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
 
         if (!response.IsSuccess())
@@ -148,7 +166,10 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseStationsData(string responseString)
     {
-        Debug.Log("ResponseStationsData" + responseString);
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadStationDataSuccess) return;
+
         MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
         if (!response.IsSuccess())
         {
@@ -159,6 +180,66 @@ public class WebResponse : StaticInstance<WebResponse>
         _isLoadStationDataSuccess = true;
         OnResponseStationsDataEventHandler?.Invoke(this,
             new OnResponseStationsDataEventArgs { Data = response.data.ToObject<List<StationDTO>>() });
+    }
+
+    #endregion
+
+    #region ResponseMinerLevelsConfig
+
+    public event EventHandler<OnResponseMinerLevelsConfigEventArgs> OnResponseMinerLevelsConfigHandler;
+
+    public class OnResponseMinerLevelsConfigEventArgs : EventArgs
+    {
+        public List<ResponseMinerLevelsConfigDTO> Data { get; set; }
+    }
+
+    private void ResponseMinerLevelsConfig(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadMinerLevelConfigSuccess) return;
+
+        MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            return;
+        }
+
+        _isLoadMinerLevelConfigSuccess = true;
+        OnResponseMinerLevelsConfigHandler?.Invoke(this,
+            new OnResponseMinerLevelsConfigEventArgs
+                { Data = response.data.ToObject<List<ResponseMinerLevelsConfigDTO>>() });
+    }
+
+    #endregion
+
+    #region ResponseStationLevelsConfig
+
+    public event EventHandler<OnResponseStationLevelsConfigEventArgs> OnResponseStationLevelsConfigHandler;
+
+    public class OnResponseStationLevelsConfigEventArgs : EventArgs
+    {
+        public List<ResponseStationLevelsConfigDTO> Data { get; set; }
+    }
+
+    private void ResponseStationLevelsConfig(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadStationLevelsConfigSuccess) return;
+
+        MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            return;
+        }
+
+        _isLoadStationLevelsConfigSuccess = true;
+        OnResponseStationLevelsConfigHandler?.Invoke(this,
+            new OnResponseStationLevelsConfigEventArgs
+                { Data = response.data.ToObject<List<ResponseStationLevelsConfigDTO>>() });
     }
 
     #endregion
@@ -174,6 +255,8 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseAssignMinerToStation(string responseString)
     {
+        if (_isLoadStationDataSuccess) return;
+
         Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
         UIManager.Instance.loadingUI.Hide();
         MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
@@ -183,7 +266,6 @@ public class WebResponse : StaticInstance<WebResponse>
             return;
         }
 
-        _isLoadStationDataSuccess = true;
         OnResponseAssignMinerToStationEventHandler?.Invoke(this,
             new OnResponseAssignMinerToStationEventArgs { Data = response.data.ToObject<AssignMinerToStationDTO>() });
     }
@@ -251,7 +333,6 @@ public class WebResponse : StaticInstance<WebResponse>
             return;
         }
 
-        _isLoadStationDataSuccess = true;
         OnResponseIgniteMinerEventHandler?.Invoke(this,
             new OnResponseIgniteMinerEventArgs { Data = response.data.ToObject<ResponseIgniteMinerDTO>() });
     }
@@ -264,7 +345,7 @@ public class WebResponse : StaticInstance<WebResponse>
 
     #endregion
 
-    #region ResponseIgniteMiner
+    #region ResponseExtinguishMiner
 
     public event EventHandler<OnResponseExtinguishMinerEventArgs> OnResponseExtinguishMinerEventHandler;
 
@@ -287,7 +368,6 @@ public class WebResponse : StaticInstance<WebResponse>
             return;
         }
 
-        _isLoadStationDataSuccess = true;
         OnResponseExtinguishMinerEventHandler?.Invoke(this,
             new OnResponseExtinguishMinerEventArgs { Data = response.data.ToObject<ResponseExtinguishMinerDTO>() });
     }
@@ -296,6 +376,76 @@ public class WebResponse : StaticInstance<WebResponse>
         OnResponseExtinguishMinerEventArgs onResponseExtinguishMinerEventArgs)
     {
         OnResponseExtinguishMinerEventHandler?.Invoke(this, onResponseExtinguishMinerEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseUpgradeStation
+
+    public event EventHandler<OnResponseUpgradeStationEventArgs> OnResponseUpgradeStationEventHandler;
+
+    public class OnResponseUpgradeStationEventArgs : EventArgs
+    {
+        public ResponseUpgradeStationDTO Data;
+    }
+
+    public event EventHandler OnResponseUpgradeStationFailEventHandler;
+
+    private void ResponseUpgradeStation(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseUpgradeStationFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseUpgradeStationEventHandler?.Invoke(this,
+            new OnResponseUpgradeStationEventArgs { Data = response.data.ToObject<ResponseUpgradeStationDTO>() });
+    }
+
+    public void InvokeResponseUpgradeStation(
+        OnResponseUpgradeStationEventArgs onResponseUpgradeStationEventArgs)
+    {
+        OnResponseUpgradeStationEventHandler?.Invoke(this, onResponseUpgradeStationEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseMintCoreEngine
+
+    public event EventHandler<OnResponseMintCoreEngineEventArgs> OnResponseMintCoreEngineEventHandler;
+
+    public class OnResponseMintCoreEngineEventArgs : EventArgs
+    {
+        public ResponseMintCoreEngineDTO Data;
+    }
+
+    public event EventHandler OnResponseMintCoreEngineFailEventHandler;
+
+    private void ResponseMintCoreEngine(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseMintCoreEngineFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseMintCoreEngineEventHandler?.Invoke(this,
+            new OnResponseMintCoreEngineEventArgs { Data = response.data.ToObject<ResponseMintCoreEngineDTO>() });
+    }
+
+    public void InvokeResponseMintCoreEngine(
+        OnResponseMintCoreEngineEventArgs onResponseMintCoreEngineEventArgs)
+    {
+        OnResponseMintCoreEngineEventHandler?.Invoke(this, onResponseMintCoreEngineEventArgs);
     }
 
     #endregion

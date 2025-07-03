@@ -23,6 +23,6 @@ MonoBehaviour:
   imageAnimationSO: {fileID: 11400000, guid: 9e8cdbcd5bbe91545a43a0f86bd99282, type: 2}
   bulletSO: {fileID: 11400000, guid: 30f8e5a8e7068044792b1f5cfbcca6ce, type: 2}
   hashPower: 0.0067
-  powerShipPerLevel: 64000000c80000002c01000090010000f4010000
+  powerShipPerLevel: 64000000c8000000f401000020030000dc050000
   costPerLevel: 90010000e8030000d0070000a00f000010270000
   shipTypeRequire: 2

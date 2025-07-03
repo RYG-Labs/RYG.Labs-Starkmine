@@ -31,6 +31,8 @@ public class ConnectWalletUI : BasePopup
         UIManager.Instance.spaceStationUI.Hide();
 
         Show();
+
+        WebResponse.Instance.ResetLoadData();
     }
 
     public override void Show()

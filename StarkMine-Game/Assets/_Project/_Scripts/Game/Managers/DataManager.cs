@@ -373,9 +373,6 @@ namespace _Project._Scripts.Game.Managers
                 !data.isActive && data.coreEngineSO.coreEngineType == type);
         }
 
-        public AllShipLevel allShipLevel;
-
-
         public int CountAllSpaceShip()
         {
             return shipInInventory.Count + CountSpaceShipAddedStation();
@@ -503,11 +500,6 @@ namespace _Project._Scripts.Game.Managers
 
         private void Start()
         {
-            // foreach (PlanetSO planet in planets)
-            // {
-            //     _planetShipDictionary.Add(planet, new ShipData[6]);
-            // }
-
 #if UNITY_EDITOR
             for (int i = 0; i < ShipInInventory.Count; i++)
             {
@@ -530,6 +522,38 @@ namespace _Project._Scripts.Game.Managers
             WebResponse.Instance.OnResponseCoreEnginesDataEventHandler +=
                 WebResponseOnResponseCoreEnginesDataEventHandler;
             WebResponse.Instance.OnResponseStationsDataEventHandler += WebResponseOnResponseStationsDataEventHandler;
+            WebResponse.Instance.OnResponseMinerLevelsConfigHandler += WebResponseOnResponseMinerLevelsConfigHandler;
+            WebResponse.Instance.OnResponseStationLevelsConfigHandler +=
+                WebResponseOnResponseStationLevelsConfigHandler;
+        }
+
+        [SerializeField] private SpaceStationSO spaceStationSo;
+
+        private void WebResponseOnResponseStationLevelsConfigHandler(object sender,
+            WebResponse.OnResponseStationLevelsConfigEventArgs e)
+        {
+            List<ResponseStationLevelsConfigDTO> responseMinerLevelConfigs = e.Data;
+
+            spaceStationSo.listCostPerLevel.Clear();
+            spaceStationSo.maxLevel = responseMinerLevelConfigs.Count;
+            foreach (ResponseStationLevelsConfigDTO responseMinerLevelsConfig in responseMinerLevelConfigs)
+            {
+                spaceStationSo.listCostPerLevel.Add(responseMinerLevelsConfig.mineRequired);
+            }
+        }
+
+        private void WebResponseOnResponseMinerLevelsConfigHandler(object sender,
+            WebResponse.OnResponseMinerLevelsConfigEventArgs e)
+        {
+            List<ResponseMinerLevelsConfigDTO> responseMinerLevelConfigs = e.Data;
+            foreach (ShipSO shipSO in AllShipSO)
+            {
+                shipSO.costPerLevel.Clear();
+                foreach (ResponseMinerLevelsConfigDTO responseMinerLevelsConfig in responseMinerLevelConfigs)
+                {
+                    shipSO.costPerLevel.Add(responseMinerLevelsConfig.mineRequired);
+                }
+            }
         }
 
         private void WebResponseOnLoadFullBaseData(object sender, EventArgs e)
@@ -590,11 +614,8 @@ namespace _Project._Scripts.Game.Managers
                 CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
                 CoreEngineData coreEngineData =
                     new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
-                // listCoreEngineData.Add(coreEngineData);
                 CreateCoreEngine(coreEngineData);
             }
-
-            Debug.Log("listCoreEngineData.Count" + listCoreEngineData.Count);
         }
 
         private List<ShipDTO> _listShipDto = new();

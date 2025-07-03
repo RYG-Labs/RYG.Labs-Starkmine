@@ -28,7 +28,7 @@ public class ShipData
     public ShipData(ShipSO newShipSO)
     {
         shipSO = newShipSO;
-        level = 1;
+        level = 0;
         maintenanceLevel = 100;
         maintenanceDown = 0;
         onDuty = false;
@@ -79,13 +79,13 @@ public class ShipData
     public int GetIncreasePowerForNextLevel()
     {
         if (IsMaxLevel()) return 0;
-        return shipSO.powerShipPerLevel[level] - shipSO.powerShipPerLevel[level - 1];
+        return shipSO.powerShipPerLevel[level + 1] - shipSO.powerShipPerLevel[level];
     }
 
     public int GetCostForNextLevel()
     {
         if (IsMaxLevel()) return 0;
-        return shipSO.costPerLevel[level];
+        return shipSO.costPerLevel[level + 1];
     }
 
     public bool IsMaxLevel()
