@@ -32,6 +32,8 @@ const getNewHashPower = async (minerId: number, address: string) => {
 
     // station multiplier
     let stationMultiplier = 1;
+    console.log(await getAllStations(address, 10));
+    
     const stationIncludeMiner = (await getAllStations(address, 10)).find((station) => {
         return station.minerIds.includes(minerId);
     });

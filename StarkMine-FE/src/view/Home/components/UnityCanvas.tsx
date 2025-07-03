@@ -496,7 +496,7 @@ export function UnityCanvas() {
   }, [account, address, isLoaded]);
 
   useEffect(() => {
-    if (isLoaded && address && account) {
+    if (isLoaded && address && account && accountChainId) {
       sendDataConnectWallet();
       sendMinersData(address);
       sendCoreEnginesData(address);
@@ -505,7 +505,7 @@ export function UnityCanvas() {
       sendTiersConfig();
       sendStationsData();
     }
-  }, [isLoaded, address, account]);
+  }, [isLoaded, address, account, accountChainId]);
 
   // ============================= DON'T TOUCH =============================
   useEffect(() => {
