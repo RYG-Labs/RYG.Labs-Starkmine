@@ -32,6 +32,7 @@ import getStationLevelsConfig from "@/service/readContract/getStaionLevelConfig"
 import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
 import getTiersConfig from "@/service/readContract/getTierConfig";
 import getNewHashPower from "@/service/readContract/getNewHashPower";
+import mintCoreEngine from "@/service/writeContract/mintCoreEngine";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -456,6 +457,31 @@ export function UnityCanvas() {
     [address, isLoaded]
   );
 
+  const sendMintCoreEngine = useCallback(
+    async (engineType: string) => {
+      if (!account || !engineType) {
+        sendMessage(
+          "WebResponse",
+          "ResponseMintCoreEngine",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+      const result = await mintCoreEngine(account, engineType);
+      sendMessage(
+        "WebResponse",
+        "ResponseMintCoreEngine",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -509,6 +535,10 @@ export function UnityCanvas() {
       sendGetNewHashPower(minerId as number, address as string);
     });
 
+    addEventListener("RequestMintCoreEngine", (engineType) => {
+      sendMintCoreEngine(engineType as string);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -522,6 +552,7 @@ export function UnityCanvas() {
       removeEventListener("RequestDefuseEngine", () => {});
       removeEventListener("RequestUpgradeStation", () => {});
       removeEventListener("RequestGetNewHashPower", () => {});
+      removeEventListener("RequestMintCoreEngine", () => {});
     };
   }, [account, address, isLoaded]);
 
