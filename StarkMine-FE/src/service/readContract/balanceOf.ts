@@ -16,5 +16,6 @@ export const balanceOf = async (address: string) => {
     provider
   );
   const balance = await MineContract.balance_of(address);
+  console.log("🚀 ~ balanceOf ~ balance:", convertWeiToEther(balance))
   return convertWeiToEther(balance);
 };

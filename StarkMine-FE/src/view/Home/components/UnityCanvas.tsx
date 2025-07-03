@@ -33,6 +33,8 @@ import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
 import getTiersConfig from "@/service/readContract/getTierConfig";
 import getNewHashPower from "@/service/readContract/getNewHashPower";
 import mintCoreEngine from "@/service/writeContract/mintCoreEngine";
+import requestDowngradeStation from "@/service/writeContract/requestDowngradeStation";
+import cancelDowngrade from "@/service/writeContract/cancelDowngrade";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -117,7 +119,7 @@ export function UnityCanvas() {
           level: ErrorLevelEnum.INFOR,
           data: {
             address: address,
-            balance: convertWeiToEther(balance),
+            balance: balance,
           },
         } as MessageBase)
       );
@@ -482,6 +484,62 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendRequestDowngradeStation = useCallback(
+    async (stationId: number, targetLevel: number) => {
+      if (!account || !stationId || !targetLevel) {
+        sendMessage(
+          "WebResponse",
+          "ResponseRequestDowngradeStation",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await requestDowngradeStation(
+        account,
+        stationId,
+        targetLevel
+      );
+      sendMessage(
+        "WebResponse",
+        "ResponseRequestDowngradeStation",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
+  const sendCancelDowngrade = useCallback(
+    async (stationId: number) => {
+      if (!account || !stationId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseCancelDowngrade",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await cancelDowngrade(account, stationId);
+      sendMessage(
+        "WebResponse",
+        "ResponseCancelDowngrade",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -539,6 +597,17 @@ export function UnityCanvas() {
       sendMintCoreEngine(engineType as string);
     });
 
+    addEventListener(
+      "RequestRequestDowngradeStation",
+      (stationId, targetLevel) => {
+        sendRequestDowngradeStation(stationId as number, targetLevel as number);
+      }
+    );
+
+    addEventListener("RequestCancelDowngrade", (stationId) => {
+      sendCancelDowngrade(stationId as number);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -553,6 +622,8 @@ export function UnityCanvas() {
       removeEventListener("RequestUpgradeStation", () => {});
       removeEventListener("RequestGetNewHashPower", () => {});
       removeEventListener("RequestMintCoreEngine", () => {});
+      removeEventListener("RequestRequestDowngradeStation", () => {});
+      removeEventListener("RequestCancelDowngrade", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -688,6 +759,15 @@ export function UnityCanvas() {
           }
         >
           get new hash power
+        </button>
+        <button
+          onClick={async () =>
+            await balanceOf(
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+            )
+          }
+        >
+          get balance
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
