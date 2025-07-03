@@ -35,6 +35,8 @@ import getNewHashPower from "@/service/readContract/getNewHashPower";
 import mintCoreEngine from "@/service/writeContract/mintCoreEngine";
 import requestDowngradeStation from "@/service/writeContract/requestDowngradeStation";
 import cancelDowngrade from "@/service/writeContract/cancelDowngrade";
+import executeDowngrade from "@/service/writeContract/executeDowngrade";
+import canExecuteDowngrade from "@/service/readContract/canExecuteDowngrade";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -540,6 +542,32 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendExecuteDowngrade = useCallback(
+    async (stationId: number) => {
+      if (!account || !stationId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseExecuteDowngrade",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await executeDowngrade(account, stationId);
+      sendMessage(
+        "WebResponse",
+        "ResponseExecuteDowngrade",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -608,6 +636,10 @@ export function UnityCanvas() {
       sendCancelDowngrade(stationId as number);
     });
 
+    addEventListener("RequestExecuteDowngrade", (stationId) => {
+      sendExecuteDowngrade(stationId as number);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -624,6 +656,7 @@ export function UnityCanvas() {
       removeEventListener("RequestMintCoreEngine", () => {});
       removeEventListener("RequestRequestDowngradeStation", () => {});
       removeEventListener("RequestCancelDowngrade", () => {});
+      removeEventListener("RequestExecuteDowngrade", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -768,6 +801,16 @@ export function UnityCanvas() {
           }
         >
           get balance
+        </button>
+        <button
+          onClick={async () =>
+            await canExecuteDowngrade(
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b",
+              8
+            )
+          }
+        >
+          can execute downgrade
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
