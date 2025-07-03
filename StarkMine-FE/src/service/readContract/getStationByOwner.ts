@@ -43,7 +43,7 @@ const getStationData = async (userAddress: string, stationId: number) => {
     });
 };
 
-const getAllStations = async (userAddress: string, stationCount: number): Promise<any[]> => {
+export const getAllStations = async (userAddress: string, stationCount: number): Promise<any[]> => {
     const stationsData = []
 
     for (let i = 1; i <= stationCount; i++) {

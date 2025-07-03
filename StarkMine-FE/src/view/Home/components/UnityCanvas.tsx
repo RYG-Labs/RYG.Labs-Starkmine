@@ -30,6 +30,8 @@ import upgradeStation from "@/service/writeContract/upgradeStation";
 import getLevelConfig from "@/service/readContract/getStaionLevelConfig";
 import getStationLevelsConfig from "@/service/readContract/getStaionLevelConfig";
 import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
+import getTiersConfig from "@/service/readContract/getTierConfig";
+import getNewHashPower from "@/service/readContract/getNewHashPower";
 // import { toast } from "react-toastify";
 
 export function UnityCanvas() {
@@ -420,6 +422,15 @@ export function UnityCanvas() {
     );
   }, []);
 
+  const sendTiersConfig = useCallback(async () => {
+    const tiersConfig = await getTiersConfig();
+    sendMessage(
+      "WebResponse",
+      "ResponseTiersConfig",
+      JSON.stringify(tiersConfig)
+    );
+  }, []);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -485,18 +496,16 @@ export function UnityCanvas() {
   }, [account, address, isLoaded]);
 
   useEffect(() => {
-    if (isLoaded && address && accountChainId) {
+    if (isLoaded && address && account) {
       sendDataConnectWallet();
       sendMinersData(address);
       sendCoreEnginesData(address);
-    }
-  }, [isLoaded, address, accountChainId]);
-
-  useEffect(() => {
-    if (address && account) {
+      sendMinerLevelsConfig();
+      sendStationLevelsConfig();
+      sendTiersConfig();
       sendStationsData();
     }
-  }, [address, account]);
+  }, [isLoaded, address, account]);
 
   // ============================= DON'T TOUCH =============================
   useEffect(() => {
@@ -578,15 +587,19 @@ export function UnityCanvas() {
         <button
           onClick={() => {
             getCoreEnginesByOwner(
-              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
             );
             getMinersByOwner(
-              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
             );
-            getStationsByOwner(
-              account!,
-              "0x07549b52079778e07daee3b913374fcbeea8e41500d21fe688fd2b0ed76d3f6e"
-            );
+            // getStationsByOwner(
+            //   account!,
+            //   "0x07549b52079778e07daee3b913374fcbeea8e41500d21fe688fd2b0ed76d3f6e"
+            // );
+            // getStationsByOwner(
+            //   account!,
+            //   "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+            // );
           }}
         >
           Get data
@@ -603,6 +616,17 @@ export function UnityCanvas() {
         </button>
         <button onClick={() => getMinerLevelsConfig()}>
           get Miner LevelConfig
+        </button>
+        <button onClick={() => getTiersConfig()}>get tiers config</button>
+        <button
+          onClick={() =>
+            getNewHashPower(
+              1,
+              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+            )
+          }
+        >
+          get new hash power
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
