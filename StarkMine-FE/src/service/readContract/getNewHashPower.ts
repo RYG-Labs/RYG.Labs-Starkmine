@@ -18,10 +18,8 @@ const coreEngineContract = new Contract(
 );
 
 const getNewHashPower = async (minerId: number, address: string) => {
-    const miner = await minerContract.get_miner_info(8);
-    console.log("🚀 ~ getNewHashPower ~ miner:", Number(BigInt(miner.core_engine_id)))
+    const miner = await minerContract.get_miner_info(minerId);
     const coreEngine = Number(BigInt(miner.core_engine_id)) ? await coreEngineContract.get_engine_info(miner.core_engine_id) : undefined;
-    console.log("🚀 ~ getNewHashPower ~ coreEngine:", coreEngine)
 
     // only hash power by level
     const newHashPowerByLevel = Number(BigInt(miner.hash_power) / BigInt(1e12)) * (1 + (Number(miner.level) + 1) * 0.1) * (Number(miner.efficiency) / 100);
@@ -32,31 +30,26 @@ const getNewHashPower = async (minerId: number, address: string) => {
 
     // station multiplier
     let stationMultiplier = 1;
-    console.log(await getAllStations(address, 10));
-    
     const stationIncludeMiner = (await getAllStations(address, 10)).find((station) => {
         return station.minerIds.includes(minerId);
     });
-    console.log("🚀 ~ stationIncludeMiner ~ stationIncludeMiner:", stationIncludeMiner)
     if(stationIncludeMiner) {
         stationMultiplier = stationIncludeMiner.multiplier / 10000;
     }
 
-    
     console.log({
         baseHashPower: newHashPowerByLevel,
         coreEngineMultiplier: coreEngineMultiplier,
         stationMultiplier: stationMultiplier,
-        totalHashPower: newHashPowerByLevel * coreEngineMultiplier * stationMultiplier,
+        totalHashPower: Math.round(newHashPowerByLevel * coreEngineMultiplier * stationMultiplier),
     });
 
     return {
         baseHashPower: newHashPowerByLevel,
         coreEngineMultiplier: coreEngineMultiplier,
         stationMultiplier: stationMultiplier,
-        totalHashPower: newHashPowerByLevel * coreEngineMultiplier * stationMultiplier,
+        totalHashPower: Math.round(newHashPowerByLevel * coreEngineMultiplier * stationMultiplier),
     }
-   
 }
 
 export default getNewHashPower;

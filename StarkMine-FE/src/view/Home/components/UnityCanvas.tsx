@@ -149,7 +149,7 @@ export function UnityCanvas() {
         } as MessageBase)
       );
     },
-    [address]
+    [address, isLoaded]
   );
 
   const sendCoreEnginesData = useCallback(
@@ -203,7 +203,7 @@ export function UnityCanvas() {
       const result = await igniteMiner(account, minerId, coreEngineId);
       sendMessage("WebResponse", "ResponseIgniteMiner", JSON.stringify(result));
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendExtinguishMiner = useCallback(
@@ -229,7 +229,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendStationsData = useCallback(async () => {
@@ -253,7 +253,7 @@ export function UnityCanvas() {
       "ResponseStationsData",
       JSON.stringify(stationsDetails)
     );
-  }, [account]);
+  }, [account, isLoaded]);
 
   const sendAssignMinerToStation = useCallback(
     async (stationId: number, minerId: number, index: number) => {
@@ -283,7 +283,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendRemoveMinerFromStation = useCallback(
@@ -313,7 +313,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendUpgradeMiner = useCallback(
@@ -339,7 +339,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendDefuseEngine = useCallback(
@@ -365,7 +365,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendUpgradeStation = useCallback(
@@ -391,7 +391,7 @@ export function UnityCanvas() {
         JSON.stringify(result)
       );
     },
-    [account]
+    [account, isLoaded]
   );
 
   const sendMinerLevelsConfig = useCallback(async () => {
@@ -406,7 +406,7 @@ export function UnityCanvas() {
         data: levelsConfig,
       })
     );
-  }, []);
+  }, [isLoaded]);
 
   const sendStationLevelsConfig = useCallback(async () => {
     const levelsConfig = await getStationLevelsConfig();
@@ -420,7 +420,7 @@ export function UnityCanvas() {
         data: levelsConfig,
       } as MessageBase)
     );
-  }, []);
+  }, [isLoaded]);
 
   const sendTiersConfig = useCallback(async () => {
     const tiersConfig = await getTiersConfig();
@@ -429,7 +429,32 @@ export function UnityCanvas() {
       "ResponseTiersConfig",
       JSON.stringify(tiersConfig)
     );
-  }, []);
+  }, [isLoaded]);
+
+  const sendGetNewHashPower = useCallback(
+    async (minerId: number, address: string) => {
+      if (!address || !minerId) {
+        sendMessage(
+          "WebResponse",
+          "ResponseGetNewHashPower",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+      const newHashPower = await getNewHashPower(minerId, address);
+      sendMessage(
+        "WebResponse",
+        "ResponseGetNewHashPower",
+        JSON.stringify(newHashPower)
+      );
+    },
+    [address, isLoaded]
+  );
 
   // event listener
   useEffect(() => {
@@ -480,6 +505,10 @@ export function UnityCanvas() {
       sendUpgradeStation(stationId as number, targetLevel as number);
     });
 
+    addEventListener("RequestGetNewHashPower", (minerId, address) => {
+      sendGetNewHashPower(minerId as number, address as string);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -492,6 +521,7 @@ export function UnityCanvas() {
       removeEventListener("RequestUpgradeMiner", () => {});
       removeEventListener("RequestDefuseEngine", () => {});
       removeEventListener("RequestUpgradeStation", () => {});
+      removeEventListener("RequestGetNewHashPower", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -621,7 +651,7 @@ export function UnityCanvas() {
         <button
           onClick={() =>
             getNewHashPower(
-              1,
+              8,
               "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
             )
           }
