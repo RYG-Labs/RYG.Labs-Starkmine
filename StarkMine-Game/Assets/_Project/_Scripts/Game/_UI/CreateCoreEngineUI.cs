@@ -35,13 +35,36 @@ public class CreateCoreEngineUI : BasePopup
 
     private void OnCreateButtonClick()
     {
+        SoundManager.Instance.PlayClickSound();
+        UIManager.Instance.loadingUI.Show();
+        CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
+        WebResponse.Instance.OnResponseMintCoreEngineEventHandler += WebResponseOnResponseMintCoreEngineEventHandler;
+        WebResponse.Instance.OnResponseMintCoreEngineFailEventHandler +=
+            WebResponseOnResponseMintCoreEngineFailEventHandler;
+        WebRequest.CallRequestMintCoreEngine(coreEngineSelected.nameCoreEngine);
+    }
+
+    private void WebResponseOnResponseMintCoreEngineFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseMintCoreEngineEventHandler -= WebResponseOnResponseMintCoreEngineEventHandler;
+        WebResponse.Instance.OnResponseMintCoreEngineFailEventHandler -=
+            WebResponseOnResponseMintCoreEngineFailEventHandler;
+    }
+
+    private void WebResponseOnResponseMintCoreEngineEventHandler(object sender,
+        WebResponse.OnResponseMintCoreEngineEventArgs e)
+    {
         SoundManager.Instance.PlayCompleteSound2();
         CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
         CoreEngineData coreEngineData =
-            new CoreEngineData(DataManager.Instance.listCoreEngineData.Count + 1, coreEngineSelected, false);
+            new CoreEngineData(e.Data.coreEngineId, coreEngineSelected, false);
         DataManager.Instance.MineCoin -= coreEngineSelected.cost;
         DataManager.Instance.CreateCoreEngine(coreEngineData);
         Hide();
+
+        WebResponse.Instance.OnResponseMintCoreEngineEventHandler -= WebResponseOnResponseMintCoreEngineEventHandler;
+        WebResponse.Instance.OnResponseMintCoreEngineFailEventHandler -=
+            WebResponseOnResponseMintCoreEngineFailEventHandler;
     }
 
     private void OnEnable()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using _Project._Scripts.Game.Managers;
 using TMPro;
@@ -28,19 +29,48 @@ public class DefuseCoreEngineUI : BasePopup
 
     private void OnDefuseButtonButtonClick()
     {
+        SoundManager.Instance.PlayClickSound();
         CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
-        CoreEngineData coreEngineData =  DataManager.Instance.GetCoreEngineRandomByType(coreEngineSelected.coreEngineType);
-        bool success = DataManager.Instance.RemoveCoreEngine(coreEngineData);
-        if (!success)
+        CoreEngineData coreEngineData =
+            DataManager.Instance.GetCoreEngineRandomByType(coreEngineSelected.coreEngineType);
+        if (coreEngineData == null)
         {
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
             showNotificationUI.SetUp("There is no longer Core Engine");
             showNotificationUI.Show();
             return;
         }
+
+        UIManager.Instance.loadingUI.Show();
+
+        WebResponse.Instance.OnResponseDefuseEngineEventHandler += WebResponseOnResponseDefuseEngineEventHandler;
+        WebResponse.Instance.OnResponseDefuseEngineFailEventHandler +=
+            WebResponseOnResponseDefuseEngineFailEventHandler;
+        WebRequest.CallRequestDefuseEngine(coreEngineData.id);
+    }
+
+    private void WebResponseOnResponseDefuseEngineFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseDefuseEngineEventHandler += WebResponseOnResponseDefuseEngineEventHandler;
+        WebResponse.Instance.OnResponseDefuseEngineFailEventHandler +=
+            WebResponseOnResponseDefuseEngineFailEventHandler;
+    }
+
+    private void WebResponseOnResponseDefuseEngineEventHandler(object sender,
+        WebResponse.OnResponseDefuseEngineEventArgs e)
+    {
+        CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
+        CoreEngineData coreEngineData =
+            DataManager.Instance.GetCoreEngineRandomByType(coreEngineSelected.coreEngineType);
+        DataManager.Instance.RemoveCoreEngine(coreEngineData);
+
         SoundManager.Instance.PlayCompleteSound2();
         DataManager.Instance.MineCoin += coreEngineSelected.cost;
         Hide();
+
+        WebResponse.Instance.OnResponseDefuseEngineEventHandler += WebResponseOnResponseDefuseEngineEventHandler;
+        WebResponse.Instance.OnResponseDefuseEngineFailEventHandler +=
+            WebResponseOnResponseDefuseEngineFailEventHandler;
     }
 
     private void OnEnable()

@@ -4,6 +4,8 @@ import { AccountInterface, CallData } from "starknet";
 import { provider } from "../readContract";
 
 const mintCoreEngine = async (account: AccountInterface, engineType: string): Promise<MessageBase> => {
+  console.log(engineType);
+
   try {
     const tx = await account.execute({
       contractAddress: contracts.CoreEngine,
@@ -14,34 +16,34 @@ const mintCoreEngine = async (account: AccountInterface, engineType: string): Pr
     const receipt = await provider.waitForTransaction(tx.transaction_hash);
 
     if (receipt.isSuccess()) {
-        let coreEngineId = undefined;
-       
-        receipt.events.forEach((event) => {
-            const eventKey = event.keys[0]; 
-            let eventName = "Unknown";
-    
-            if (
-              eventKey ===
-              EventKeyEnum.EngineMinted
-            ) {
-              eventName = "EngineMinted";
-            }
-    
-            if (eventName === "EngineMinted") {
-            coreEngineId = parseInt(event.keys[2], 16); 
-            }
-        });
+      let coreEngineId = undefined;
 
-        if(!coreEngineId) {
-            return {
-              status: StatusEnum.ERROR,
-              message: MessageEnum.ERROR,
-              level: ErrorLevelEnum.WARNING,
-              data: {
-                engineType: engineType,
-              },
-            }
+      receipt.events.forEach((event) => {
+        const eventKey = event.keys[0];
+        let eventName = "Unknown";
+
+        if (
+          eventKey ===
+          EventKeyEnum.EngineMinted
+        ) {
+          eventName = "EngineMinted";
         }
+
+        if (eventName === "EngineMinted") {
+          coreEngineId = parseInt(event.keys[2], 16);
+        }
+      });
+
+      if (!coreEngineId) {
+        return {
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ERROR,
+          level: ErrorLevelEnum.WARNING,
+          data: {
+            engineType: engineType,
+          },
+        }
+      }
 
 
       return {
@@ -66,12 +68,12 @@ const mintCoreEngine = async (account: AccountInterface, engineType: string): Pr
   } catch (error: any) {
     console.log(error);
     return {
-        status: StatusEnum.ERROR,
-        message: error.message,
-        level: ErrorLevelEnum.WARNING,
-        data: {
-          engineType: engineType,
-        },
+      status: StatusEnum.ERROR,
+      message: error.message,
+      level: ErrorLevelEnum.WARNING,
+      data: {
+        engineType: engineType,
+      },
     }
   }
 };

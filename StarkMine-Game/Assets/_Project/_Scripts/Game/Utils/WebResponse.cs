@@ -449,4 +449,39 @@ public class WebResponse : StaticInstance<WebResponse>
     }
 
     #endregion
+
+    #region ResponseDefuseEngine
+
+    public event EventHandler<OnResponseDefuseEngineEventArgs> OnResponseDefuseEngineEventHandler;
+
+    public class OnResponseDefuseEngineEventArgs : EventArgs
+    {
+        public ResponseDefuseEngineDTO Data;
+    }
+
+    public event EventHandler OnResponseDefuseEngineFailEventHandler;
+
+    private void ResponseDefuseEngine(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseDefuseEngineFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseDefuseEngineEventHandler?.Invoke(this,
+            new () { Data = response.data.ToObject<ResponseDefuseEngineDTO>() });
+    }
+
+    public void InvokeResponseDefuseEngine(
+        OnResponseDefuseEngineEventArgs onResponseMintCoreEngineEventArgs)
+    {
+        OnResponseDefuseEngineEventHandler?.Invoke(this, onResponseMintCoreEngineEventArgs);
+    }
+
+    #endregion
 }

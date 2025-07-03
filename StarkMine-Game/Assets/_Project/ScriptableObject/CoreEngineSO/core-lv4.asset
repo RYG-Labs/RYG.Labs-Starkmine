@@ -15,4 +15,4 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 788d1998b6f0f6d4290e5bf56ec5ca0a, type: 3}
   nameCoreEngine: GIGA
   coreEngineType: 3
-  cost: 4000
+  cost: 5000

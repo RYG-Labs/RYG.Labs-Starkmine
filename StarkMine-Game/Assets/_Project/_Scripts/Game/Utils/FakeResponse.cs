@@ -1,4 +1,5 @@
 using System.Collections;
+using _Project._Scripts.Game.Managers;
 using UnityEngine;
 
 public class FakeResponse : StaticInstance<FakeResponse>
@@ -99,6 +100,45 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 {
                     stationId = stationId,
                     targetLevel = targetLevel
+                }
+            });
+    }
+
+    public void StartFakeResponseMintCoreEngineCoroutine(string engineType)
+    {
+        StartCoroutine(FakeInvokeResponseMintCoreEngineCoroutine(engineType));
+    }
+
+    private IEnumerator FakeInvokeResponseMintCoreEngineCoroutine(string engineType)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseMintCoreEngine(
+            new()
+            {
+                Data = new()
+                {
+                    engineType = engineType,
+                    coreEngineId = DataManager.Instance.listCoreEngineData.Count + 1
+                }
+            });
+    }
+
+    public void StartFakeResponseDefuseEngineCoroutine(int engineId)
+    {
+        StartCoroutine(FakeInvokeResponseDefuseEngineCoroutine(engineId));
+    }
+
+    private IEnumerator FakeInvokeResponseDefuseEngineCoroutine(int engineId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseDefuseEngine(
+            new()
+            {
+                Data = new()
+                {
+                    engineId = engineId,
                 }
             });
     }

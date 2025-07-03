@@ -64,7 +64,14 @@ mergeInto(LibraryManager.library, {
   },
   RequestMintCoreEngine: function (engineType) {
     try {
-      window.dispatchReactUnityEvent("RequestMintCoreEngine", engineType);
+      window.dispatchReactUnityEvent("RequestMintCoreEngine", UTF8ToString(engineType));
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestDefuseEngine: function (engineId) {
+    try {
+      window.dispatchReactUnityEvent("RequestDefuseEngine", engineId);
     } catch (e) {
       console.warn("Failed to dispatch event");
     }

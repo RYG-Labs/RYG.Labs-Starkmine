@@ -68,6 +68,7 @@ public class SoundManager : StaticInstance<SoundManager>
     {
         PlaySound(_audioClipRefsSO.bleepSounds[2], AudioSourceConfig.SoundType.UISound);
     }
+
     public void PlayBleepSound4()
     {
         PlaySound(_audioClipRefsSO.bleepSounds[3], AudioSourceConfig.SoundType.UISound);
@@ -83,6 +84,7 @@ public class SoundManager : StaticInstance<SoundManager>
     {
         PlaySound(_audioClipRefsSO.clickSounds[1], AudioSourceConfig.SoundType.UISound);
     }
+
     //Selected sound
     public void PlayClickSound4()
     {
@@ -116,6 +118,11 @@ public class SoundManager : StaticInstance<SoundManager>
         PlaySound(_audioClipRefsSO.confirmSounds[2], AudioSourceConfig.SoundType.UISound);
     }
 
+    public void PlayClickSound()
+    {
+        PlayConfirmSound3();
+    }
+
     public void PlayConfirmSound5()
     {
         PlaySound(_audioClipRefsSO.confirmSounds[4], AudioSourceConfig.SoundType.UISound);
@@ -135,7 +142,7 @@ public class SoundManager : StaticInstance<SoundManager>
     {
         PlaySound(_audioClipRefsSO.dataPointSounds[0], AudioSourceConfig.SoundType.UISound);
     }
-    
+
     //Hover sound
     public void PlayDataPointSound3()
     {

@@ -97,4 +97,10 @@ public class ResponseUpgradeStationDTO
 public class ResponseMintCoreEngineDTO
 {
     public string engineType;
+    public int coreEngineId;
+}
+
+public class ResponseDefuseEngineDTO
+{
+    public int engineId;
 }
