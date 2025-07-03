@@ -16,7 +16,6 @@ import {
   StatusEnum,
 } from "@/type/common";
 import { balanceOf } from "@/service/readContract/balanceOf";
-import { convertWeiToEther } from "@/utils/helper";
 import { getMinersByOwner } from "@/service/readContract/getMinersByOwner";
 import { getCoreEnginesByOwner } from "@/service/readContract/getCoreEnginesByOwner";
 import { igniteMiner } from "@/service/writeContract/igniteMiner";
@@ -27,7 +26,6 @@ import removeMinerFromStation from "@/service/writeContract/removeMinerFromStati
 import upgradeMiner from "@/service/writeContract/upgradeMiner";
 import defuseEngine from "@/service/writeContract/defuseEngine";
 import upgradeStation from "@/service/writeContract/upgradeStation";
-import getLevelConfig from "@/service/readContract/getStaionLevelConfig";
 import getStationLevelsConfig from "@/service/readContract/getStaionLevelConfig";
 import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
 import getTiersConfig from "@/service/readContract/getTierConfig";
@@ -37,7 +35,6 @@ import requestDowngradeStation from "@/service/writeContract/requestDowngradeSta
 import cancelDowngrade from "@/service/writeContract/cancelDowngrade";
 import executeDowngrade from "@/service/writeContract/executeDowngrade";
 import canExecuteDowngrade from "@/service/readContract/canExecuteDowngrade";
-// import { toast } from "react-toastify";
 
 export function UnityCanvas() {
   const {
@@ -811,6 +808,13 @@ export function UnityCanvas() {
           }
         >
           can execute downgrade
+        </button>
+        <button
+          onClick={async () => {
+            await mintCoreEngine(account!, "Basic");
+          }}
+        >
+          Mint core engine
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
