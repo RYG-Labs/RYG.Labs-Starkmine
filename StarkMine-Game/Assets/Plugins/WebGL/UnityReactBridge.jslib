@@ -55,4 +55,60 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
+  RequestUpgradeStation: function (stationId, targetLevel) {
+    try {
+      window.dispatchReactUnityEvent("RequestUpgradeStation", stationId, targetLevel);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+   RequestRequestDowngradeStation: function (stationId, targetLevel) {
+      try {
+        window.dispatchReactUnityEvent("RequestRequestDowngradeStation", stationId, targetLevel);
+      } catch (e) {
+        console.warn("Failed to dispatch event");
+      }
+    },
+   RequestExecuteDowngrade: function (stationId) {
+      try {
+        window.dispatchReactUnityEvent("RequestExecuteDowngrade", stationId);
+      } catch (e) {
+        console.warn("Failed to dispatch event");
+      }
+    },
+  RequestMintCoreEngine: function (engineType) {
+    try {
+      window.dispatchReactUnityEvent("RequestMintCoreEngine", UTF8ToString(engineType));
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestDefuseEngine: function (engineId) {
+    try {
+      window.dispatchReactUnityEvent("RequestDefuseEngine", engineId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestUpgradeMiner: function (minerId) {
+    try {
+      window.dispatchReactUnityEvent("RequestUpgradeMiner", minerId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestGetPendingReward: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestGetPendingReward");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestClaimPendingReward: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestClaimPendingReward");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
 });

@@ -29,8 +29,10 @@ public class ConnectWalletUI : BasePopup
         WebRequest.CallRequestDisconnectWallet();
         UIManager.Instance.userInfoUI.Hide();
         UIManager.Instance.spaceStationUI.Hide();
-
+        DataManager.Instance.UserData = null;
         Show();
+
+        WebResponse.Instance.ResetLoadData();
     }
 
     public override void Show()

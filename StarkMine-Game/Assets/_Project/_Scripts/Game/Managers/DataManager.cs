@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -373,9 +374,6 @@ namespace _Project._Scripts.Game.Managers
                 !data.isActive && data.coreEngineSO.coreEngineType == type);
         }
 
-        public AllShipLevel allShipLevel;
-
-
         public int CountAllSpaceShip()
         {
             return shipInInventory.Count + CountSpaceShipAddedStation();
@@ -503,11 +501,6 @@ namespace _Project._Scripts.Game.Managers
 
         private void Start()
         {
-            // foreach (PlanetSO planet in planets)
-            // {
-            //     _planetShipDictionary.Add(planet, new ShipData[6]);
-            // }
-
 #if UNITY_EDITOR
             for (int i = 0; i < ShipInInventory.Count; i++)
             {
@@ -524,12 +517,52 @@ namespace _Project._Scripts.Game.Managers
                 AddCoreEngine(coreEngineData);
             }
 #endif
-
+            StartCoroutine(RefreshPendingRewardCoroutine());
+            WebResponse.Instance.OnResponseGetPendingRewardEventHandler +=
+                WebResponseOnResponseGetPendingRewardEventHandler;
             WebResponse.Instance.OnLoadFullBaseData += WebResponseOnLoadFullBaseData;
             WebResponse.Instance.OnResponseMinersDataEventHandler += WebResponseOnResponseMinersDataEventHandler;
             WebResponse.Instance.OnResponseCoreEnginesDataEventHandler +=
                 WebResponseOnResponseCoreEnginesDataEventHandler;
             WebResponse.Instance.OnResponseStationsDataEventHandler += WebResponseOnResponseStationsDataEventHandler;
+            WebResponse.Instance.OnResponseMinerLevelsConfigHandler += WebResponseOnResponseMinerLevelsConfigHandler;
+            WebResponse.Instance.OnResponseStationLevelsConfigHandler +=
+                WebResponseOnResponseStationLevelsConfigHandler;
+        }
+
+        private void WebResponseOnResponseGetPendingRewardEventHandler(object sender,
+            WebResponse.OnResponseGetPendingRewardEventArgs e)
+        {
+            PendingReward = e.Data.pendingReward;
+        }
+
+        [SerializeField] private SpaceStationSO spaceStationSo;
+
+        private void WebResponseOnResponseStationLevelsConfigHandler(object sender,
+            WebResponse.OnResponseStationLevelsConfigEventArgs e)
+        {
+            List<ResponseStationLevelsConfigDTO> responseMinerLevelConfigs = e.Data;
+
+            spaceStationSo.listCostPerLevel.Clear();
+            spaceStationSo.maxLevel = responseMinerLevelConfigs.Count;
+            foreach (ResponseStationLevelsConfigDTO responseMinerLevelsConfig in responseMinerLevelConfigs)
+            {
+                spaceStationSo.listCostPerLevel.Add(responseMinerLevelsConfig.mineRequired);
+            }
+        }
+
+        private void WebResponseOnResponseMinerLevelsConfigHandler(object sender,
+            WebResponse.OnResponseMinerLevelsConfigEventArgs e)
+        {
+            List<ResponseMinerLevelsConfigDTO> responseMinerLevelConfigs = e.Data;
+            foreach (ShipSO shipSO in AllShipSO)
+            {
+                shipSO.costPerLevel.Clear();
+                foreach (ResponseMinerLevelsConfigDTO responseMinerLevelsConfig in responseMinerLevelConfigs)
+                {
+                    shipSO.costPerLevel.Add(responseMinerLevelsConfig.mineRequired);
+                }
+            }
         }
 
         private void WebResponseOnLoadFullBaseData(object sender, EventArgs e)
@@ -590,11 +623,8 @@ namespace _Project._Scripts.Game.Managers
                 CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
                 CoreEngineData coreEngineData =
                     new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
-                // listCoreEngineData.Add(coreEngineData);
                 CreateCoreEngine(coreEngineData);
             }
-
-            Debug.Log("listCoreEngineData.Count" + listCoreEngineData.Count);
         }
 
         private List<ShipDTO> _listShipDto = new();
@@ -611,6 +641,38 @@ namespace _Project._Scripts.Game.Managers
                     shipDto.hashPower, shipDto.isIgnited);
                 // ShipInInventory.Add(shipData);
                 allShip.Add(shipData);
+            }
+        }
+
+        public event EventHandler<OnPendingRewardChangeEventArgs> OnPendingRewardChangeEventHandler;
+
+        public class OnPendingRewardChangeEventArgs : EventArgs
+        {
+            public int newValue { get; set; }
+        }
+
+        private int _pendingReward;
+
+        public int PendingReward
+        {
+            get => _pendingReward;
+            set
+            {
+                _pendingReward = value;
+                OnPendingRewardChangeEventHandler?.Invoke(this, new() { newValue = value });
+            }
+        }
+
+        public IEnumerator RefreshPendingRewardCoroutine()
+        {
+            while (true)
+            {
+                if (UserData != null)
+                {
+                    WebRequest.CallRequestGetPendingReward();
+                }
+
+                yield return new WaitForSeconds(30);
             }
         }
     }

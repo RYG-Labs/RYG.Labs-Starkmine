@@ -28,7 +28,7 @@ public class ShipData
     public ShipData(ShipSO newShipSO)
     {
         shipSO = newShipSO;
-        level = 1;
+        level = 0;
         maintenanceLevel = 100;
         maintenanceDown = 0;
         onDuty = false;
@@ -68,7 +68,12 @@ public class ShipData
 
     public float GetHashPower()
     {
-        return Helpers.Round(shipSO.hashPower * (level * 1.1f));
+        return Helpers.Round(shipSO.baseHashPower * (1 + level * 0.1f));
+    }
+
+    public float GetHashPower(int levelShip)
+    {
+        return Helpers.Round(shipSO.baseHashPower * (1 + levelShip * 0.1f));
     }
 
     public void Upgrade()
@@ -76,10 +81,10 @@ public class ShipData
         level++;
     }
 
-    public int GetIncreasePowerForNextLevel()
+    public float GetIncreasePowerForNextLevel()
     {
         if (IsMaxLevel()) return 0;
-        return shipSO.powerShipPerLevel[level] - shipSO.powerShipPerLevel[level - 1];
+        return GetHashPower(level + 1) - GetHashPower(level);
     }
 
     public int GetCostForNextLevel()
@@ -91,5 +96,10 @@ public class ShipData
     public bool IsMaxLevel()
     {
         return level == shipSO.maxLevel;
+    }
+
+    public bool IsMinLevel()
+    {
+        return level == 0;
     }
 }

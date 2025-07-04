@@ -1,4 +1,5 @@
 using System.Collections;
+using _Project._Scripts.Game.Managers;
 using UnityEngine;
 
 public class FakeResponse : StaticInstance<FakeResponse>
@@ -79,6 +80,102 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 Data = new ResponseExtinguishMinerDTO
                 {
                     minerId = minerId,
+                }
+            });
+    }
+
+    public void StartFakeInvokeResponseUpgradeStationCoroutine(int stationId, int targetLevel)
+    {
+        StartCoroutine(FakeInvokeResponseUpgradeStationCoroutine(stationId, targetLevel));
+    }
+
+    private IEnumerator FakeInvokeResponseUpgradeStationCoroutine(int stationId, int targetLevel)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseUpgradeStation(
+            new WebResponse.OnResponseUpgradeStationEventArgs()
+            {
+                Data = new ResponseUpgradeStationDTO
+                {
+                    stationId = stationId,
+                    targetLevel = targetLevel
+                }
+            });
+    }
+
+    public void StartFakeResponseMintCoreEngineCoroutine(string engineType)
+    {
+        StartCoroutine(FakeInvokeResponseMintCoreEngineCoroutine(engineType));
+    }
+
+    private IEnumerator FakeInvokeResponseMintCoreEngineCoroutine(string engineType)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseMintCoreEngine(
+            new()
+            {
+                Data = new()
+                {
+                    engineType = engineType,
+                    coreEngineId = DataManager.Instance.listCoreEngineData.Count + 1
+                }
+            });
+    }
+
+    public void StartFakeResponseDefuseEngineCoroutine(int engineId)
+    {
+        StartCoroutine(FakeInvokeResponseDefuseEngineCoroutine(engineId));
+    }
+
+    private IEnumerator FakeInvokeResponseDefuseEngineCoroutine(int engineId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseDefuseEngine(
+            new()
+            {
+                Data = new()
+                {
+                    engineId = engineId,
+                }
+            });
+    }
+
+    public void StartFakeResponseUpgradeMinerCoroutine(int minerId)
+    {
+        StartCoroutine(FakeInvokeResponseUpgradeMinerCoroutine(minerId));
+    }
+
+    private IEnumerator FakeInvokeResponseUpgradeMinerCoroutine(int minerId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseUpgradeMinerEngine(
+            new()
+            {
+                Data = new()
+                {
+                    minerId = minerId,
+                }
+            });
+    }
+
+    public void StartFakeResponseGetPendingRewardCoroutine()
+    {
+        StartCoroutine(FakeInvokeResponseGetPendingRewardCoroutine());
+    }
+
+    private IEnumerator FakeInvokeResponseGetPendingRewardCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        WebResponse.Instance.InvokeResponseGetPendingReward(
+            new()
+            {
+                Data = new()
+                {
+                    pendingReward = DataManager.Instance.PendingReward + 100
                 }
             });
     }

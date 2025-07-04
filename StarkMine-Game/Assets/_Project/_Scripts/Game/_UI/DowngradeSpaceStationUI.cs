@@ -1,3 +1,4 @@
+using System;
 using _Project._Scripts.Game.Managers;
 using TMPro;
 using UnityEngine;
@@ -27,7 +28,26 @@ public class DowngradeSpaceStationUI : BasePopup
 
     private void OnDowngradeButtonClick()
     {
-        DataManager.Instance.MineCoin += _stationData.GetCostForPrevLevel();
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseRequestDowngradeStationEventHandler +=
+            WebResponseOnResponseRequestDowngradeStationEventHandler;
+        WebResponse.Instance.OnResponseRequestDowngradeStationFailEventHandler +=
+            WebResponseOnResponseRequestDowngradeStationFailEventHandler;
+        WebRequest.CallRequestRequestDowngradeStation(_stationData.id, _stationData.level - 1);
+    }
+
+    private void WebResponseOnResponseRequestDowngradeStationFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseRequestDowngradeStationEventHandler -=
+            WebResponseOnResponseRequestDowngradeStationEventHandler;
+        WebResponse.Instance.OnResponseRequestDowngradeStationFailEventHandler -=
+            WebResponseOnResponseRequestDowngradeStationFailEventHandler;
+    }
+
+    private void WebResponseOnResponseRequestDowngradeStationEventHandler(object sender,
+        WebResponse.OnResponseRequestDowngradeStationEventArgs e)
+    {
+        // DataManager.Instance.MineCoin += _stationData.GetCostForPrevLevel();
         _stationData.Downgrade();
         downgradeButton.interactable = !_stationData.IsMinLevel();
         SpaceStationUI spaceStationUI = UIManager.Instance.spaceStationUI;
@@ -46,6 +66,11 @@ public class DowngradeSpaceStationUI : BasePopup
             SetUp(_stationData);
             showNotificationUI.Show();
         }
+
+        WebResponse.Instance.OnResponseRequestDowngradeStationEventHandler -=
+            WebResponseOnResponseRequestDowngradeStationEventHandler;
+        WebResponse.Instance.OnResponseRequestDowngradeStationFailEventHandler -=
+            WebResponseOnResponseRequestDowngradeStationFailEventHandler;
     }
 
     private void OnEnable()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "ShipSO", menuName = "Scriptable Objects/ShipSO")]
 public class ShipSO : ScriptableObject
@@ -22,7 +23,8 @@ public class ShipSO : ScriptableObject
     public int fireRate;
     public ImageAnimationSO imageAnimationSO;
     public BulletSO bulletSO;
-    public float hashPower;
+    public int baseHashPower;
+    public int tierBonus;
     public List<int> powerShipPerLevel = new();
     public List<int> costPerLevel = new();
     public ShipType shipTypeRequire;

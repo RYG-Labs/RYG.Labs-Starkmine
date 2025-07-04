@@ -40,7 +40,7 @@ public class ShipInformationUI : BasePopup
         starLevelUI.SetUp(shipData.level);
         maintenanceLevelUI.SetUp(shipData.maintenanceLevel, shipData.maintenanceDown);
         repairButton.interactable = shipData.maintenanceLevel < 100;
-        hashPower.text = $"177,765.12 - {shipData.GetHashPower()} $MINE/min";
+        hashPower.text = $"{shipData.GetHashPower()} - ----- $MINE/min";
         if (shipData.level < 5)
         {
             upgradeButton.interactable = true;
