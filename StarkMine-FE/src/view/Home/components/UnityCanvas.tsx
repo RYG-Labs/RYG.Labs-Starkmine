@@ -721,6 +721,10 @@ export function UnityCanvas() {
       sendMaintainMiner(minerId as number);
     });
 
+    addEventListener("RequestGetPendingReward", () => {
+      sendGetPendingReward();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -740,6 +744,7 @@ export function UnityCanvas() {
       removeEventListener("RequestExecuteDowngrade", () => {});
       removeEventListener("RequestClaimPendingReward", () => {});
       removeEventListener("RequestMaintainMiner", () => {});
+      removeEventListener("RequestGetPendingReward", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -753,7 +758,6 @@ export function UnityCanvas() {
       sendStationLevelsConfig();
       sendTiersConfig();
       sendStationsData();
-      sendGetPendingReward();
       setIsSent(true);
     }
   }, [isLoaded, address, account, accountChainId]);
