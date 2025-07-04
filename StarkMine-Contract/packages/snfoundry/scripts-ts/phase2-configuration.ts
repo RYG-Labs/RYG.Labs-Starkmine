@@ -82,12 +82,17 @@ const setupPhase2Configuration = async () => {
     // Level 3: 150% (15000 basis points) - plan wants 150%
     // Level 4: 200% (20000 basis points) - plan wants 200%
 
-    console.log("  ✅ Station multipliers already match implementation plan:");
+    console.log("  ✅ Station multipliers now include expanded levels:");
     console.log("     Level 0: 100% (base)");
     console.log("     Level 1: 110% (10% bonus) - 2k MINE");
     console.log("     Level 2: 125% (25% bonus) - 5k MINE");
     console.log("     Level 3: 150% (50% bonus) - 12k MINE");
     console.log("     Level 4: 200% (100% bonus) - 30k MINE");
+    console.log("     Level 5: 250% (150% bonus) - 62k MINE");
+    console.log("  🔥 IMMEDIATE DOWNGRADE: Level & multiplier changes apply instantly");
+    console.log("     • Hash power synced immediately with new (lower) multiplier");
+    console.log("     • 14-day waiting period only for MINE token unlocking");
+    console.log("     • Can cancel downgrade and restore original level/multiplier");
 
     // Merge System Configuration
     console.log("\n2.5 Merge System Configuration:");
@@ -117,6 +122,8 @@ const setupPhase2Configuration = async () => {
     console.log("  • Basic tier uses STRK instead of MINE (diversified payment)");
     console.log("  • All percentage-based mechanics match exactly");
     console.log("  • Economic incentives preserved with adjusted scale");
+    console.log("  • ENHANCED: Miners can only be ignited if assigned to a station");
+    console.log("  • ENHANCED: Station downgrades take effect immediately (level/multiplier/hash power)");
 
     console.log("\n🎯 Phase 2 Status: CONFIGURATION VERIFIED");
     console.log("   Ready to proceed to Phase 3 or frontend integration!");

@@ -7,7 +7,7 @@ const deployedContracts = {
   sepolia: {
     MineToken: {
       address:
-        "0x41521b65af1c075a10f373e96d37dde46054f2c32f81c9e54700c06ec3307b0",
+        "0x1a8e35bce9149f523d601d32638eb4d5d316ff9e792fa3d4e8e838d0d173b9e",
       abi: [
         {
           type: "impl",
@@ -464,7 +464,7 @@ const deployedContracts = {
     },
     MinerNFT: {
       address:
-        "0x4672deef869f0fa8e5e4f364ac0781f2f87a102f3381a786585813acec416ca",
+        "0x3c4e8b2a5444c669c5bbc8ea0d84d7168b56b358f330c2ff5585cac2979d86",
       abi: [
         {
           type: "impl",
@@ -1186,11 +1186,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x56e02a31e45306c61e3d801756c4da86f09f8f2d152b427d92034b657c0ac0d",
+        "0x63fb110e8b83ef46f489d7000f1042a8a04df9baab28b58fa43e9521663468",
     },
     CoreEngine: {
       address:
-        "0x2cb794ecb348428ed6ab2d879dba7e3a5da46f516ccf18f4b41a9b66b4d2f2f",
+        "0x383cfc905ed4e91748f4b85ad66fc879c30f1813b7e042f3c672ec13b37cb5b",
       abi: [
         {
           type: "impl",
@@ -1910,7 +1910,7 @@ const deployedContracts = {
     },
     StationSystem: {
       address:
-        "0x5505270e0570c3c5e6aa5c1babbfba5d7bc907f94c03423fa5f57e70a7b93fd",
+        "0x5704921f5a179fe50632bf115200403567d0e8a711ab75c6e4f19240692ecb7",
       abi: [
         {
           type: "impl",
@@ -2693,11 +2693,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x555c556552492a4746b6f9d4f28ff45fbb9b93a3af14149b11be037f442e50e",
+        "0x12e5472961528265d7f09d30e27776c6946a835f16d589bc812fe6eb98c6ac6",
     },
     MergeSystem: {
       address:
-        "0x36cb33537ecdf3b59b80750519ec8d9b79b6d789d886481898edea11cc5f9c6",
+        "0x6fccbf7cb11e3b527c0a0b6e2583a438a8d7ad5111f5b42a74c44cb76e0f7c",
       abi: [
         {
           type: "impl",
@@ -3144,7 +3144,7 @@ const deployedContracts = {
     },
     RewardDistributor: {
       address:
-        "0x41dae1b17f3a2b21149f38361e8d04cbd15164de70eed4543f45b9365c34104",
+        "0x24ee51c40494d35669b8ce360f5225669639020ec3d9e7d3d3eb3a38be7fef1",
       abi: [
         {
           type: "impl",

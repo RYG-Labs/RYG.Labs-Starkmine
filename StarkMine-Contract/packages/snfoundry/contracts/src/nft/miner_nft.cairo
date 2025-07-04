@@ -283,6 +283,18 @@ mod MinerNFT {
             assert!(!miner.is_ignited, "Miner already ignited");
             assert!(miner.core_engine_id == 0, "Core engine already attached");
 
+            // REQUIREMENT: Miner must be assigned to a station before ignition
+            let station_contract = self.station_system_contract.read();
+            assert!(!station_contract.is_zero(), "Station system contract not set");
+
+            let station_dispatcher = starkmine::mining::station_system::IStationSystemDispatcher {
+                contract_address: station_contract,
+            };
+
+            let assigned_station = station_dispatcher
+                .get_miner_station_assignment(caller, token_id);
+            assert!(assigned_station > 0, "Miner must be assigned to a station before ignition");
+
             // Verify core engine ownership and attach to miner
             let core_engine_contract = self.core_engine_contract.read();
             assert!(!core_engine_contract.is_zero(), "Core engine contract not set");

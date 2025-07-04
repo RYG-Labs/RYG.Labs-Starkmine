@@ -35,6 +35,8 @@ import requestDowngradeStation from "@/service/writeContract/requestDowngradeSta
 import cancelDowngrade from "@/service/writeContract/cancelDowngrade";
 import executeDowngrade from "@/service/writeContract/executeDowngrade";
 import canExecuteDowngrade from "@/service/readContract/canExecuteDowngrade";
+import getPendingReward from "@/service/readContract/getPendingReward";
+import claimPendingReward from "@/service/writeContract/claimPendingReward";
 
 export function UnityCanvas() {
   const {
@@ -566,6 +568,52 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendClaimPendingReward = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseClaimPendingReward",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const result = await claimPendingReward(account);
+    sendMessage(
+      "WebResponse",
+      "ResponseClaimPendingReward",
+      JSON.stringify(result)
+    );
+  }, [account, isLoaded]);
+
+  const sendGetPendingReward = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseGetPendingReward",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const result = await getPendingReward(account.address);
+    sendMessage(
+      "WebResponse",
+      "ResponseGetPendingReward",
+      JSON.stringify(result)
+    );
+  }, [account, isLoaded]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -638,6 +686,10 @@ export function UnityCanvas() {
       sendExecuteDowngrade(stationId as number);
     });
 
+    addEventListener("RequestClaimPendingReward", () => {
+      sendClaimPendingReward();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -655,6 +707,7 @@ export function UnityCanvas() {
       removeEventListener("RequestRequestDowngradeStation", () => {});
       removeEventListener("RequestCancelDowngrade", () => {});
       removeEventListener("RequestExecuteDowngrade", () => {});
+      removeEventListener("RequestClaimPendingReward", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -668,6 +721,7 @@ export function UnityCanvas() {
       sendStationLevelsConfig();
       sendTiersConfig();
       sendStationsData();
+      sendGetPendingReward();
       setIsSent(true);
     }
   }, [isLoaded, address, account, accountChainId]);
@@ -819,6 +873,15 @@ export function UnityCanvas() {
           }}
         >
           Mint core engine
+        </button>
+        <button
+          onClick={async () => {
+            await getPendingReward(
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            );
+          }}
+        >
+          get pending reward
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
