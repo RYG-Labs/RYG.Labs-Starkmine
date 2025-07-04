@@ -37,6 +37,7 @@ import executeDowngrade from "@/service/writeContract/executeDowngrade";
 import canExecuteDowngrade from "@/service/readContract/canExecuteDowngrade";
 import getPendingReward from "@/service/readContract/getPendingReward";
 import claimPendingReward from "@/service/writeContract/claimPendingReward";
+import maintainMiner from "@/service/writeContract/maintainMiner";
 
 export function UnityCanvas() {
   const {
@@ -488,7 +489,7 @@ export function UnityCanvas() {
 
   const sendRequestDowngradeStation = useCallback(
     async (stationId: number, targetLevel: number) => {
-      if (!account || !stationId || !targetLevel) {
+      if (!account || !stationId) {
         sendMessage(
           "WebResponse",
           "ResponseRequestDowngradeStation",
@@ -614,6 +615,32 @@ export function UnityCanvas() {
     );
   }, [account, isLoaded]);
 
+  const sendMaintainMiner = useCallback(
+    async (minerId: number) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseMaintainMiner",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await maintainMiner(account, minerId);
+      sendMessage(
+        "WebResponse",
+        "ResponseMaintainMiner",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -690,6 +717,10 @@ export function UnityCanvas() {
       sendClaimPendingReward();
     });
 
+    addEventListener("RequestMaintainMiner", (minerId) => {
+      sendMaintainMiner(minerId as number);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -708,6 +739,7 @@ export function UnityCanvas() {
       removeEventListener("RequestCancelDowngrade", () => {});
       removeEventListener("RequestExecuteDowngrade", () => {});
       removeEventListener("RequestClaimPendingReward", () => {});
+      removeEventListener("RequestMaintainMiner", () => {});
     };
   }, [account, address, isLoaded]);
 
