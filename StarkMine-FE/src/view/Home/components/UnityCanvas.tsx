@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { Loading } from "./LoadingAnimation";
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
@@ -39,6 +39,7 @@ import getPendingReward from "@/service/readContract/getPendingReward";
 import claimPendingReward from "@/service/writeContract/claimPendingReward";
 import maintainMiner from "@/service/writeContract/maintainMiner";
 import mergeMiner from "@/service/writeContract/mergeMiner";
+import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
 
 export function UnityCanvas() {
   const {
@@ -72,7 +73,7 @@ export function UnityCanvas() {
   });
   const [accountChainId, setAccountChainId] = useState<bigint>();
   const [currentAddress, setCurrentAddress] = useState<string>("");
-  const [isSent, setIsSent] = useState<boolean>(false);
+  const hasSentData = useRef(false);
 
   const getChainId = useCallback(async () => {
     if (!connector) return;
@@ -682,6 +683,7 @@ export function UnityCanvas() {
     });
     addEventListener("RequestDisconnectWallet", () => {
       disconnect();
+      hasSentData.current = false;
     });
     addEventListener("RequestMinersData", () => {
       sendMinersData(address as string);
@@ -796,8 +798,13 @@ export function UnityCanvas() {
   }, [account, address, isLoaded]);
 
   useEffect(() => {
-    if (isLoaded && address && account && accountChainId) {
-      if (isSent) return;
+    if (
+      isLoaded &&
+      address &&
+      account &&
+      accountChainId &&
+      !hasSentData.current
+    ) {
       sendDataConnectWallet();
       sendMinersData(address);
       sendCoreEnginesData(address);
@@ -805,7 +812,7 @@ export function UnityCanvas() {
       sendStationLevelsConfig();
       sendTiersConfig();
       sendStationsData();
-      setIsSent(true);
+      hasSentData.current = true;
     }
   }, [isLoaded, address, account, accountChainId]);
 
@@ -831,7 +838,6 @@ export function UnityCanvas() {
     }
     if (!currentAddress && address) {
       setCurrentAddress(address);
-      setIsSent(false);
       return;
     }
     if (currentAddress == address) return;
@@ -965,6 +971,16 @@ export function UnityCanvas() {
           }}
         >
           get pending reward
+        </button>
+        <button
+          onClick={async () =>
+            await getTimeUntilUnlock(
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc",
+              1
+            )
+          }
+        >
+          get time until unlock
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">

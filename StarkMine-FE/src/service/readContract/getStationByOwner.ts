@@ -56,7 +56,6 @@ export const getAllStations = async (userAddress: string, stationCount: number):
 
 export const getStationsByOwner = async (account: AccountInterface, userAddress: string): Promise<MessageBase> => {
     try {
-
       const stationCount = parseInt(await StationSystemContract.get_user_station_count(userAddress));
       if (!stationCount) {
         const initResult = await initStation(account);
@@ -64,7 +63,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
           return {
             status: StatusEnum.ERROR,
             message: MessageEnum.STATION_INIT_FAILED,
-            level: ErrorLevelEnum.WARNING,
+            level: ErrorLevelEnum.ERROR,
             data: [],
           } as MessageBase;
         } else {
@@ -81,7 +80,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
                 return {
                     status: StatusEnum.ERROR,
                     message: MessageEnum.STATION_INIT_FAILED,
-                    level: ErrorLevelEnum.WARNING,
+                    level: ErrorLevelEnum.ERROR,
                     data: [],
                 }
             }
@@ -109,7 +108,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
       return {
         status: StatusEnum.ERROR,
         message: MessageEnum.ERROR,
-        level: ErrorLevelEnum.WARNING,
+        level: ErrorLevelEnum.ERROR,
         data: [],
       }
     }
