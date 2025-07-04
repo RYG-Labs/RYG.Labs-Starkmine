@@ -7,6 +7,16 @@ public class UserDTO
     public double balance;
 }
 
+public class ResponseGetPendingRewardDTO
+{
+    public int pendingReward;
+}
+
+public class ResponseClaimPendingRewardDTO
+{
+    public string address;
+}
+
 public class ShipDTO
 {
     public int tokenId;
@@ -94,6 +104,12 @@ public class ResponseUpgradeStationDTO
     public int targetLevel;
 }
 
+public class ResponseRequestDowngradeStation
+{
+    public int stationId;
+    public int targetLevel;
+}
+
 public class ResponseMintCoreEngineDTO
 {
     public string engineType;
@@ -103,4 +119,9 @@ public class ResponseMintCoreEngineDTO
 public class ResponseDefuseEngineDTO
 {
     public int engineId;
+}
+
+public class ResponseUpgradeMinerDTO
+{
+    public int minerId;
 }

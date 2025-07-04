@@ -95,6 +95,66 @@ public class WebResponse : StaticInstance<WebResponse>
 
     #endregion
 
+    #region ResponseGetPendingReward
+
+    public event EventHandler<OnResponseGetPendingRewardEventArgs> OnResponseGetPendingRewardEventHandler;
+
+    public class OnResponseGetPendingRewardEventArgs : EventArgs
+    {
+        public ResponseGetPendingRewardDTO Data { get; set; }
+    }
+
+    private void ResponseGetPendingReward(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            return;
+        }
+
+        OnResponseGetPendingRewardEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseGetPendingRewardDTO>() });
+    }
+
+    public void InvokeResponseGetPendingReward(
+        OnResponseGetPendingRewardEventArgs onResponseGetPendingRewardEventArgs)
+    {
+        OnResponseGetPendingRewardEventHandler?.Invoke(this, onResponseGetPendingRewardEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseGetPendingReward
+
+    public event EventHandler<OnResponseClaimPendingRewardEventArgs> OnResponseClaimPendingRewardEventHandler;
+
+    public class OnResponseClaimPendingRewardEventArgs : EventArgs
+    {
+        public ResponseClaimPendingRewardDTO Data { get; set; }
+    }
+
+    public event EventHandler OnResponseClaimPendingRewardFailEventHandler;
+
+    private void ResponseClaimPendingReward(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseClaimPendingRewardFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseClaimPendingRewardEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseClaimPendingRewardDTO>() });
+    }
+
+    #endregion
+
     #region ResponseMinersData
 
     public event EventHandler<OnResponseMinersDataEventArgs> OnResponseMinersDataEventHandler;
@@ -255,9 +315,8 @@ public class WebResponse : StaticInstance<WebResponse>
 
     private void ResponseAssignMinerToStation(string responseString)
     {
-        if (_isLoadStationDataSuccess) return;
-
         Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
         UIManager.Instance.loadingUI.Hide();
         MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
         if (!response.IsSuccess())
@@ -415,6 +474,41 @@ public class WebResponse : StaticInstance<WebResponse>
 
     #endregion
 
+    #region ResponseUpgradeStation
+
+    public event EventHandler<OnResponseRequestDowngradeStationEventArgs> OnResponseRequestDowngradeStationEventHandler;
+
+    public class OnResponseRequestDowngradeStationEventArgs : EventArgs
+    {
+        public ResponseRequestDowngradeStation Data;
+    }
+
+    public event EventHandler OnResponseRequestDowngradeStationFailEventHandler;
+
+    private void ResponseRequestDowngradeStation(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseRequestDowngradeStationFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseRequestDowngradeStationEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseRequestDowngradeStation>() });
+    }
+
+    public void InvokeResponseRequestDowngradeStation(
+        OnResponseRequestDowngradeStationEventArgs onResponseRequestDowngradeStationEventArgs)
+    {
+        OnResponseRequestDowngradeStationEventHandler?.Invoke(this, onResponseRequestDowngradeStationEventArgs);
+    }
+
+    #endregion
+
     #region ResponseMintCoreEngine
 
     public event EventHandler<OnResponseMintCoreEngineEventArgs> OnResponseMintCoreEngineEventHandler;
@@ -474,13 +568,48 @@ public class WebResponse : StaticInstance<WebResponse>
         }
 
         OnResponseDefuseEngineEventHandler?.Invoke(this,
-            new () { Data = response.data.ToObject<ResponseDefuseEngineDTO>() });
+            new() { Data = response.data.ToObject<ResponseDefuseEngineDTO>() });
     }
 
     public void InvokeResponseDefuseEngine(
         OnResponseDefuseEngineEventArgs onResponseMintCoreEngineEventArgs)
     {
         OnResponseDefuseEngineEventHandler?.Invoke(this, onResponseMintCoreEngineEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseUpgradeMiner
+
+    public event EventHandler<OnResponseUpgradeMinerEventArgs> OnResponseUpgradeMinerEventHandler;
+
+    public class OnResponseUpgradeMinerEventArgs : EventArgs
+    {
+        public ResponseUpgradeMinerDTO Data;
+    }
+
+    public event EventHandler OnResponseUpgradeMinerFailEventHandler;
+
+    private void ResponseUpgradeMiner(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseUpgradeMinerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseUpgradeMinerEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseUpgradeMinerDTO>() });
+    }
+
+    public void InvokeResponseUpgradeMinerEngine(
+        OnResponseUpgradeMinerEventArgs onResponseUpgradeMinerEventArgs)
+    {
+        OnResponseUpgradeMinerEventHandler?.Invoke(this, onResponseUpgradeMinerEventArgs);
     }
 
     #endregion

@@ -35,6 +35,23 @@ public class UpgradeSpaceShipUI : BasePopup
 
     private void OnUpgradeButtonClick()
     {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseUpgradeMinerEventHandler += WebResponseOnResponseUpgradeMinerEventHandler;
+        WebResponse.Instance.OnResponseUpgradeMinerFailEventHandler +=
+            WebResponseOnResponseUpgradeMinerFailEventHandler;
+        WebRequest.CallRequestUpgradeMiner(_shipData.id);
+    }
+
+    private void WebResponseOnResponseUpgradeMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseUpgradeMinerEventHandler -= WebResponseOnResponseUpgradeMinerEventHandler;
+        WebResponse.Instance.OnResponseUpgradeMinerFailEventHandler -=
+            WebResponseOnResponseUpgradeMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseUpgradeMinerEventHandler(object sender,
+        WebResponse.OnResponseUpgradeMinerEventArgs e)
+    {
         DataManager.Instance.MineCoin -= _shipData.GetCostForNextLevel();
         _shipData.Upgrade();
         ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
@@ -51,6 +68,10 @@ public class UpgradeSpaceShipUI : BasePopup
             SetUp(_shipData);
             showNotificationUI.Show();
         }
+
+        WebResponse.Instance.OnResponseUpgradeMinerEventHandler -= WebResponseOnResponseUpgradeMinerEventHandler;
+        WebResponse.Instance.OnResponseUpgradeMinerFailEventHandler -=
+            WebResponseOnResponseUpgradeMinerFailEventHandler;
     }
 
     private void OnEnable()

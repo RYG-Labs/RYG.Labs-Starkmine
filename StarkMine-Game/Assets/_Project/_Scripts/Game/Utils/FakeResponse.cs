@@ -142,4 +142,41 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 }
             });
     }
+
+    public void StartFakeResponseUpgradeMinerCoroutine(int minerId)
+    {
+        StartCoroutine(FakeInvokeResponseUpgradeMinerCoroutine(minerId));
+    }
+
+    private IEnumerator FakeInvokeResponseUpgradeMinerCoroutine(int minerId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseUpgradeMinerEngine(
+            new()
+            {
+                Data = new()
+                {
+                    minerId = minerId,
+                }
+            });
+    }
+
+    public void StartFakeResponseGetPendingRewardCoroutine()
+    {
+        StartCoroutine(FakeInvokeResponseGetPendingRewardCoroutine());
+    }
+
+    private IEnumerator FakeInvokeResponseGetPendingRewardCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        WebResponse.Instance.InvokeResponseGetPendingReward(
+            new()
+            {
+                Data = new()
+                {
+                    pendingReward = DataManager.Instance.PendingReward + 100
+                }
+            });
+    }
 }

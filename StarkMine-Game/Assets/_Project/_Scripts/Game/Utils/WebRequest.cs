@@ -33,10 +33,25 @@ public class WebRequest
     private static extern void RequestUpgradeStation(int stationId, int targetLevel);
 
     [DllImport("__Internal")]
+    private static extern void RequestRequestDowngradeStation(int stationId, int targetLevel);
+
+    [DllImport("__Internal")]
+    private static extern void RequestExecuteDowngrade(int stationId);
+
+    [DllImport("__Internal")]
     private static extern void RequestMintCoreEngine(string engineType);
 
     [DllImport("__Internal")]
     private static extern void RequestDefuseEngine(int engineId);
+
+    [DllImport("__Internal")]
+    private static extern void RequestUpgradeMiner(int minerId);
+
+    [DllImport("__Internal")]
+    private static extern void RequestGetPendingReward();
+
+    [DllImport("__Internal")]
+    private static extern void RequestClaimPendingReward();
 
     public static void CallRequestConnectWallet()
     {
@@ -111,6 +126,15 @@ public class WebRequest
 #endif
     }
 
+    public static void CallRequestRequestDowngradeStation(int stationId, int targetLevel)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestRequestDowngradeStation(stationId, targetLevel);
+#else
+        // FakeResponse.Instance.StartFakeInvokeResponseUpgradeStationCoroutine(stationId, targetLevel);
+#endif
+    }
+
     public static void CallRequestMintCoreEngine(string engineType)
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -126,6 +150,34 @@ public class WebRequest
         RequestDefuseEngine(engineId);
 #else
         FakeResponse.Instance.StartFakeResponseDefuseEngineCoroutine(engineId);
+#endif
+    }
+
+    public static void CallRequestUpgradeMiner(int minerId)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestUpgradeMiner(minerId);
+#else
+        // FakeResponse.Instance.StartFakeResponseDefuseEngineCoroutine(minerId);
+#endif
+    }
+
+    public static void CallRequestGetPendingReward()
+    {
+        Debug.Log("Claim Pending Reward");
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestGetPendingReward();
+#else
+        FakeResponse.Instance.StartFakeResponseGetPendingRewardCoroutine();
+#endif
+    }
+
+    public static void CallRequestClaimPendingReward()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestClaimPendingReward();
+#else
+        // FakeResponse.Instance.StartFakeResponseDefuseEngineCoroutine(minerId);
 #endif
     }
 }

@@ -50,7 +50,7 @@ public class SelectSpaceShipResultUI : MonoBehaviour
     private void SetUpShipInformation(ShipData shipData)
     {
         nameText.text = ShipSOSelected.name;
-        hashPower.text = ShipSOSelected.hashPower.ToString(CultureInfo.InvariantCulture);
+        hashPower.text = ShipSOSelected.baseHashPower.ToString(CultureInfo.InvariantCulture);
     }
 
     // public void Refresh()
