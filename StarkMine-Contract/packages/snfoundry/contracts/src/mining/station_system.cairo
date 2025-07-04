@@ -248,6 +248,11 @@ mod StationSystem {
                 self.lock_mine_tokens(caller, station_id, additional_mine);
             }
 
+            // CRITICAL FIX: Sync hash power BEFORE changing station level
+            // This ensures we remove the correct amount (with old multiplier) from
+            // RewardDistributor
+            self.sync_station_miners_hash_power(caller, station_id);
+
             let old_level = station.level;
             station.level = target_level;
             station.multiplier = target_config.multiplier;
@@ -255,7 +260,8 @@ mod StationSystem {
             station.lock_timestamp = get_block_number().try_into().unwrap();
             self.stations.write((caller, station_id), station);
 
-            // Sync hash power for all miners in this station
+            // Sync hash power again to add the new amount (with new multiplier) to
+            // RewardDistributor
             self.sync_station_miners_hash_power(caller, station_id);
 
             self
@@ -290,13 +296,18 @@ mod StationSystem {
             let original_level = station.level;
             station.pending_downgrade = original_level;
 
+            // CRITICAL FIX: Sync hash power BEFORE changing station level
+            // This ensures we remove the correct amount (with old multiplier) from
+            // RewardDistributor
+            self.sync_station_miners_hash_power(caller, station_id);
+
             // IMMEDIATE CHANGES: Apply level and multiplier changes right away
             station.level = target_level;
             station.multiplier = target_config.multiplier;
             station.unlock_timestamp = unlock_timestamp;
             self.stations.write((caller, station_id), station);
 
-            // IMMEDIATE EFFECT: Sync hash power for all miners with new (lower) multiplier
+            // IMMEDIATE EFFECT: Sync hash power again to add new amount with new (lower) multiplier
             self.sync_station_miners_hash_power(caller, station_id);
 
             self
@@ -369,6 +380,11 @@ mod StationSystem {
 
             let downgraded_level = station.level; // Store for event
 
+            // CRITICAL FIX: Sync hash power BEFORE changing station level
+            // This ensures we remove the correct amount (with current lower multiplier) from
+            // RewardDistributor
+            self.sync_station_miners_hash_power(caller, station_id);
+
             // RESTORE ORIGINAL STATE: Revert level and multiplier back to original
             station.level = original_level;
             station.multiplier = original_config.multiplier;
@@ -376,7 +392,7 @@ mod StationSystem {
             station.unlock_timestamp = 0; // Clear unlock timestamp
             self.stations.write((caller, station_id), station);
 
-            // IMMEDIATE EFFECT: Sync hash power for all miners with restored (higher) multiplier
+            // IMMEDIATE EFFECT: Sync hash power again with restored (higher) multiplier
             self.sync_station_miners_hash_power(caller, station_id);
 
             self
@@ -399,6 +415,11 @@ mod StationSystem {
             let penalty = (station.mine_locked * 20) / 100;
             let withdrawal_amount = station.mine_locked - penalty;
 
+            // CRITICAL FIX: Sync hash power BEFORE changing station level
+            // This ensures we remove the correct amount (with current multiplier) from
+            // RewardDistributor
+            self.sync_station_miners_hash_power(caller, station_id);
+
             // Reset station to level 0
             let _old_level = station.level;
             station.level = 0;
@@ -413,7 +434,7 @@ mod StationSystem {
             self.unlock_mine_tokens(caller, station_id, withdrawal_amount);
             // TODO: Handle penalty (burn or send to treasury)
 
-            // Sync hash power for all miners in this station
+            // Sync hash power again for all miners with level 0 multiplier
             self.sync_station_miners_hash_power(caller, station_id);
 
             self
