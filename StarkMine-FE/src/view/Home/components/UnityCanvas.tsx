@@ -896,10 +896,10 @@ export function UnityCanvas() {
         <button
           onClick={() => {
             getCoreEnginesByOwner(
-              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
             getMinersByOwner(
-              "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
             // getStationsByOwner(
             //   account!,
@@ -981,6 +981,11 @@ export function UnityCanvas() {
           }
         >
           get time until unlock
+        </button>
+        <button
+          onClick={async () => await mergeMiner(account!, 8, 9, "Pro", "GIGA")}
+        >
+          merge miner
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">

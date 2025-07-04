@@ -28,7 +28,9 @@ export enum EventKeyEnum {
     Transfer = "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9",
     EngineMinted = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45",
     StationsInitialized = "0x1d1299fed5c4794b4b4e6e9d1dfcb0497e57ec9c982e6e095b59fda38596cab",
-    EngineMined = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45"
+    EngineMined = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45",
+    MergeSuccessful = "0x10c55b7f0b5c91d0ed5421e006e3328fa4b78f32b137e225162d69274528028",
+    MergeFailed = "0x7dffcf74ad1b984e275cae190e486c0163c9a2669f10f531688bafb9717812",
 }
 
 export interface MessageBase {
