@@ -1,19 +1,12 @@
-import { contracts } from "@/configs/contracts";
-import { provider } from ".";
+
+import { stationContract } from ".";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 import { initStation } from "../writeContract/initStation";
-import { AccountInterface, Contract } from "starknet";
-import { ABI_STATION_SYSTEM } from "@/type/ABI_STATION_SYSTEM";
+import { AccountInterface } from "starknet";
 import { convertWeiToEther } from "@/utils/helper";
 
-const StationSystemContract = new Contract(
-    ABI_STATION_SYSTEM,
-    contracts.StationSystem,
-    provider
-);
-
 const getMinerIdsAssignedToStation = async (userAddress: string, stationId: number) => {
-    const minerIds = await StationSystemContract.get_station_miners(userAddress, stationId);
+    const minerIds = await stationContract.get_station_miners(userAddress, stationId);
     const minerIdsFormatted = minerIds.map((minerId: BigInt) => parseInt(minerId.toString()));
     return minerIdsFormatted
 }
@@ -34,7 +27,7 @@ const formatStationData = (stationInfo: any): any => {
 
 const getStationData = async (userAddress: string, stationId: number) => {
 
-    const stationInfo = await StationSystemContract.get_station_info(userAddress, stationId);
+    const stationInfo = await stationContract.get_station_info(userAddress, stationId);
     const minerIds = await getMinerIdsAssignedToStation(userAddress, stationId);
     return formatStationData({
         id: stationId,
@@ -56,7 +49,7 @@ export const getAllStations = async (userAddress: string, stationCount: number):
 
 export const getStationsByOwner = async (account: AccountInterface, userAddress: string): Promise<MessageBase> => {
     try {
-      const stationCount = parseInt(await StationSystemContract.get_user_station_count(userAddress));
+      const stationCount = parseInt(await stationContract.get_user_station_count(userAddress));
       if (!stationCount) {
         const initResult = await initStation(account);
         if (!initResult) {
@@ -67,12 +60,12 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             data: [],
           } as MessageBase;
         } else {
-            let stationCountAfterInit = parseInt(await StationSystemContract.get_user_station_count(userAddress));
+            let stationCountAfterInit = parseInt(await stationContract.get_user_station_count(userAddress));
             const attemptCount = 20;
             let retriedAttemptCount = 0;
             while (stationCountAfterInit <= 0 && retriedAttemptCount < attemptCount) {
                // call station count again
-               stationCountAfterInit = parseInt(await StationSystemContract.get_user_station_count(userAddress));
+               stationCountAfterInit = parseInt(await stationContract.get_user_station_count(userAddress));
                retriedAttemptCount++;
             }
 

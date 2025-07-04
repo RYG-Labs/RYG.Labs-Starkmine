@@ -1,21 +1,6 @@
-import { contracts } from "@/configs/contracts";
-import { ABI_MINER_NFT } from "@/type/ABI_MINER_NFT";
-import { Contract, uint256 } from "starknet";
-import { provider } from ".";
-import { ABI_CORE_ENGINE } from "@/type/ABI_CORE_ENGINE";
+import { coreEngineContract, minerContract } from ".";
 import { getAllStations } from "./getStationByOwner";
 
-const minerContract = new Contract(
-    ABI_MINER_NFT,
-    contracts.MinerNFT,
-    provider
-);
-
-const coreEngineContract = new Contract(
-    ABI_CORE_ENGINE,
-    contracts.CoreEngine,
-    provider
-);
 
 const getNewHashPower = async (minerId: number, address: string) => {
     const miner = await minerContract.get_miner_info(minerId);

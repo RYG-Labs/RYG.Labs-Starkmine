@@ -1,6 +1,7 @@
+import { contracts } from "@/configs/contracts";
 import { walletConfig } from "@/configs/network";
 import { mainnet } from "@starknet-react/chains";
-import { RpcProvider } from "starknet";
+import { Contract, RpcProvider } from "starknet";
 
 const nodeUrl =
   walletConfig.targetNetwork.id == mainnet.id
@@ -15,3 +16,10 @@ export const getAbi = async (contractAddress: string) => {
   console.log("🚀 ~ getAbi ~ abi:", abi);
   return abi;
 };
+
+export const mineContract = new Contract(await getAbi(contracts.MineToken), contracts.MineToken, provider);
+export const minerContract = new Contract(await getAbi(contracts.MinerNFT), contracts.MinerNFT, provider);
+export const coreEngineContract = new Contract(await getAbi(contracts.CoreEngine), contracts.CoreEngine, provider);
+export const stationContract = new Contract(await getAbi(contracts.StationSystem), contracts.StationSystem, provider);
+export const mergeContract = new Contract(await getAbi(contracts.MergeSystem), contracts.MergeSystem, provider);
+export const rewardDistributorContract = new Contract(await getAbi(contracts.RewardDistributor), contracts.RewardDistributor, provider);

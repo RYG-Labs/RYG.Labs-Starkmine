@@ -1,10 +1,5 @@
-import { ABI_STATION_SYSTEM } from "@/type/ABI_STATION_SYSTEM";
-import { Contract } from "starknet"
-import { provider } from ".";
-import { contracts } from "@/configs/contracts";
+import { stationContract } from ".";
 import { convertWeiToEther } from "@/utils/helper";
-
-const stationContract = new Contract(ABI_STATION_SYSTEM, contracts.StationSystem, provider);
 
 const getLevelConfig = async (level: number) => {
     const levelConfig = await stationContract.get_level_config(level);

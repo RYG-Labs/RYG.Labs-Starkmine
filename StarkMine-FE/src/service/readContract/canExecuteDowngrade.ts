@@ -1,18 +1,10 @@
-import { contracts } from "@/configs/contracts";
-import { ABI_STATION_SYSTEM } from "@/type/ABI_STATION_SYSTEM";
-import { provider } from ".";
-import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
-import { Contract } from "starknet";
 
-const stationSystemContract = new Contract(
-    ABI_STATION_SYSTEM,
-    contracts.StationSystem,
-    provider
-);
+import { stationContract } from ".";
+import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 
 const canExecuteDowngrade = async (address: string,stationId: number): Promise<MessageBase> => {
     try {
-        const canExecute = await stationSystemContract.can_execute_downgrade(address, stationId);
+        const canExecute = await stationContract.can_execute_downgrade(address, stationId);
         return {
             status: StatusEnum.SUCCESS,
             message: MessageEnum.SUCCESS,

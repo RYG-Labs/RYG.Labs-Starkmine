@@ -40,6 +40,8 @@ import claimPendingReward from "@/service/writeContract/claimPendingReward";
 import maintainMiner from "@/service/writeContract/maintainMiner";
 import mergeMiner from "@/service/writeContract/mergeMiner";
 import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
+import getCurrentSuccessRate from "@/service/readContract/getCurrentSuccessRate";
+import { getMergeConfig } from "@/service/readContract/getMergeConfig";
 
 export function UnityCanvas() {
   const {
@@ -986,6 +988,25 @@ export function UnityCanvas() {
           onClick={async () => await mergeMiner(account!, 8, 9, "Pro", "GIGA")}
         >
           merge miner
+        </button>
+
+        <button
+          onClick={async () => {
+            await getCurrentSuccessRate(
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc",
+              "Pro",
+              "GIGA"
+            );
+          }}
+        >
+          get current success rate
+        </button>
+        <button
+          onClick={async () => {
+            await getMergeConfig("Pro", "GIGA");
+          }}
+        >
+          get merge config
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">

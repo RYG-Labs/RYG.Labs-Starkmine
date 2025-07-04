@@ -39,4 +39,3 @@ export interface MessageBase {
     data: any;
     level: typeof ErrorLevelEnum[keyof typeof ErrorLevelEnum];
 }
-

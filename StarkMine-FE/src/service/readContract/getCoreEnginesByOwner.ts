@@ -1,16 +1,10 @@
 import { contracts } from "@/configs/contracts";
-import { getAbi, provider } from ".";
+import { coreEngineContract, provider } from ".";
 import { EventKeyEnum } from "@/type/common";
 import { formattedContractAddress } from "@/utils/helper";
-import { Contract, shortString } from "starknet";
-import { ABI_CORE_ENGINE } from "@/type/ABI_CORE_ENGINE";
+import {  shortString } from "starknet";
 
 export const getEngineData = async (tokenId: string) => {
-    const coreEngineContract = new Contract(
-        ABI_CORE_ENGINE,
-        contracts.CoreEngine,
-        provider
-    );
     const coreEngineInfo = await coreEngineContract.get_engine_info(tokenId);
     return coreEngineInfo;
 };

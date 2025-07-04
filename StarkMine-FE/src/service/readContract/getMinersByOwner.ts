@@ -1,23 +1,11 @@
-import {
-    Contract,
-    shortString,
-  } from "starknet";
-  import { contracts } from "@/configs/contracts";
-  import {
-    convertWeiToEther,
-    formattedContractAddress,
-  } from "../../utils/helper";
-  import { ABI_MINER_NFT } from "@/type/ABI_MINER_NFT";
-  import { provider } from ".";
+import {shortString} from "starknet";
+import { contracts } from "@/configs/contracts";
+import {formattedContractAddress} from "../../utils/helper";
+import { minerContract, provider } from ".";
 import { EventKeyEnum } from "@/type/common";
 
 const getMinerData = async (tokenId: string) => {
-    const MinerNFTContract = new Contract(
-      ABI_MINER_NFT,
-      contracts.MinerNFT,
-      provider
-    );
-    const minerInfo = await MinerNFTContract.get_miner_info(tokenId);
+    const minerInfo = await minerContract.get_miner_info(tokenId);
     return minerInfo;
 };
   

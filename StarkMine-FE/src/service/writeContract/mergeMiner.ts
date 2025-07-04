@@ -2,6 +2,7 @@ import { contracts } from "@/configs/contracts";
 import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, EventKeyEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
+import { getMergeConfig } from "../readContract/getMergeConfig";
 
 const mergeMiner = async (account: AccountInterface, tokenId1: number, tokenId2: number, fromTier: string, toTier: string): Promise<MessageBase> => {
     try {
@@ -12,6 +13,7 @@ const mergeMiner = async (account: AccountInterface, tokenId1: number, tokenId2:
         });
     
         const receipt = await provider.waitForTransaction(tx.transaction_hash);
+        const mergeConfig = await getMergeConfig(fromTier, toTier);
     
         console.log(receipt);
 
@@ -22,8 +24,8 @@ const mergeMiner = async (account: AccountInterface, tokenId1: number, tokenId2:
             toTier: toTier,
             isMergeSuccessful: false,
             newTokenId: 0,
-            baseSuccessRate: toTier === "Pro" ? 50 : 25,
-            successRateAfterFailed: 0,
+            baseSuccessRate: mergeConfig.baseSuccessRate,
+            failureBonus: 0,
         }
         if (receipt.isSuccess()) {
         
@@ -37,7 +39,7 @@ const mergeMiner = async (account: AccountInterface, tokenId1: number, tokenId2:
 
                 if(event.keys[0] === EventKeyEnum.MergeFailed) {
                     data.isMergeSuccessful = false;
-                    data.successRateAfterFailed = parseInt(event.data[2], 16) / 100;
+                    data.failureBonus = parseInt(event.data[2], 16) / 100;
                     return;
                 }
             });

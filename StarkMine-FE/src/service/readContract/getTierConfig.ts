@@ -1,11 +1,6 @@
-import { contracts } from "@/configs/contracts";
-import { ABI_MINER_NFT } from "@/type/ABI_MINER_NFT";
-import { Contract } from "starknet";
-import { provider } from ".";
+import { minerContract } from ".";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 import { convertWeiToEther } from "@/utils/helper";
-
-const minerContract = new Contract(ABI_MINER_NFT, contracts.MinerNFT, provider)
 
 const getTierConfig = async (tier: string) => {
     const tierConfig = await  minerContract.get_tier_config(tier);

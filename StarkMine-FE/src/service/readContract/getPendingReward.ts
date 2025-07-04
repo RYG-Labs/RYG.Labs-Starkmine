@@ -1,14 +1,10 @@
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
-import { getAbi, provider } from ".";
-import { contracts } from "@/configs/contracts";
-import { Contract } from "starknet";
 import { convertWeiToEther } from "@/utils/helper";
-
-const RewardDistributorContract = new Contract(await getAbi(contracts.RewardDistributor), contracts.RewardDistributor, provider);
+import { rewardDistributorContract } from ".";
 
 const getPendingReward = async (address: string): Promise<MessageBase> => {
     try {
-        const pendingReward = await RewardDistributorContract.pending_rewards(address);
+        const pendingReward = await rewardDistributorContract.pending_rewards(address);
 
     return {
         status: StatusEnum.SUCCESS,

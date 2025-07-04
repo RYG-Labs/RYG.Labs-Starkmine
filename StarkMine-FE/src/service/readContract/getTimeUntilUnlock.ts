@@ -1,14 +1,10 @@
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
-import { getAbi, provider } from ".";
-import { contracts } from "@/configs/contracts";
+import {  stationContract } from ".";
 import { convertWeiToEther } from "@/utils/helper";
-import { Contract } from "starknet";
-
-const StationSystemContract = new Contract(await getAbi(contracts.StationSystem), contracts.StationSystem, provider);
 
 const getTimeUntilUnlock = async (address: string, stationId: number): Promise<MessageBase> => {
     try {
-        const timeUntilUnlock = await StationSystemContract.get_time_until_unlock(address, stationId);
+        const timeUntilUnlock = await stationContract.get_time_until_unlock(address, stationId);
         console.log("🚀 ~ getTimeUntilUnlock ~ timeUntilUnlock:", timeUntilUnlock)
     
         return {
