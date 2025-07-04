@@ -11,12 +11,12 @@ mod StationSystem {
 
     #[derive(Drop, Serde, starknet::Store, Copy)]
     pub struct StationInfo {
-        pub level: u8, // Station level (0-4)
+        pub level: u8, // Station level (0-5) - current active level
         pub multiplier: u128, // Current multiplier (in basis points)
         pub mine_locked: u256, // Amount of MINE tokens locked
         pub lock_timestamp: u64, // When tokens were locked
         pub unlock_timestamp: u64, // When tokens can be unlocked (for downgrades)
-        pub pending_downgrade: u8, // Pending downgrade level (0 if none)
+        pub pending_downgrade: u8, // Original level before downgrade (for cancellation, 0 if none)
         pub miner_count: u8 // Number of miners assigned to this station
     }
 
@@ -183,7 +183,7 @@ mod StationSystem {
     fn constructor(ref self: ContractState, owner: ContractAddress, mine_token: ContractAddress) {
         self.owner.write(owner);
         self.mine_token_address.write(mine_token);
-        self.max_level.write(4);
+        self.max_level.write(5);
 
         // Set unlock period (14 days in blocks, assuming 3 second block time)
         let unlock_blocks = UNLOCK_PERIOD_DAYS * SECONDS_PER_DAY / 3;
@@ -283,16 +283,28 @@ mod StationSystem {
             let current_block = get_block_number().try_into().unwrap();
             let unlock_timestamp = current_block + self.unlock_period_blocks.read();
 
-            station.pending_downgrade = target_level;
+            // Get target configuration
+            let target_config = self.level_configs.read(target_level);
+
+            // Store original level in pending_downgrade for potential cancellation
+            let original_level = station.level;
+            station.pending_downgrade = original_level;
+
+            // IMMEDIATE CHANGES: Apply level and multiplier changes right away
+            station.level = target_level;
+            station.multiplier = target_config.multiplier;
             station.unlock_timestamp = unlock_timestamp;
             self.stations.write((caller, station_id), station);
+
+            // IMMEDIATE EFFECT: Sync hash power for all miners with new (lower) multiplier
+            self.sync_station_miners_hash_power(caller, station_id);
 
             self
                 .emit(
                     DowngradeRequested {
                         account: caller,
                         station_id,
-                        current_level: station.level,
+                        current_level: original_level,
                         target_level,
                         unlock_timestamp,
                     },
@@ -310,37 +322,34 @@ mod StationSystem {
             let current_block = get_block_number().try_into().unwrap();
             assert!(current_block >= station.unlock_timestamp, "Unlock period not complete");
 
-            let target_level = station.pending_downgrade;
-            let target_config = self.level_configs.read(target_level);
-            let current_config = self.level_configs.read(station.level);
+            // Get original and current level configurations for MINE calculation
+            let original_level = station.pending_downgrade; // This stores the original level
+            let current_level = station.level; // This is already the target level
+            let original_config = self.level_configs.read(original_level);
+            let current_config = self.level_configs.read(current_level);
 
-            // Calculate MINE to unlock
-            let mine_to_unlock = current_config.mine_required - target_config.mine_required;
+            // Calculate MINE to unlock (difference between original and current requirements)
+            let mine_to_unlock = original_config.mine_required - current_config.mine_required;
 
-            let old_level = station.level;
-            station.level = target_level;
-            station.multiplier = target_config.multiplier;
-            station.mine_locked = target_config.mine_required;
-            station.pending_downgrade = 0;
-            station.unlock_timestamp = 0;
+            // Update station state - only MINE and pending status changes
+            station.mine_locked = current_config.mine_required;
+            station.pending_downgrade = 0; // Clear pending status
+            station.unlock_timestamp = 0; // Clear unlock timestamp
             self.stations.write((caller, station_id), station);
 
-            // Unlock MINE tokens
+            // Unlock excess MINE tokens
             if mine_to_unlock > 0 {
                 self.unlock_mine_tokens(caller, station_id, mine_to_unlock);
             }
-
-            // Sync hash power for all miners in this station
-            self.sync_station_miners_hash_power(caller, station_id);
 
             self
                 .emit(
                     StationDowngraded {
                         account: caller,
                         station_id,
-                        old_level,
-                        new_level: target_level,
-                        new_multiplier: target_config.multiplier,
+                        old_level: original_level,
+                        new_level: current_level,
+                        new_multiplier: station.multiplier,
                         mine_unlocked: mine_to_unlock,
                     },
                 );
@@ -354,12 +363,28 @@ mod StationSystem {
             let mut station = self.stations.read((caller, station_id));
             assert!(station.pending_downgrade > 0, "No pending downgrade");
 
-            let canceled_level = station.pending_downgrade;
-            station.pending_downgrade = 0;
-            station.unlock_timestamp = 0;
+            // Restore original level and multiplier from pending_downgrade
+            let original_level = station.pending_downgrade;
+            let original_config = self.level_configs.read(original_level);
+
+            let downgraded_level = station.level; // Store for event
+
+            // RESTORE ORIGINAL STATE: Revert level and multiplier back to original
+            station.level = original_level;
+            station.multiplier = original_config.multiplier;
+            station.pending_downgrade = 0; // Clear pending status
+            station.unlock_timestamp = 0; // Clear unlock timestamp
             self.stations.write((caller, station_id), station);
 
-            self.emit(DowngradeCanceled { account: caller, station_id, canceled_level });
+            // IMMEDIATE EFFECT: Sync hash power for all miners with restored (higher) multiplier
+            self.sync_station_miners_hash_power(caller, station_id);
+
+            self
+                .emit(
+                    DowngradeCanceled {
+                        account: caller, station_id, canceled_level: downgraded_level,
+                    },
+                );
         }
 
         fn emergency_withdraw(ref self: ContractState, station_id: u8) {
@@ -644,6 +669,18 @@ mod StationSystem {
                     LevelConfig {
                         multiplier: 20000, // 200%
                         mine_required: 30000_000_000_000_000_000_000,
+                        unlock_period: self.unlock_period_blocks.read(),
+                    },
+                );
+
+            // Level 5: 250% multiplier (150% bonus), 62k MINE
+            self
+                .level_configs
+                .write(
+                    5,
+                    LevelConfig {
+                        multiplier: 25000, // 250%
+                        mine_required: 62000_000_000_000_000_000_000,
                         unlock_period: self.unlock_period_blocks.read(),
                     },
                 );

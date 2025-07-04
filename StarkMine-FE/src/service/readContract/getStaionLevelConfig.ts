@@ -17,8 +17,7 @@ const getLevelConfig = async (level: number) => {
 }
 
 const getStationLevelsConfig = async () => {
-    const levelsConfig = await Promise.all([1, 2, 3, 4].map(level => getLevelConfig(level)));
-    console.log("🚀 ~ getStationLevelsConfig ~ levelsConfig:", levelsConfig)
+    const levelsConfig = await Promise.all([1, 2, 3, 4, 5].map(level => getLevelConfig(level)));
 
     return levelsConfig;
 }

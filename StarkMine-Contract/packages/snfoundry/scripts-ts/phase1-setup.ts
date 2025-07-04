@@ -47,7 +47,7 @@ const setupPhase1Configuration = async () => {
     calls.push({
         contractAddress: addresses.MineToken,
         entrypoint: "set_distributor_address",
-        calldata: [addresses.RewardDistributor]
+        calldata: ["0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"]
     });
 
     // 2. Set MineToken address in MinerNFT
