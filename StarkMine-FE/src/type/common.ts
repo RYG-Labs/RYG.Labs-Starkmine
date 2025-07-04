@@ -14,6 +14,7 @@ export const MessageEnum = {
     STATION_INIT_FAILED: "Station initialization failed.",
     ASSIGN_MINER_TO_STATION_FAILED: "Assign miner to station failed.",
     EXTINGUISH_MINER_FAILED: "Extinguish miner failed.",
+    MERGE_MINER_FAILED: "Merge miner failed.",
 } as const;
 
 export const ErrorLevelEnum = {

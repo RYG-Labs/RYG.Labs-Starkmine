@@ -7,7 +7,7 @@ const deployedContracts = {
   sepolia: {
     MineToken: {
       address:
-        "0x1a8e35bce9149f523d601d32638eb4d5d316ff9e792fa3d4e8e838d0d173b9e",
+        "0x9b520ccdfed37f8e8cff45e7250ade714a9c62567833700a62f9b54eb6023",
       abi: [
         {
           type: "impl",
@@ -464,7 +464,7 @@ const deployedContracts = {
     },
     MinerNFT: {
       address:
-        "0x3c4e8b2a5444c669c5bbc8ea0d84d7168b56b358f330c2ff5585cac2979d86",
+        "0x2e02378e76208391c43f168347eb90396eb8eaea83f9925f3fbff9aeb019576",
       abi: [
         {
           type: "impl",
@@ -1190,7 +1190,7 @@ const deployedContracts = {
     },
     CoreEngine: {
       address:
-        "0x383cfc905ed4e91748f4b85ad66fc879c30f1813b7e042f3c672ec13b37cb5b",
+        "0x36c3799467d9c6ae1cbe5a7647655b8d5865afd75007abae24394cbb95dce3c",
       abi: [
         {
           type: "impl",
@@ -1910,7 +1910,7 @@ const deployedContracts = {
     },
     StationSystem: {
       address:
-        "0x5704921f5a179fe50632bf115200403567d0e8a711ab75c6e4f19240692ecb7",
+        "0x6546f01d920a277b2537325dc334b8735f6cf92faf497c9d8026d7a06ad21c7",
       abi: [
         {
           type: "impl",
@@ -2693,11 +2693,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x12e5472961528265d7f09d30e27776c6946a835f16d589bc812fe6eb98c6ac6",
+        "0x7592b61a6b5d92ca5c6e445a45c66dcb68122ea4ad116ab8fce3b2a3f17608d",
     },
     MergeSystem: {
       address:
-        "0x6fccbf7cb11e3b527c0a0b6e2583a438a8d7ad5111f5b42a74c44cb76e0f7c",
+        "0x30a27e5752d2ea86011c69d1a81d342ca9b9855d7d2cf1bf8e54d711f119722",
       abi: [
         {
           type: "impl",
@@ -3144,7 +3144,7 @@ const deployedContracts = {
     },
     RewardDistributor: {
       address:
-        "0x24ee51c40494d35669b8ce360f5225669639020ec3d9e7d3d3eb3a38be7fef1",
+        "0x2d9124defedf8e931bd8b474d6bf65658a9df1a4f091df3b071f7af1ed96ee3",
       abi: [
         {
           type: "impl",

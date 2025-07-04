@@ -38,6 +38,7 @@ import canExecuteDowngrade from "@/service/readContract/canExecuteDowngrade";
 import getPendingReward from "@/service/readContract/getPendingReward";
 import claimPendingReward from "@/service/writeContract/claimPendingReward";
 import maintainMiner from "@/service/writeContract/maintainMiner";
+import mergeMiner from "@/service/writeContract/mergeMiner";
 
 export function UnityCanvas() {
   const {
@@ -641,6 +642,39 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendMergeMiner = useCallback(
+    async (
+      tokenId1: number,
+      tokenId2: number,
+      fromTier: string,
+      toTier: string
+    ) => {
+      if (!account || !tokenId1 || !tokenId2 || !fromTier || !toTier) {
+        sendMessage(
+          "WebResponse",
+          "ResponseMergeMiner",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await mergeMiner(
+        account,
+        tokenId1,
+        tokenId2,
+        fromTier,
+        toTier
+      );
+      sendMessage("WebResponse", "ResponseMergeMiner", JSON.stringify(result));
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -725,6 +759,18 @@ export function UnityCanvas() {
       sendGetPendingReward();
     });
 
+    addEventListener(
+      "RequestMergeMiner",
+      (tokenId1, tokenId2, fromTier, toTier) => {
+        sendMergeMiner(
+          tokenId1 as number,
+          tokenId2 as number,
+          fromTier as string,
+          toTier as string
+        );
+      }
+    );
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -745,6 +791,7 @@ export function UnityCanvas() {
       removeEventListener("RequestClaimPendingReward", () => {});
       removeEventListener("RequestMaintainMiner", () => {});
       removeEventListener("RequestGetPendingReward", () => {});
+      removeEventListener("RequestMergeMiner", () => {});
     };
   }, [account, address, isLoaded]);
 
