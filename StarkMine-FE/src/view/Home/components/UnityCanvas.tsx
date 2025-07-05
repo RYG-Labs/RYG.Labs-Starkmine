@@ -678,6 +678,35 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendCurrentSuccessRate = useCallback(
+    async (fromTier: string, toTier: string) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseCurrentSuccessRate",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+      const currentSuccessRate = await getCurrentSuccessRate(
+        account.address,
+        fromTier,
+        toTier
+      );
+      sendMessage(
+        "WebResponse",
+        "ResponseCurrentSuccessRate",
+        JSON.stringify(currentSuccessRate)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -775,6 +804,10 @@ export function UnityCanvas() {
       }
     );
 
+    addEventListener("RequestCurrentSuccessRate", (fromTier, toTier) => {
+      sendCurrentSuccessRate(fromTier as string, toTier as string);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -796,6 +829,7 @@ export function UnityCanvas() {
       removeEventListener("RequestMaintainMiner", () => {});
       removeEventListener("RequestGetPendingReward", () => {});
       removeEventListener("RequestMergeMiner", () => {});
+      removeEventListener("RequestCurrentSuccessRate", () => {});
     };
   }, [account, address, isLoaded]);
 
