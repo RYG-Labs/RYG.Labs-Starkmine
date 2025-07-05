@@ -40,7 +40,7 @@ import claimPendingReward from "@/service/writeContract/claimPendingReward";
 import maintainMiner from "@/service/writeContract/maintainMiner";
 import mergeMiner from "@/service/writeContract/mergeMiner";
 import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
-import getCurrentSuccessRate from "@/service/readContract/getCurrentSuccessRate";
+import getCurrentMergeStatusByUser from "@/service/readContract/getCurrentMergeStatusByUser";
 import { getMergeConfig } from "@/service/readContract/getMergeConfig";
 
 export function UnityCanvas() {
@@ -693,7 +693,7 @@ export function UnityCanvas() {
         );
         return;
       }
-      const currentSuccessRate = await getCurrentSuccessRate(
+      const currentSuccessRate = await getCurrentMergeStatusByUser(
         account.address,
         fromTier,
         toTier
@@ -1026,7 +1026,7 @@ export function UnityCanvas() {
 
         <button
           onClick={async () => {
-            await getCurrentSuccessRate(
+            await getCurrentMergeStatusByUser(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc",
               "Pro",
               "GIGA"

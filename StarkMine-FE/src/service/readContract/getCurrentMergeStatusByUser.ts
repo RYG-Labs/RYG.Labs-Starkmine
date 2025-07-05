@@ -1,11 +1,14 @@
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 import { mergeContract } from ".";
 import { getMergeConfig } from "./getMergeConfig";
+import getTiersConfig from "./getTierConfig";
 
-const getCurrentSuccessRate = async (address: string, fromTier: string, toTier: string): Promise<MessageBase> => {
+const getCurrentMergeStatusByUser = async (address: string, fromTier: string, toTier: string): Promise<MessageBase> => {
     const currentSuccessRate = await mergeContract.get_current_success_rate(address, fromTier, toTier);
    
     const mergeConfig = await getMergeConfig(fromTier, toTier);
+
+    const tierConfig = await getTiersConfig();
 
     console.log("🚀 ~ getCurrentSuccessRate ~ currentSuccessRate:", {
         fromTier: fromTier,
@@ -14,6 +17,7 @@ const getCurrentSuccessRate = async (address: string, fromTier: string, toTier: 
         successRateBonus: Number(BigInt(currentSuccessRate)) / 100 - mergeConfig.baseSuccessRate,
         costStrk: mergeConfig.costStrk,
         costMine: mergeConfig.costMine,
+        tierConfig: tierConfig,
     })
     return {
         status: StatusEnum.SUCCESS,
@@ -26,8 +30,9 @@ const getCurrentSuccessRate = async (address: string, fromTier: string, toTier: 
             successRateBonus: Number(BigInt(currentSuccessRate)) / 100 - mergeConfig.baseSuccessRate,
             costStrk: mergeConfig.costStrk,
             costMine: mergeConfig.costMine,
+            tierConfig: tierConfig,
         }
     }
 }
 
-export default getCurrentSuccessRate;
+export default getCurrentMergeStatusByUser;
