@@ -39,3 +39,5 @@ export interface MessageBase {
     data: any;
     level: typeof ErrorLevelEnum[keyof typeof ErrorLevelEnum];
 }
+
+export const SECOND_PER_BLOCK = 30;

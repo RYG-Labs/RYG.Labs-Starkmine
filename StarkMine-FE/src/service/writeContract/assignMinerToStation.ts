@@ -10,7 +10,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
         const tx = await account.execute({
             contractAddress: contracts.StationSystem,
             entrypoint: "assign_miner_to_station",
-            calldata: CallData.compile({ station_id: stationId, token_id: uint256.bnToUint256(minerId) }),
+            calldata: CallData.compile({ station_id: stationId, token_id: uint256.bnToUint256(minerId), miner_slot: index }),
         });
     
         const receipt = await provider.waitForTransaction(tx.transaction_hash);
@@ -25,7 +25,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
                 data: {
                     minerId: minerId,
                     stationId: stationId,
-                    index: index,
+                    minerSlot: index,
                 }
             } 
         } else {
@@ -36,7 +36,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
                 data: {
                     minerId: minerId,
                     stationId: stationId,
-                    index: index,
+                    minerSlot: index,
                 }
             }
         };
@@ -49,7 +49,7 @@ const assignMinerToStation = async (account: AccountInterface, stationId: number
             data: {
                 minerId: minerId,
                 stationId: stationId,
-                index: index,
+                minerSlot: index,
             },
         }
     }

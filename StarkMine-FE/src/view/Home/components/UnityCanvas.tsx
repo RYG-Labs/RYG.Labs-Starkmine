@@ -44,6 +44,7 @@ import getCurrentMergeStatusByUser from "@/service/readContract/getCurrentMergeS
 import { getMergeConfig } from "@/service/readContract/getMergeConfig";
 import getTotalHashPower from "@/service/readContract/getTotalHashPower";
 import getUserHashPower from "@/service/readContract/getUserHashPower";
+import getRemainingBlockForHaving from "@/service/readContract/getRemainingBlockForHaving";
 
 export function UnityCanvas() {
   const {
@@ -1083,6 +1084,9 @@ export function UnityCanvas() {
           }}
         >
           get merge config
+        </button>
+        <button onClick={async () => await getRemainingBlockForHaving()}>
+          get remaining block for having
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
