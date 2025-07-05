@@ -25,6 +25,7 @@ pub trait IMineToken<TContractState> {
     fn max_supply(self: @TContractState) -> u256;
     fn last_halving_block(self: @TContractState) -> u64;
     fn halving_interval(self: @TContractState) -> u64;
+    fn remaining_blocks_to_halving(self: @TContractState) -> u64;
     fn get_distributor_address(self: @TContractState) -> starknet::ContractAddress;
     fn set_distributor_address(ref self: TContractState, distributor: starknet::ContractAddress);
     fn mint(ref self: TContractState, to: starknet::ContractAddress, amount: u256) -> bool;
