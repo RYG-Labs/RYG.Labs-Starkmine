@@ -42,8 +42,6 @@ import mergeMiner from "@/service/writeContract/mergeMiner";
 import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
 import getCurrentSuccessRate from "@/service/readContract/getCurrentSuccessRate";
 import { getMergeConfig } from "@/service/readContract/getMergeConfig";
-import getTotalHashPower from "@/service/readContract/getTotalHashPower";
-import getUserHashPower from "@/service/readContract/getUserHashPower";
 
 export function UnityCanvas() {
   const {
@@ -709,37 +707,6 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
-  const sendTotalHashPower = useCallback(async () => {
-    const totalHashPower = await getTotalHashPower();
-    sendMessage(
-      "WebResponse",
-      "ResponseTotalHashPower",
-      JSON.stringify(totalHashPower)
-    );
-  }, [account, isLoaded]);
-
-  const sendUserHashPower = useCallback(async () => {
-    if (!account) {
-      sendMessage(
-        "WebResponse",
-        "ResponseUserHashPower",
-        JSON.stringify({
-          status: StatusEnum.ERROR,
-          message: MessageEnum.ADDRESS_NOT_FOUND,
-          level: ErrorLevelEnum.WARNING,
-          data: {},
-        } as MessageBase)
-      );
-      return;
-    }
-    const userHashPower = await getUserHashPower(account.address);
-    sendMessage(
-      "WebResponse",
-      "ResponseUserHashPower",
-      JSON.stringify(userHashPower)
-    );
-  }, [account, isLoaded]);
-
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -841,14 +808,6 @@ export function UnityCanvas() {
       sendCurrentSuccessRate(fromTier as string, toTier as string);
     });
 
-    addEventListener("RequestTotalHashPower", () => {
-      sendTotalHashPower();
-    });
-
-    addEventListener("RequestUserHashPower", () => {
-      sendUserHashPower();
-    });
-
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -871,8 +830,6 @@ export function UnityCanvas() {
       removeEventListener("RequestGetPendingReward", () => {});
       removeEventListener("RequestMergeMiner", () => {});
       removeEventListener("RequestCurrentSuccessRate", () => {});
-      removeEventListener("RequestTotalHashPower", () => {});
-      removeEventListener("RequestUserHashPower", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -1084,15 +1041,6 @@ export function UnityCanvas() {
           }}
         >
           get merge config
-        </button>
-        <button
-          onClick={async () => {
-            await getUserHashPower(
-              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
-            );
-          }}
-        >
-          get total hash power
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">

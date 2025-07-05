@@ -287,7 +287,7 @@ mod StationSystem {
             assert!(station.pending_downgrade == 0, "Downgrade already pending");
 
             let current_block = get_block_number().try_into().unwrap();
-            let unlock_timestamp = current_block + 1;
+            let unlock_timestamp = current_block + self.unlock_period_blocks.read();
 
             // Get target configuration
             let target_config = self.level_configs.read(target_level);
@@ -445,7 +445,7 @@ mod StationSystem {
                 );
         }
 
-        fn assign_miner_to_station(ref self: ContractState, station_id: u8, token_id: u256, slot: u8) {
+        fn assign_miner_to_station(ref self: ContractState, station_id: u8, token_id: u256) {
             self.require_not_paused();
             let caller = get_caller_address();
             self.require_valid_station(caller, station_id);
@@ -458,10 +458,19 @@ mod StationSystem {
             let mut station = self.stations.read((caller, station_id));
             assert!(station.miner_count < MAX_MINERS_PER_STATION, "Station at maximum capacity");
 
-            // Check slot is valid
-            assert!(slot > 0 && slot <= MAX_MINERS_PER_STATION, "Invalid slot");
-            let assignment = self.station_miners.read((caller, station_id, slot));
-            assert!(assignment.token_id == 0, "Slot already assigned");
+            // Find empty slot
+            let mut slot: u8 = 1;
+            let mut found_slot = false;
+            while slot <= MAX_MINERS_PER_STATION && !found_slot {
+                let assignment = self.station_miners.read((caller, station_id, slot));
+                if assignment.token_id == 0 {
+                    found_slot = true;
+                } else {
+                    slot += 1;
+                }
+            }
+
+            assert!(found_slot, "No available slot found");
 
             // Assign miner to slot
             let assignment = MinerAssignment {
@@ -787,7 +796,7 @@ pub trait IStationSystem<TContractState> {
     fn emergency_withdraw(ref self: TContractState, station_id: u8);
 
     // Miner assignment
-    fn assign_miner_to_station(ref self: TContractState, station_id: u8, token_id: u256, slot: u8);
+    fn assign_miner_to_station(ref self: TContractState, station_id: u8, token_id: u256);
     fn remove_miner_from_station(ref self: TContractState, station_id: u8, miner_slot: u8);
 
     // View functions

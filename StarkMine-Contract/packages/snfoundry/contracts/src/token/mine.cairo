@@ -157,18 +157,6 @@ mod MineToken {
             self.halving_interval.read()
         }
 
-        fn remaining_blocks_to_halving(self: @ContractState) -> u64 {
-            let current_block = get_block_number().try_into().unwrap();
-            let last_halving = self.last_halving_block.read();
-            let interval = self.halving_interval.read();
-            let next_having_block = last_halving + interval;
-            if (current_block >= next_having_block) {
-                return 0;
-            }
-
-            next_having_block - current_block
-        }
-
         fn get_distributor_address(self: @ContractState) -> ContractAddress {
             self.distributor_address.read()
         }
