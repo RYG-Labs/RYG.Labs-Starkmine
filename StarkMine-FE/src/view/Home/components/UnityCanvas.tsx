@@ -45,6 +45,7 @@ import { getMergeConfig } from "@/service/readContract/getMergeConfig";
 import getTotalHashPower from "@/service/readContract/getTotalHashPower";
 import getUserHashPower from "@/service/readContract/getUserHashPower";
 import getRemainingBlockForHaving from "@/service/readContract/getRemainingBlockForHaving";
+import repairCoreEngine from "@/service/writeContract/repairCoreEngine";
 
 export function UnityCanvas() {
   const {
@@ -716,7 +717,7 @@ export function UnityCanvas() {
       "ResponseTotalHashPower",
       JSON.stringify(await getTotalHashPower())
     );
-  }, [account, isLoaded]);
+  }, [isLoaded]);
 
   const sendUserHashPower = useCallback(async () => {
     if (!account) {
@@ -739,6 +740,45 @@ export function UnityCanvas() {
       JSON.stringify(userHashPower)
     );
   }, [account, isLoaded]);
+
+  const sendRemainingBlockForHaving = useCallback(async () => {
+    const remainingBlockForHaving = await getRemainingBlockForHaving();
+    sendMessage(
+      "WebResponse",
+      "ResponseRemainingBlockForHaving",
+      JSON.stringify(remainingBlockForHaving)
+    );
+  }, [isLoaded]);
+
+  const sendRepairCoreEngine = useCallback(
+    async (engineId: number, durabilityToRestore: number) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseRepairCoreEngine",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await repairCoreEngine(
+        account,
+        engineId,
+        durabilityToRestore
+      );
+      sendMessage(
+        "WebResponse",
+        "ResponseRepairCoreEngine",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
 
   // event listener
   useEffect(() => {
@@ -849,6 +889,17 @@ export function UnityCanvas() {
       sendUserHashPower();
     });
 
+    addEventListener("RequestRemainingBlockForHaving", () => {
+      sendRemainingBlockForHaving();
+    });
+
+    addEventListener(
+      "RequestRepairCoreEngine",
+      (engineId, durabilityToRestore) => {
+        sendRepairCoreEngine(engineId as number, durabilityToRestore as number);
+      }
+    );
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -873,6 +924,8 @@ export function UnityCanvas() {
       removeEventListener("RequestCurrentMergeStatusByUser", () => {});
       removeEventListener("RequestTotalHashPower", () => {});
       removeEventListener("RequestUserHashPower", () => {});
+      removeEventListener("RequestRemainingBlockForHaving", () => {});
+      removeEventListener("RequestRepairCoreEngine", () => {});
     };
   }, [account, address, isLoaded]);
 
