@@ -42,6 +42,8 @@ import mergeMiner from "@/service/writeContract/mergeMiner";
 import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
 import getCurrentMergeStatusByUser from "@/service/readContract/getCurrentMergeStatusByUser";
 import { getMergeConfig } from "@/service/readContract/getMergeConfig";
+import getTotalHashPower from "@/service/readContract/getTotalHashPower";
+import getUserHashPower from "@/service/readContract/getUserHashPower";
 
 export function UnityCanvas() {
   const {
@@ -678,12 +680,12 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
-  const sendCurrentSuccessRate = useCallback(
+  const sendCurrentMergeStatusByUser = useCallback(
     async (fromTier: string, toTier: string) => {
       if (!account) {
         sendMessage(
           "WebResponse",
-          "ResponseCurrentSuccessRate",
+          "ResponseCurrentMergeStatusByUser",
           JSON.stringify({
             status: StatusEnum.ERROR,
             message: MessageEnum.ADDRESS_NOT_FOUND,
@@ -693,19 +695,49 @@ export function UnityCanvas() {
         );
         return;
       }
-      const currentSuccessRate = await getCurrentMergeStatusByUser(
+      const currentMergeStatusByUser = await getCurrentMergeStatusByUser(
         account.address,
         fromTier,
         toTier
       );
       sendMessage(
         "WebResponse",
-        "ResponseCurrentSuccessRate",
-        JSON.stringify(currentSuccessRate)
+        "ResponseCurrentMergeStatusByUser",
+        JSON.stringify(currentMergeStatusByUser)
       );
     },
     [account, isLoaded]
   );
+
+  const sendTotalHashPower = useCallback(async () => {
+    sendMessage(
+      "WebResponse",
+      "ResponseTotalHashPower",
+      JSON.stringify(await getTotalHashPower())
+    );
+  }, [account, isLoaded]);
+
+  const sendUserHashPower = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseUserHashPower",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+    const userHashPower = await getUserHashPower(account.address);
+    sendMessage(
+      "WebResponse",
+      "ResponseUserHashPower",
+      JSON.stringify(userHashPower)
+    );
+  }, [account, isLoaded]);
 
   // event listener
   useEffect(() => {
@@ -804,8 +836,16 @@ export function UnityCanvas() {
       }
     );
 
-    addEventListener("RequestCurrentSuccessRate", (fromTier, toTier) => {
-      sendCurrentSuccessRate(fromTier as string, toTier as string);
+    addEventListener("RequestCurrentMergeStatusByUser", (fromTier, toTier) => {
+      sendCurrentMergeStatusByUser(fromTier as string, toTier as string);
+    });
+
+    addEventListener("RequestTotalHashPower", () => {
+      sendTotalHashPower();
+    });
+
+    addEventListener("RequestUserHashPower", () => {
+      sendUserHashPower();
     });
 
     return () => {
@@ -829,7 +869,9 @@ export function UnityCanvas() {
       removeEventListener("RequestMaintainMiner", () => {});
       removeEventListener("RequestGetPendingReward", () => {});
       removeEventListener("RequestMergeMiner", () => {});
-      removeEventListener("RequestCurrentSuccessRate", () => {});
+      removeEventListener("RequestCurrentMergeStatusByUser", () => {});
+      removeEventListener("RequestTotalHashPower", () => {});
+      removeEventListener("RequestUserHashPower", () => {});
     };
   }, [account, address, isLoaded]);
 
