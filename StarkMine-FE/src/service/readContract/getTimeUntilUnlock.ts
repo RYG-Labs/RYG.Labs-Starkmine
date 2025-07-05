@@ -1,6 +1,5 @@
-import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
+import { ErrorLevelEnum, MessageBase, MessageEnum, SECOND_PER_BLOCK, StatusEnum } from "@/type/common";
 import {  stationContract } from ".";
-import { convertWeiToEther } from "@/utils/helper";
 
 const getTimeUntilUnlock = async (address: string, stationId: number): Promise<MessageBase> => {
     try {
@@ -12,7 +11,8 @@ const getTimeUntilUnlock = async (address: string, stationId: number): Promise<M
             message: MessageEnum.SUCCESS,
             level: ErrorLevelEnum.INFOR,
             data: {
-                timeUntilUnlock: Number(convertWeiToEther(timeUntilUnlock)),
+                timeUntilUnlock: Number(BigInt(timeUntilUnlock)),
+                estimateSeconds: Number(BigInt(timeUntilUnlock)) * SECOND_PER_BLOCK,
             }
         }
     } catch (error: any) {
@@ -22,6 +22,7 @@ const getTimeUntilUnlock = async (address: string, stationId: number): Promise<M
             level: ErrorLevelEnum.WARNING,
             data: {
                 timeUntilUnlock: 0,
+                estimateSeconds: 0
             },
         }
     }

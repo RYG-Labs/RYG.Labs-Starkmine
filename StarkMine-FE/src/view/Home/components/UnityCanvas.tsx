@@ -780,6 +780,58 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendTimeUntilUnlock = useCallback(
+    async (stationId: number) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseTimeUntilUnlock",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await getTimeUntilUnlock(account.address, stationId);
+      sendMessage(
+        "WebResponse",
+        "ResponseTimeUntilUnlock",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
+  const sendCanExecuteDowngrade = useCallback(
+    async (stationId: number) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseCanExecuteDowngrade",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await canExecuteDowngrade(account.address, stationId);
+      sendMessage(
+        "WebResponse",
+        "ResponseCanExecuteDowngrade",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -900,6 +952,14 @@ export function UnityCanvas() {
       }
     );
 
+    addEventListener("RequestTimeUntilUnlock", (stationId) => {
+      sendTimeUntilUnlock(stationId as number);
+    });
+
+    addEventListener("RequestCanExecuteDowngrade", (stationId) => {
+      sendCanExecuteDowngrade(stationId as number);
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -926,6 +986,8 @@ export function UnityCanvas() {
       removeEventListener("RequestUserHashPower", () => {});
       removeEventListener("RequestRemainingBlockForHaving", () => {});
       removeEventListener("RequestRepairCoreEngine", () => {});
+      removeEventListener("RequestTimeUntilUnlock", () => {});
+      removeEventListener("RequestCanExecuteDowngrade", () => {});
     };
   }, [account, address, isLoaded]);
 
