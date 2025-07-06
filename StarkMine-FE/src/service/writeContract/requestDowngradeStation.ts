@@ -24,7 +24,8 @@ const requestDowngradeStation = async (account: AccountInterface , stationId: nu
         data: {
           stationId: stationId,
           targetLevel: targetLevel,
-          remainingBlock: remainingBlock,
+          timeUntilUnlock: remainingBlock.data.timeUntilUnlock,
+          estimateSeconds: remainingBlock.data.estimateSeconds,
         }
       }
     } else {
