@@ -43,7 +43,7 @@ export const getAllStations = async (userAddress: string, stationCount: number):
     for (let i = 1; i <= stationCount; i++) {
         const stationInfo = await getStationData(userAddress, i);
 
-        const estimateSecond = stationInfo.pendingDowngrade > 0 ? (currentBlock - stationInfo.unlockTimestamp) * SECOND_PER_BLOCK : 0;
+        const estimateSecond = stationInfo.pendingDowngrade > 0 ? ((stationInfo.unlockTimestamp - currentBlock) > 0 ? stationInfo.unlockTimestamp - currentBlock : 0) * SECOND_PER_BLOCK : 0;
 
         stationsData.push({...stationInfo, estimateSecond: estimateSecond });
     }
