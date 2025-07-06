@@ -1,6 +1,6 @@
 
-import { stationContract } from ".";
-import { ErrorLevelEnum, MessageBase, MessageEnum, StationInfo, StatusEnum } from "@/type/common";
+import { provider, stationContract } from ".";
+import { ErrorLevelEnum, MessageBase, MessageEnum, SECOND_PER_BLOCK, StationInfo, StatusEnum } from "@/type/common";
 import { initStation } from "../writeContract/initStation";
 import { AccountInterface } from "starknet";
 import { convertWeiToEther } from "@/utils/helper";
@@ -39,10 +39,13 @@ const getStationData = async (userAddress: string, stationId: number): Promise<S
 
 export const getAllStations = async (userAddress: string, stationCount: number): Promise<any[]> => {
     const stationsData = []
-
+    const currentBlock = await provider.getBlockNumber();
     for (let i = 1; i <= stationCount; i++) {
         const stationInfo = await getStationData(userAddress, i);
-        stationsData.push(stationInfo);
+
+        const estimateSecond = stationInfo.pendingDowngrade > 0 ? (currentBlock - stationInfo.pendingDowngrade) * SECOND_PER_BLOCK : 0;
+
+        stationsData.push({...stationInfo, estimateSecond: estimateSecond });
     }
 
     return stationsData;
@@ -90,6 +93,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             } as MessageBase;
         }
       } else {
+
         const allStations = await getAllStations(userAddress, stationCount);
         console.log("🚀 ~ getStationsByOwner ~ allStations:", allStations)
         return {
