@@ -6,11 +6,11 @@ import { AccountInterface } from "starknet";
 import { convertWeiToEther } from "@/utils/helper";
 
 const getMinerIdsAssignedToStation = async (userAddress: string, stationId: number) => {
-    const minerAssigned = await stationContract.get_station_miners(userAddress, stationId);
-    const minerAssignedFormatted = minerAssigned.map((miner : { token_id: BigInt, slot: BigInt }) => { 
+    const minersAssigned = await stationContract.get_station_miners(userAddress, stationId);
+    const minersAssignedFormatted = minersAssigned.map((miner : { token_id: BigInt, slot: BigInt }) => { 
       return { tokenId: Number(miner.token_id), slot: Number(miner.slot) }
     })
-    return minerAssignedFormatted
+    return minersAssignedFormatted
 }
 
 const formatStationData = (stationInfo: any): StationInfo => {
@@ -23,16 +23,16 @@ const formatStationData = (stationInfo: any): StationInfo => {
         unlockTimestamp: Number(stationInfo.unlock_timestamp),
         pendingDowngrade: Number(stationInfo.pending_downgrade),
         minerCount: Number(stationInfo.miner_count),
-        minerAssigned: stationInfo.minerAssigned,
+        minersAssigned: stationInfo.minersAssigned,
     }
 }
 
 const getStationData = async (userAddress: string, stationId: number): Promise<StationInfo> => {
     const stationInfo = await stationContract.get_station_info(userAddress, stationId);
-    const minerAssigned = await getMinerIdsAssignedToStation(userAddress, stationId);
+    const minersAssigned = await getMinerIdsAssignedToStation(userAddress, stationId);
     return formatStationData({
         id: stationId,
-        minerAssigned: minerAssigned,
+        minersAssigned: minersAssigned,
         ...stationInfo
     });
 };

@@ -52,5 +52,5 @@ export interface StationInfo {
     unlockTimestamp: number;
     pendingDowngrade: number;
     minerCount: number;
-    minerAssigned: any;
+    minersAssigned: any;
 }
