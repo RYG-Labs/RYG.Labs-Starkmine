@@ -712,10 +712,11 @@ export function UnityCanvas() {
   );
 
   const sendTotalHashPower = useCallback(async () => {
+    const totalHashPower = await getTotalHashPower();
     sendMessage(
       "WebResponse",
       "ResponseTotalHashPower",
-      JSON.stringify(await getTotalHashPower())
+      JSON.stringify(totalHashPower)
     );
   }, [isLoaded]);
 
@@ -1095,10 +1096,10 @@ export function UnityCanvas() {
             getMinersByOwner(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
             );
-            // getStationsByOwner(
-            //   account!,
-            //   "0x07549b52079778e07daee3b913374fcbeea8e41500d21fe688fd2b0ed76d3f6e"
-            // );
+            getStationsByOwner(
+              account!,
+              "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            );
             // getStationsByOwner(
             //   account!,
             //   "0x00f41c686db3416dc3560bc9ae3507adf14c24c0220898eff5a4b65d40eba07b"
@@ -1204,7 +1205,7 @@ export function UnityCanvas() {
           get remaining block for having
         </button>
       </div>
-      <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
+      {/* <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
           <div className="flex flex-col loading-overlay absolute top-0 bottom-0 right-0 left-0 h-full w-full items-center justify-center">
             <div className="absolute top-[10%]  right-[5%]">
@@ -1250,7 +1251,7 @@ export function UnityCanvas() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </>
   );
 }

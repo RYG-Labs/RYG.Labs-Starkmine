@@ -2,6 +2,7 @@ import { contracts } from "@/configs/contracts";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 import { AccountInterface, CallData } from "starknet";
 import { provider } from "../readContract";
+import getTimeUntilUnlock from "../readContract/getTimeUntilUnlock";
 
 const requestDowngradeStation = async (account: AccountInterface , stationId: number, targetLevel: number): Promise<MessageBase> => {
   try {
@@ -14,6 +15,8 @@ const requestDowngradeStation = async (account: AccountInterface , stationId: nu
     const receipt = await provider.waitForTransaction(tx.transaction_hash);
 
     if (receipt.isSuccess()) {
+      const remainingBlock = await getTimeUntilUnlock(account.address, stationId);
+
       return {
         status: StatusEnum.SUCCESS,
         message: MessageEnum.SUCCESS,
@@ -21,6 +24,7 @@ const requestDowngradeStation = async (account: AccountInterface , stationId: nu
         data: {
           stationId: stationId,
           targetLevel: targetLevel,
+          remainingBlock: remainingBlock,
         }
       }
     } else {

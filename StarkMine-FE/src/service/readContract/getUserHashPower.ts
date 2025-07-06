@@ -8,7 +8,9 @@ const getUserHashPower = async (address: string): Promise<MessageBase> => {
         status: StatusEnum.SUCCESS,
         message: MessageEnum.SUCCESS,
         level: ErrorLevelEnum.INFOR,
-        data: Number(BigInt(userHashPower)) / 1e12,
+        data: {
+            userHashPower: Number(BigInt(userHashPower)) / 1e12,
+        },
     }
 };
 

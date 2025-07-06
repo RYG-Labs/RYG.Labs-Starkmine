@@ -1,17 +1,19 @@
 
 import { stationContract } from ".";
-import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
+import { ErrorLevelEnum, MessageBase, MessageEnum, StationInfo, StatusEnum } from "@/type/common";
 import { initStation } from "../writeContract/initStation";
 import { AccountInterface } from "starknet";
 import { convertWeiToEther } from "@/utils/helper";
 
 const getMinerIdsAssignedToStation = async (userAddress: string, stationId: number) => {
-    const minerIds = await stationContract.get_station_miners(userAddress, stationId);
-    const minerIdsFormatted = minerIds.map((minerId: BigInt) => parseInt(minerId.toString()));
-    return minerIdsFormatted
+    const minerAssigned = await stationContract.get_station_miners(userAddress, stationId);
+    const minerAssignedFormatted = minerAssigned.map((miner : { token_id: BigInt, slot: BigInt }) => { 
+      return { tokenId: Number(miner.token_id), slot: Number(miner.slot) }
+    })
+    return minerAssignedFormatted
 }
 
-const formatStationData = (stationInfo: any): any => {
+const formatStationData = (stationInfo: any): StationInfo => {
     return {
         id: Number(stationInfo.id),
         level: Number(stationInfo.level),
@@ -21,17 +23,16 @@ const formatStationData = (stationInfo: any): any => {
         unlockTimestamp: Number(stationInfo.unlock_timestamp),
         pendingDowngrade: Number(stationInfo.pending_downgrade),
         minerCount: Number(stationInfo.miner_count),
-        minerIds: stationInfo.minerIds,
+        minerAssigned: stationInfo.minerAssigned,
     }
 }
 
-const getStationData = async (userAddress: string, stationId: number) => {
-
+const getStationData = async (userAddress: string, stationId: number): Promise<StationInfo> => {
     const stationInfo = await stationContract.get_station_info(userAddress, stationId);
-    const minerIds = await getMinerIdsAssignedToStation(userAddress, stationId);
+    const minerAssigned = await getMinerIdsAssignedToStation(userAddress, stationId);
     return formatStationData({
         id: stationId,
-        minerIds: minerIds,
+        minerAssigned: minerAssigned,
         ...stationInfo
     });
 };
@@ -79,6 +80,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
             }
 
             const allStations = await getAllStations(userAddress, stationCountAfterInit);
+            console.log("🚀 ~ getStationsByOwner ~ allStations:", allStations)
             
             return {
                 status: StatusEnum.SUCCESS,
@@ -89,6 +91,7 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
         }
       } else {
         const allStations = await getAllStations(userAddress, stationCount);
+        console.log("🚀 ~ getStationsByOwner ~ allStations:", allStations)
         return {
             status: StatusEnum.SUCCESS,
             message: MessageEnum.SUCCESS,
@@ -98,6 +101,8 @@ export const getStationsByOwner = async (account: AccountInterface, userAddress:
       }
       
     } catch (error) {
+      console.log(error);
+      
       return {
         status: StatusEnum.ERROR,
         message: MessageEnum.ERROR,

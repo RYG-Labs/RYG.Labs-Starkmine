@@ -42,3 +42,15 @@ export interface MessageBase {
 }
 
 export const SECOND_PER_BLOCK = 30;
+
+export interface StationInfo {
+    id: number;
+    level: number;
+    multiplier: number;
+    mineLocked: number;
+    lockTimestamp: number;
+    unlockTimestamp: number;
+    pendingDowngrade: number;
+    minerCount: number;
+    minerAssigned: any;
+}
