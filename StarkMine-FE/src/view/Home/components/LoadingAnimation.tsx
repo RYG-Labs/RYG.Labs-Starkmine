@@ -3,7 +3,7 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import "./style.css";
 import Image from "next/image";
-import Icon from "@/assets/sunnyside_icon.svg";
+import Icon from "@/assets/StarkMine-logo.svg";
 
 const border = {
   hidden: {

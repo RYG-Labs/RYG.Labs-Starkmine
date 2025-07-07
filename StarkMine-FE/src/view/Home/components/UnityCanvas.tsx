@@ -68,7 +68,7 @@ export function UnityCanvas() {
   const [showCanvas, setShowCanvas] = useState<boolean>(true);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const loadingPercentage = Math.round(loadingProgression * 100);
-  const currentVersion = "0";
+  const currentVersion = "Beta";
 
   // wallet state
   const { connect, connectors, connector } = useConnect();
@@ -1087,7 +1087,7 @@ export function UnityCanvas() {
 
   return (
     <>
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <button
           onClick={() => {
             getCoreEnginesByOwner(
@@ -1204,11 +1204,11 @@ export function UnityCanvas() {
         <button onClick={async () => await getRemainingBlockForHaving()}>
           get remaining block for having
         </button>
-      </div>
+      </div> */}
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
           <div className="flex flex-col loading-overlay absolute top-0 bottom-0 right-0 left-0 h-full w-full items-center justify-center">
-            <div className="absolute top-[10%]  right-[5%]">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <Loading
                 onAnimationComplete={() => {
                   setShowCanvas(true);

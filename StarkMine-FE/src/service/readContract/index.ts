@@ -1,5 +1,11 @@
 import { contracts } from "@/configs/contracts";
 import { walletConfig } from "@/configs/network";
+import ABICoreEngine from "@/type/ABICoreEngine";
+import ABIMerge from "@/type/ABIMerge";
+import ABIMiner from "@/type/ABIMiner";
+import ABIMineToken from "@/type/ABIMineToken";
+import ABIRewardDistributor from "@/type/ABIRewardDistributor";
+import ABIStationSystem from "@/type/ABIStationSystem";
 import { mainnet } from "@starknet-react/chains";
 import { Contract, RpcProvider } from "starknet";
 
@@ -13,13 +19,13 @@ export const provider = new RpcProvider({ nodeUrl: `${nodeUrl}` });
 export const getAbi = async (contractAddress: string) => {
   const { abi } = await provider.getClassAt(contractAddress);
 
-  console.log("🚀 ~ getAbi ~ abi:", abi);
+  console.log("🚀 ~ getAbi ~ abi:",contractAddress,  abi);
   return abi;
 };
 
-export const mineContract = new Contract(await getAbi(contracts.MineToken), contracts.MineToken, provider);
-export const minerContract = new Contract(await getAbi(contracts.MinerNFT), contracts.MinerNFT, provider);
-export const coreEngineContract = new Contract(await getAbi(contracts.CoreEngine), contracts.CoreEngine, provider);
-export const stationContract = new Contract(await getAbi(contracts.StationSystem), contracts.StationSystem, provider);
-export const mergeContract = new Contract(await getAbi(contracts.MergeSystem), contracts.MergeSystem, provider);
-export const rewardDistributorContract = new Contract(await getAbi(contracts.RewardDistributor), contracts.RewardDistributor, provider);
+export const mineContract = new Contract(ABIMineToken, contracts.MineToken, provider);
+export const minerContract = new Contract(ABIMiner, contracts.MinerNFT, provider);
+export const coreEngineContract = new Contract(ABICoreEngine, contracts.CoreEngine, provider);
+export const stationContract = new Contract(ABIStationSystem, contracts.StationSystem, provider);
+export const mergeContract = new Contract(ABIMerge, contracts.MergeSystem, provider);
+export const rewardDistributorContract = new Contract(ABIRewardDistributor, contracts.RewardDistributor, provider);

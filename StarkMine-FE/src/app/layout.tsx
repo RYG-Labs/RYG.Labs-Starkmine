@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import logo_sunny from "@/assets/logo-sunnyside.svg";
+import logo_starkmine from "@/assets/StarkMine-logo.svg";
 import AppProvider from "@/service/provider/AppProvider";
 
 const geistSans = localFont({
@@ -22,10 +22,10 @@ const galindo = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sunnyside Acres",
-  icons: [logo_sunny.src],
+  title: "StarkMine",
+  icons: [logo_starkmine.src],
   description:
-    "Immerse yourself in a unique pixelated blockchain farm where you can cultivate, harvest, and own digital assets securely and creatively.",
+    "StarkMine is a decentralized mining game on Starknet where players manage NFT miners, upgrade with core engines, and earn MINE tokens through a proof-of-work simulation. Merge miners for higher tiers, boost efficiency with stations, and strategize around monthly reward halvings in a dynamic, player-driven economy.",
 };
 
 export default function RootLayout({
