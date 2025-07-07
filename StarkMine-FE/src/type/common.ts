@@ -16,6 +16,7 @@ export const MessageEnum = {
     EXTINGUISH_MINER_FAILED: "Extinguish miner failed.",
     MERGE_MINER_FAILED: "Merge miner failed.",
     REPAIR_CORE_ENGINE_FAILED: "Repair core engine failed.",
+    CANNOT_EXECUTE_DOWNGRADE_RIGHT_NOW: "Cannot execute downgrade right now. Please wait a moment.",
 } as const;
 
 export const ErrorLevelEnum = {
