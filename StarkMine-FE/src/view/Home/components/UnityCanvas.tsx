@@ -41,7 +41,6 @@ import maintainMiner from "@/service/writeContract/maintainMiner";
 import mergeMiner from "@/service/writeContract/mergeMiner";
 import getTimeUntilUnlock from "@/service/readContract/getTimeUntilUnlock";
 import getCurrentMergeStatusByUser from "@/service/readContract/getCurrentMergeStatusByUser";
-import { getMergeConfig } from "@/service/readContract/getMergeConfig";
 import getTotalHashPower from "@/service/readContract/getTotalHashPower";
 import getUserHashPower from "@/service/readContract/getUserHashPower";
 import getRemainingBlockForHaving from "@/service/readContract/getRemainingBlockForHaving";
