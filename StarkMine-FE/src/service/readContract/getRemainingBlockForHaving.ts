@@ -1,20 +1,19 @@
 import { ErrorLevelEnum, MessageBase, MessageEnum, SECOND_PER_BLOCK, StatusEnum } from "@/type/common";
-import { mineContract } from ".";
+import { mineContract, provider } from ".";
 
 const getRemainingBlockForHaving = async (): Promise<MessageBase> => {
-    const remainingBlock = await mineContract.remaining_blocks_for_halving();
-    console.log("🚀 ~ getRemainingBlockForHaving ~ remainingBlock:", {
-        remainingBlock: Number(BigInt(remainingBlock)),
-        estimateSecond: Number(BigInt(remainingBlock)) * SECOND_PER_BLOCK,
-    })
+    const lastHalvingBlock = await mineContract.last_halving_block();
+    const halvingInterval = await mineContract.halving_interval();
+    const currentBlock = await provider.getBlockNumber();
+    const remainingBlocks = (Number(lastHalvingBlock) + Number(halvingInterval)) - Number(currentBlock);
 
     return {
         status: StatusEnum.SUCCESS,
         message: MessageEnum.SUCCESS,
         level: ErrorLevelEnum.INFOR,
         data: {
-            remainingBlock: Number(BigInt(remainingBlock)),
-            estimateSeconds: Number(BigInt(remainingBlock)) * SECOND_PER_BLOCK,
+            remainingBlock: Number(BigInt(remainingBlocks)),
+            estimateSeconds: Number(BigInt(remainingBlocks)) * SECOND_PER_BLOCK,
         },
     };
 }

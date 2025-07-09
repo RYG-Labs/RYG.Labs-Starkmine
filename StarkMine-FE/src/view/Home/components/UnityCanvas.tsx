@@ -68,7 +68,7 @@ export function UnityCanvas() {
   const [showCanvas, setShowCanvas] = useState<boolean>(true);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const loadingPercentage = Math.round(loadingProgression * 100);
-  const currentVersion = "Beta";
+  const currentVersion = "beta";
 
   // wallet state
   const { connect, connectors, connector } = useConnect();
@@ -1247,7 +1247,7 @@ export function UnityCanvas() {
               devicePixelRatio={devicePixelRatio}
             />
             <div className="absolute z-[9999] bottom-0 right-0 text-white text-xs p-1">
-              Version:{currentVersion}
+              Version: {currentVersion}
             </div>
           </div>
         )}
