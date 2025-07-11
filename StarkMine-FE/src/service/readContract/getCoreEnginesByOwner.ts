@@ -3,10 +3,22 @@ import { coreEngineContract, provider } from ".";
 import { EventKeyEnum } from "@/type/common";
 import { formattedContractAddress } from "@/utils/helper";
 import {  shortString } from "starknet";
+import getRemainingCoreEngineDurability from "./getRemainingCoreEngineDurability";
 
-export const getEngineData = async (tokenId: string) => {
+export const getEngineData = async (tokenId: number) => {
     const coreEngineInfo = await coreEngineContract.get_engine_info(tokenId);
-    return coreEngineInfo;
+    const durabilityPercent = await getRemainingCoreEngineDurability(tokenId, shortString.decodeShortString(coreEngineInfo.engine_type));
+    return {
+      tokenId: tokenId,
+      attachedMiner: parseInt(coreEngineInfo.attached_miner),
+      blocksUsed: coreEngineInfo.blocks_used.toString(),
+      durability: parseInt(coreEngineInfo.durability),
+      efficiencyBonus: parseInt(coreEngineInfo.efficiency_bonus),
+      engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
+      isActive: Boolean(coreEngineInfo.is_active),
+      lastUsedBlock: parseInt(coreEngineInfo.last_used_block),
+      durabilityPercent: durabilityPercent.data.remainingDurabilityPercent,
+    };
 };
 
 export const getCoreEnginesByOwner = async (userAddress: string) => {
@@ -82,26 +94,15 @@ export const getCoreEnginesByOwner = async (userAddress: string) => {
   
       const minerDetails = await Promise.all(
         Array.from(ownedCoreEngines).map(async (tokenId: any) => {
-          const coreEngineInfo = await getEngineData(tokenId);
-          console.log("🚀 ~ Array.from ~ coreEngineInfo:", coreEngineInfo)
-          
-          return {
-            tokenId: parseInt(tokenId, 16),
-            attachedMiner: parseInt(coreEngineInfo.attached_miner),
-            blocksUsed: coreEngineInfo.blocks_used.toString(),
-            durability: parseInt(coreEngineInfo.durability),
-            efficiencyBonus: parseInt(coreEngineInfo.efficiency_bonus),
-            engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
-            isActive: Boolean(coreEngineInfo.is_active),
-            lastUsedBlock: parseInt(coreEngineInfo.last_used_block),
-          };
+          const coreEngineInfo = await getEngineData(parseInt(tokenId, 16));
+          return coreEngineInfo
         })
       );
   
       console.log("🚀 ~ getCoreEnginesByOwner ~ minerDetails:", minerDetails)
       return minerDetails; 
     } catch (error) {
-      console.error("Lỗi:", error);
+      console.error("Error:", error);
       throw error;
     }
 }

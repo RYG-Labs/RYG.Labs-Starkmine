@@ -45,6 +45,8 @@ import getTotalHashPower from "@/service/readContract/getTotalHashPower";
 import getUserHashPower from "@/service/readContract/getUserHashPower";
 import getRemainingBlockForHaving from "@/service/readContract/getRemainingBlockForHaving";
 import repairCoreEngine from "@/service/writeContract/repairCoreEngine";
+import getRemaningCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
+import getRemainingCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
 
 export function UnityCanvas() {
   const {
@@ -832,6 +834,21 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendGetRemainingCoreEngineDurability = useCallback(
+    async (coreEngineId: number, engineType: string) => {
+      const result = await getRemainingCoreEngineDurability(
+        coreEngineId,
+        engineType
+      );
+      sendMessage(
+        "WebResponse",
+        "ResponseGetRemainingCoreEngineDurability",
+        JSON.stringify(result)
+      );
+    },
+    [account, isLoaded]
+  );
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -960,6 +977,16 @@ export function UnityCanvas() {
       sendCanExecuteDowngrade(stationId as number);
     });
 
+    addEventListener(
+      "RequestGetRemainingCoreEngineDurability",
+      (coreEngineId, engineType) => {
+        sendGetRemainingCoreEngineDurability(
+          coreEngineId as number,
+          engineType as string
+        );
+      }
+    );
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -988,6 +1015,7 @@ export function UnityCanvas() {
       removeEventListener("RequestRepairCoreEngine", () => {});
       removeEventListener("RequestTimeUntilUnlock", () => {});
       removeEventListener("RequestCanExecuteDowngrade", () => {});
+      removeEventListener("RequestGetRemainingCoreEngineDurability", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -1086,7 +1114,7 @@ export function UnityCanvas() {
 
   return (
     <>
-      {/* <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
         <button
           onClick={() => {
             getCoreEnginesByOwner(
@@ -1195,15 +1223,15 @@ export function UnityCanvas() {
         </button>
         <button
           onClick={async () => {
-            await getMergeConfig("Pro", "GIGA");
+            await getRemainingCoreEngineDurability(2, "Basic");
           }}
         >
-          get merge config
+          remaining core engine durability
         </button>
         <button onClick={async () => await getRemainingBlockForHaving()}>
           get remaining block for having
         </button>
-      </div> */}
+      </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
           <div className="flex flex-col loading-overlay absolute top-0 bottom-0 right-0 left-0 h-full w-full items-center justify-center">

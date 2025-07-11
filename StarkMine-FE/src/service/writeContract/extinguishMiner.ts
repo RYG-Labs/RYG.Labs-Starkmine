@@ -2,9 +2,15 @@ import { contracts } from "@/configs/contracts";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
 import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
+import { getMinerData } from "../readContract/getMinersByOwner";
+import { getEngineData } from "../readContract/getCoreEnginesByOwner";
 
 const extinguishMiner = async (account: AccountInterface, minerId: number): Promise<MessageBase> => {
     try {
+
+        const minerInfo = await getMinerData(minerId);
+        const engineInfo = await getEngineData(minerInfo.coreEngineId);
+
         const tx = await account.execute({
             contractAddress: contracts.MinerNFT,
             entrypoint: "extinguish_miner",
@@ -22,6 +28,8 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 level: ErrorLevelEnum.INFOR,
                 data: {
                     minerId: minerId,
+                    coreEngineId: engineInfo.tokenId,
+                    durabilityPercent: engineInfo.durabilityPercent,
                 }
             }
         } else {
@@ -31,6 +39,8 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 level: ErrorLevelEnum.WARNING,
                 data: {
                     minerId: minerId,
+                    coreEngineId: engineInfo.tokenId,
+                    durabilityPercent: engineInfo.durabilityPercent,
                 }
             }
         };

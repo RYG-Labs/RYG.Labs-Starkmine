@@ -23,6 +23,15 @@ export const getAbi = async (contractAddress: string) => {
   return abi;
 };
 
+export const engineDurabilityConfig = new Map<string, number>(
+  [
+    ["Basic", 86400],
+    ["Elite", 129600],
+    ["Pro", 172800],
+    ["GIGA", 259200],
+  ]
+)
+
 export const mineContract = new Contract(ABIMineToken, contracts.MineToken, provider);
 export const minerContract = new Contract(ABIMiner, contracts.MinerNFT, provider);
 export const coreEngineContract = new Contract(ABICoreEngine, contracts.CoreEngine, provider);

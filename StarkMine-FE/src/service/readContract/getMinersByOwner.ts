@@ -4,9 +4,18 @@ import {formattedContractAddress} from "../../utils/helper";
 import { minerContract, provider } from ".";
 import { EventKeyEnum } from "@/type/common";
 
-const getMinerData = async (tokenId: string) => {
+export const getMinerData = async (tokenId: number): Promise<any> => {
     const minerInfo = await minerContract.get_miner_info(tokenId);
-    return minerInfo;
+    return {
+      tokenId: tokenId,
+      tier: shortString.decodeShortString(minerInfo.tier),
+      hashPower: Number(BigInt(minerInfo.hash_power) / BigInt(1e12)), // 
+      level: Number(minerInfo.level),
+      efficiency: Number(minerInfo.efficiency),
+      lastMaintenance: minerInfo.last_maintenance.toString(),
+      coreEngineId: parseInt(minerInfo.core_engine_id, 16),
+      isIgnited: Boolean(minerInfo.is_ignited),
+    };
 };
   
 export const getMinersByOwner = async (userAddress: string) => {
@@ -82,17 +91,8 @@ export const getMinersByOwner = async (userAddress: string) => {
   
       const minerDetails = await Promise.all(
         Array.from(ownedNFTs).map(async (tokenId: any) => {
-          const minerInfo = await getMinerData(tokenId);
-          return {
-            tokenId: parseInt(tokenId, 16), // int
-            tier: shortString.decodeShortString(minerInfo.tier), // string [Basic, ....]
-            hashPower: Number(BigInt(minerInfo.hash_power) / BigInt(1e12)), // 
-            level: Number(minerInfo.level),
-            efficiency: Number(minerInfo.efficiency),
-            lastMaintenance: minerInfo.last_maintenance.toString(),
-            coreEngineId: parseInt(minerInfo.core_engine_id, 16),
-            isIgnited: Boolean(minerInfo.is_ignited),
-          };
+          const minerInfo = await getMinerData(parseInt(tokenId, 16));
+          return minerInfo;
         })
       );
       console.log("🚀 ~ getPastEvents ~ minerDetails:", minerDetails);
