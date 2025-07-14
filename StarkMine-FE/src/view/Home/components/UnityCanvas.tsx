@@ -26,7 +26,7 @@ import removeMinerFromStation from "@/service/writeContract/removeMinerFromStati
 import upgradeMiner from "@/service/writeContract/upgradeMiner";
 import defuseEngine from "@/service/writeContract/defuseEngine";
 import upgradeStation from "@/service/writeContract/upgradeStation";
-import getStationLevelsConfig from "@/service/readContract/getStaionLevelConfig";
+import getStationLevelsConfig from "@/service/readContract/getStationLevelConfig";
 import getMinerLevelsConfig from "@/service/readContract/getMinerLevelConfig";
 import getTiersConfig from "@/service/readContract/getTierConfig";
 import getNewHashPower from "@/service/readContract/getNewHashPower";
@@ -47,6 +47,7 @@ import getRemainingBlockForHaving from "@/service/readContract/getRemainingBlock
 import repairCoreEngine from "@/service/writeContract/repairCoreEngine";
 import getRemaningCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
 import getRemainingCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
+import mintMiner from "@/service/writeContract/mintMiner";
 
 export function UnityCanvas() {
   const {
@@ -1231,6 +1232,22 @@ export function UnityCanvas() {
         <button onClick={async () => await getRemainingBlockForHaving()}>
           get remaining block for having
         </button>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={async () => {
+              await mintMiner(account!, "Basic");
+            }}
+          >
+            Mint miner basic
+          </button>
+          <button
+            onClick={async () => {
+              await mintMiner(account!, "Elite");
+            }}
+          >
+            Mint miner elite
+          </button>
+        </div>
       </div> */}
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
