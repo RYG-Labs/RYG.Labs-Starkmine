@@ -17,7 +17,7 @@ export const getEngineData = async (tokenId: number) => {
       engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
       isActive: Boolean(coreEngineInfo.is_active),
       lastUsedBlock: parseInt(coreEngineInfo.last_used_block),
-      durabilityPercent: durabilityPercent.data.remainingDurabilityPercent,
+      durabilityPercent: Math.floor(durabilityPercent.data.remainingDurabilityPercent),
     };
 };
 
