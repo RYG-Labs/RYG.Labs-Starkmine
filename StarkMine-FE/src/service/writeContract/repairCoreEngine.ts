@@ -7,14 +7,14 @@ import { getEngineData } from "../readContract/getCoreEnginesByOwner";
 const repairCoreEngine = async (account: AccountInterface, engineId: number, durabilityPercentToRestore: number): Promise<MessageBase> => {
     // get coreEngine info
     const engineDetail = await getEngineData(engineId);
-    const maxDurability = engineDurabilityConfig.get(engineDetail.engineType);
+    const maxDurability = engineDetail.durability;
     if (!maxDurability) return { status: StatusEnum.ERROR, message: MessageEnum.ENGINE_TYPE_NOT_FOUND, level: ErrorLevelEnum.WARNING, data: {
         engineId: engineId,
         durabilityToRestore: durabilityPercentToRestore,
     } }
 
     // calculate blocks to restore
-    const blocksByOnePercent = maxDurability / 100;
+    const blocksByOnePercent = Math.ceil(maxDurability / 100);
     const blocksToRestore = blocksByOnePercent * durabilityPercentToRestore;
 
     try {
