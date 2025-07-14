@@ -11,7 +11,7 @@ export const getEngineData = async (tokenId: number) => {
     return {
       tokenId: tokenId,
       attachedMiner: parseInt(coreEngineInfo.attached_miner),
-      blocksUsed: coreEngineInfo.blocks_used.toString(),
+      blocksUsed: parseInt(coreEngineInfo.blocks_used),
       durability: parseInt(coreEngineInfo.durability),
       efficiencyBonus: parseInt(coreEngineInfo.efficiency_bonus),
       engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
