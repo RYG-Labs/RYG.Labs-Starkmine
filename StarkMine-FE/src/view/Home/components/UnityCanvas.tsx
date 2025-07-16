@@ -48,6 +48,10 @@ import repairCoreEngine from "@/service/writeContract/repairCoreEngine";
 import getRemaningCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
 import getRemainingCoreEngineDurability from "@/service/readContract/getRemainingCoreEngineDurability";
 import mintMiner from "@/service/writeContract/mintMiner";
+import {
+  getEngineConfig,
+  getEngineTypeConfigs,
+} from "@/service/readContract/getEngineConfig";
 
 export function UnityCanvas() {
   const {
@@ -1253,6 +1257,9 @@ export function UnityCanvas() {
             Mint miner elite
           </button>
         </div>
+        <button onClick={async () => await getEngineTypeConfigs()}>
+          get engine config
+        </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
