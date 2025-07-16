@@ -13,7 +13,7 @@ const getPendingReward = async (address: string): Promise<MessageBase> => {
         level: ErrorLevelEnum.INFOR,
         data: {
             pendingReward: Number(convertWeiToEther(pendingReward.pending_rewards)),
-            lastClaimed: Number(pendingReward.last_updated_block),
+            lastClaimed: Number(pendingReward.last_claimed_at),
         }
     }
     } catch (error: any) {
