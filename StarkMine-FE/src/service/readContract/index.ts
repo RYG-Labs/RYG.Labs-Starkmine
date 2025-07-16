@@ -37,4 +37,4 @@ export const minerContract = new Contract(ABIMiner, contracts.MinerNFT, provider
 export const coreEngineContract = new Contract(ABICoreEngine, contracts.CoreEngine, provider);
 export const stationContract = new Contract(ABIStationSystem, contracts.StationSystem, provider);
 export const mergeContract = new Contract(ABIMerge, contracts.MergeSystem, provider);
-export const rewardDistributorContract = new Contract(ABIRewardDistributor, contracts.RewardDistributor, provider);
+export const rewardDistributorContract = new Contract(await getAbi(contracts.RewardDistributor), contracts.RewardDistributor, provider);

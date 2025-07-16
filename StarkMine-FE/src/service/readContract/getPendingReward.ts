@@ -5,13 +5,15 @@ import { rewardDistributorContract } from ".";
 const getPendingReward = async (address: string): Promise<MessageBase> => {
     try {
         const pendingReward = await rewardDistributorContract.pending_rewards(address);
+        console.log("🚀 ~ getPendingReward ~ pendingReward:", pendingReward)
 
     return {
         status: StatusEnum.SUCCESS,
         message: MessageEnum.SUCCESS,
         level: ErrorLevelEnum.INFOR,
         data: {
-            pendingReward: Number(convertWeiToEther(pendingReward)),
+            pendingReward: Number(convertWeiToEther(pendingReward.pending_rewards)),
+            lastClaimed: Number(pendingReward.last_updated_block),
         }
     }
     } catch (error: any) {

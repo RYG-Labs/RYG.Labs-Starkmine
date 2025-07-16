@@ -1,0 +1,37 @@
+{
+  "name": "starknet-reward-keeper",
+  "version": "1.0.0",
+  "description": "Keeper service to update rewards every 5 blocks on Starknet",
+  "main": "dist/keeper.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/keeper.js",
+    "dev": "ts-node src/keeper.ts",
+    "watch": "nodemon --exec ts-node src/keeper.ts",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "starknet": "^7.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "starknet",
+    "keeper",
+    "rewards",
+    "mining",
+    "blockchain"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
