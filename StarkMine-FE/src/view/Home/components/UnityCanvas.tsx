@@ -988,6 +988,10 @@ export function UnityCanvas() {
       }
     );
 
+    addEventListener("RequestInitStation", () => {
+      sendStationsData();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -1017,6 +1021,7 @@ export function UnityCanvas() {
       removeEventListener("RequestTimeUntilUnlock", () => {});
       removeEventListener("RequestCanExecuteDowngrade", () => {});
       removeEventListener("RequestGetRemainingCoreEngineDurability", () => {});
+      removeEventListener("RequestInitStation", () => {});
     };
   }, [account, address, isLoaded]);
 
