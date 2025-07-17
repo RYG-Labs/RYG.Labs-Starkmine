@@ -52,6 +52,7 @@ import {
   getEngineConfig,
   getEngineTypeConfigs,
 } from "@/service/readContract/getEngineConfig";
+import getCurrentBlock from "@/service/readContract/getCurrentBlock";
 
 export function UnityCanvas() {
   const {
@@ -854,6 +855,24 @@ export function UnityCanvas() {
     [account, isLoaded]
   );
 
+  const sendCurrentBlock = useCallback(async () => {
+    const currentBlock = await getCurrentBlock();
+    sendMessage(
+      "WebResponse",
+      "ResponseCurrentBlock",
+      JSON.stringify(currentBlock)
+    );
+  }, [isLoaded]);
+
+  const sendEngineConfigs = useCallback(async () => {
+    const engineConfigs = await getEngineTypeConfigs();
+    sendMessage(
+      "WebResponse",
+      "ResponseEngineConfigs",
+      JSON.stringify(engineConfigs)
+    );
+  }, [isLoaded]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -996,6 +1015,14 @@ export function UnityCanvas() {
       sendStationsData();
     });
 
+    addEventListener("RequestEngineConfigs", () => {
+      sendEngineConfigs();
+    });
+
+    addEventListener("RequestCurrentBlock", () => {
+      sendCurrentBlock();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -1026,6 +1053,7 @@ export function UnityCanvas() {
       removeEventListener("RequestCanExecuteDowngrade", () => {});
       removeEventListener("RequestGetRemainingCoreEngineDurability", () => {});
       removeEventListener("RequestInitStation", () => {});
+      removeEventListener("RequestEngineConfigs", () => {});
     };
   }, [account, address, isLoaded]);
 

@@ -1,65 +1,146 @@
-import { RpcProvider, Account, config, logger, ETransactionVersion } from 'starknet';
+import { ETransactionVersion, Contract, CallData, uint256 } from 'starknet';
 import * as dotenv from 'dotenv';
-import { ABIRewardDistributor } from './abis/AbiRewardDistributor';
+import { account, BLOCK_INTERVAL, CORE_ENGINE_CONTRACT_ADDRESS, getAbi, MAX_RETRIES, MINER_ADDRESS, POLL_INTERVAL_MS, provider, REWARD_CONTRACT_ADDRESS } from './helpers';
+import { EventKeyEnum } from './types';
 
 // Load environment variables
 dotenv.config();
 
-// Configuration
-const TARGET_NETWORK = process.env.TARGET_NETWORK || 'sepolia';
-const CONTRACT_ADDRESS = process.env.REWARD_DISTRIBUTOR_ADDRESS || 'YOUR_CONTRACT_ADDRESS';
-const PRIVATE_KEY = process.env.PRIVATE_KEY || 'YOUR_PRIVATE_KEY';
-const ACCOUNT_ADDRESS = process.env.ACCOUNT_ADDRESS || 'YOUR_ACCOUNT_ADDRESS';
-const RPC_URL = TARGET_NETWORK === "sepolia" 
-  ? process.env.NEXT_PUBLIC_TESTNET_STARKNET_NODE_URL 
-  : process.env.NEXT_PUBLIC_MAINNET_STARKNET_NODE_URL;
-const BLOCK_INTERVAL = 5; // Call update_reward every 5 blocks
-const POLL_INTERVAL_MS = 30_000; // Poll every 30 seconds
-const MAX_RETRIES = 3; // Maximum retry attempts for failed transactions
-
-// Initialize provider and account
-const provider = new RpcProvider({
-    nodeUrl: RPC_URL,
-    specVersion: '0.7.1',
-  });
-  config.set('legacyMode', true);
-  logger.setLogLevel('ERROR');
-
-const account = new Account(
-   provider,
-  ACCOUNT_ADDRESS,
-  PRIVATE_KEY,
-  undefined,
-  ETransactionVersion.V2
-);
+let previousBlockNumber: number | null = null;
+let currentBlockNumber: number;
+let lastUpdateRewardBlock: number;
+let lastUpdateListCoreEnginesExpired: number;
 
 
-// const rewardContract = new Contract(ABIRewardDistributor, CONTRACT_ADDRESS, provider);
-// rewardContract.connect(account);
+// support function
+async function getListEnginesExpired(): Promise<number[]> {
+    const coreEngineContract = new Contract(await getAbi(CORE_ENGINE_CONTRACT_ADDRESS), CORE_ENGINE_CONTRACT_ADDRESS, provider);
+    const listEnginesExpired = await coreEngineContract.get_engines_expired();
+    const listEnginesExpiredFormatted = listEnginesExpired.map((engineId: bigint) => Number(engineId));
+    return listEnginesExpiredFormatted;
+}
 
-// Store the last block number when update_reward was called
-let lastUpdateBlock: number | null = null;
+// main function
+async function ExtinguishMinersWithExpiredCoreEngines() {
+      lastUpdateListCoreEnginesExpired = currentBlockNumber;    
 
-// Function to check block number and call update_reward
+      // get list core engines expired
+      const listEnginesExpired = await getListEnginesExpired();
+      if(listEnginesExpired.length === 0) return;
+
+      // get miners with expired core engines
+      let continuationToken = undefined;
+      let allEvents: any[] = [];
+      let minerNeedToExtinguish = new Set<number>();
+     
+    
+      try {
+        do {
+          const events = await provider.getEvents({
+            chunk_size: 1000,
+            continuation_token: continuationToken,
+            from_block: { block_number: 0 },
+            to_block: "latest",
+            address: MINER_ADDRESS,
+            keys: [[
+              EventKeyEnum.MinerIgnited,
+              EventKeyEnum.MinerExtinguished,
+              "0x1"
+            ]],
+          });
+          allEvents = allEvents.concat(events.events);
+          continuationToken = events.continuation_token;
+    
+     
+          events.events.forEach((event: any) => {
+            const eventKey = event.keys[0]; 
+            let eventName = "Unknown";
+  
+            if (
+              eventKey ===
+              EventKeyEnum.MinerExtinguished
+            ) {
+              eventName = "MinerExtinguished";
+            } else if (
+              eventKey ===
+              EventKeyEnum.MinerIgnited
+            ) {
+              eventName = "MinerIgnited";
+            }
+            
+            if(eventName === "MinerIgnited") {
+              const minerId = parseInt(event.keys[1], 16);
+              const coreEngineId = parseInt(event.keys[3], 16);
+              if(listEnginesExpired.includes(coreEngineId)) {
+                minerNeedToExtinguish.add(minerId);
+              }
+              
+            }
+            if(eventName === "MinerExtinguished") {
+              const minerId = parseInt(event.keys[1], 16);
+              minerNeedToExtinguish.delete(minerId);
+            }
+          });
+        } while (continuationToken);
+  
+        if(minerNeedToExtinguish.size === 0) {
+          console.log("No miner to extinguish at block " + currentBlockNumber);
+          return
+        };
+      
+        // extinguish miners
+        const calls: {contractAddress: string, entrypoint: string, calldata: any}[] = [];
+        Array.from(minerNeedToExtinguish).forEach((minerId: number) => {
+          calls.push({
+            contractAddress: MINER_ADDRESS,
+            entrypoint: "extinguish_miner",
+            calldata: CallData.compile({ token_id: uint256.bnToUint256(minerId) }),
+          })
+        });
+              // Ước tính phí
+              const resourceBounds = {
+                l1_gas: {
+                    max_amount: "0x100000000000", // 65,536, đủ lớn để bao quát
+                    max_price_per_unit: "0x15000000000", // ~90,000,000,000 wei
+                  },
+                  l2_gas: {
+                    max_amount: "0x800000000000", // 524,288, đủ cho yêu cầu tối thiểu
+                    max_price_per_unit: "0x100000000",
+                  },
+                  l1_data_gas: {
+                    max_amount: "0x1000000000000",
+                    max_price_per_unit: "0x100000000",
+                  },
+              };
+              const feeEstimate = await account.estimateFee(calls, {
+                version: ETransactionVersion.V3,
+                resourceBounds: resourceBounds,
+              });
+  
+        const result = await account.execute(calls,
+          {
+            version: "0x3",
+            resourceBounds: feeEstimate.resourceBounds,
+          }
+        
+      );
+        const txR = await provider.waitForTransaction(result.transaction_hash);
+        if (txR.isSuccess()) {
+          console.log("extinguish miner success " + minerNeedToExtinguish + " ", result.transaction_hash);
+        } else {
+          console.error("extinguish miner failed");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        throw error;
+      }
+}
 async function checkAndUpdateReward() {
   try {
-    // Get current block number
-    const block = await provider.getBlockNumber();
-    const currentBlockNumber = Number(block);
-    console.log(`[${new Date().toISOString()}] Current block number: ${currentBlockNumber}`);
-
-    // If this is the first run, initialize lastUpdateBlock
-    if (lastUpdateBlock === null) {
-      lastUpdateBlock = currentBlockNumber;
-      console.log(`[${new Date().toISOString()}] Initialized last update block: ${lastUpdateBlock}`);
-    }
-
     // Check if at least 5 blocks have passed
-    if (currentBlockNumber >= lastUpdateBlock + BLOCK_INTERVAL) {
-      console.log(`[${new Date().toISOString()}] Calling update_reward at block ${currentBlockNumber}...`);
-
+    if (currentBlockNumber >= lastUpdateRewardBlock + BLOCK_INTERVAL) {
       const call = {
-        contractAddress: CONTRACT_ADDRESS,
+        contractAddress: REWARD_CONTRACT_ADDRESS,
         entrypoint: 'update_reward',
         calldata: [],
       };
@@ -83,7 +164,6 @@ async function checkAndUpdateReward() {
         version: ETransactionVersion.V3,
         resourceBounds: resourceBounds,
       });
-      console.log("🚀 ~ checkAndUpdateReward ~ feeEstimate:", feeEstimate)
 
 
       // Prepare and send transaction with retries
@@ -91,7 +171,7 @@ async function checkAndUpdateReward() {
       while (retryCount < MAX_RETRIES) {
         try {
           const result = await account.execute({
-            contractAddress: CONTRACT_ADDRESS,
+            contractAddress: REWARD_CONTRACT_ADDRESS,
             entrypoint: 'update_reward',
             calldata: [],
             
@@ -102,9 +182,9 @@ async function checkAndUpdateReward() {
         );
           const txR = await provider.waitForTransaction(result.transaction_hash);
           if (txR.isSuccess()) {
-            console.log("ok");
+            console.log("update reward success at block " + currentBlockNumber);
           }
-          lastUpdateBlock = currentBlockNumber;
+          lastUpdateRewardBlock = currentBlockNumber;
           break;
         } catch (error) {
           retryCount++;
@@ -114,24 +194,46 @@ async function checkAndUpdateReward() {
         }
       }
     } else {
-      console.log(`[${new Date().toISOString()}] Not enough blocks passed. Last update: ${lastUpdateBlock}, Current: ${currentBlockNumber}`);
+      console.log(`[${new Date().toISOString()}] Not enough blocks passed. Last update: ${lastUpdateRewardBlock}, Current: ${currentBlockNumber}`);
     }
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Error in checkAndUpdateReward:`, error);
   }
 }
 
-// Main loop to poll block number
-async function startKeeper() {
-  console.log(`[${new Date().toISOString()}] Starting keeper...`);
-  while (true) {
-    await checkAndUpdateReward();
-    await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
-  }
+// start function
+async function init() {
+  const rewardContract = new Contract(await getAbi(REWARD_CONTRACT_ADDRESS), REWARD_CONTRACT_ADDRESS, provider);
+  lastUpdateRewardBlock = Number(await rewardContract.get_latest_updated_block());
+  lastUpdateListCoreEnginesExpired = Number(await provider.getBlockNumber()) - 1;
+
+  // Cập nhật block number và gọi các hàm khi block thay đổi
+  setInterval(async () => {
+    try {
+      const block = await provider.getBlockNumber();
+      currentBlockNumber = Number(block);
+
+      // Kiểm tra nếu block number thay đổi
+      if (previousBlockNumber !== currentBlockNumber && previousBlockNumber !== null) {
+        console.log(`[${new Date().toISOString()}] Block number changed: ${previousBlockNumber} -> ${currentBlockNumber}`);
+        
+        // Gọi hai hàm khi block thay đổi
+        await Promise.all([
+          ExtinguishMinersWithExpiredCoreEngines(),
+          checkAndUpdateReward()
+        ]);
+      }
+      
+      // Cập nhật previousBlockNumber
+      previousBlockNumber = currentBlockNumber;
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] Error in block polling:`, error);
+    }
+  }, POLL_INTERVAL_MS);
+}  
+
+async function main() {
+  await init();
 }
 
-// Start the keeper
-startKeeper().catch(error => {
-  console.error(`[${new Date().toISOString()}] Keeper failed:`, error);
-  process.exit(1);
-});
+main().catch(error => { console.error(error) });
