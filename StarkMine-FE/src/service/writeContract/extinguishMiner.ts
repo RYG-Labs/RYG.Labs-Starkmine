@@ -28,8 +28,7 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 level: ErrorLevelEnum.INFOR,
                 data: {
                     minerId: minerId,
-                    coreEngineId: engineInfo.tokenId,
-                    durabilityPercent: engineInfo.durabilityPercent,
+                    coreEngine: engineInfo,
                 }
             }
         } else {
@@ -39,8 +38,7 @@ const extinguishMiner = async (account: AccountInterface, minerId: number): Prom
                 level: ErrorLevelEnum.WARNING,
                 data: {
                     minerId: minerId,
-                    coreEngineId: engineInfo.tokenId,
-                    durabilityPercent: engineInfo.durabilityPercent,
+                    coreEngine: engineInfo
                 }
             }
         };
