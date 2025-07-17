@@ -53,6 +53,7 @@ import {
   getEngineTypeConfigs,
 } from "@/service/readContract/getEngineConfig";
 import getCurrentBlock from "@/service/readContract/getCurrentBlock";
+import getEngineCurrentEfficiencyBonus from "@/service/readContract/getEngineRemainingEfficiencyBonus";
 
 export function UnityCanvas() {
   const {
@@ -1072,6 +1073,7 @@ export function UnityCanvas() {
       sendStationLevelsConfig();
       sendTiersConfig();
       sendStationsData();
+      sendEngineConfigs();
       hasSentData.current = true;
     }
   }, [isLoaded, address, account, accountChainId]);
@@ -1287,6 +1289,13 @@ export function UnityCanvas() {
         </div>
         <button onClick={async () => await getEngineTypeConfigs()}>
           get engine config
+        </button>
+        <button
+          onClick={async () => {
+            await getEngineCurrentEfficiencyBonus(1);
+          }}
+        >
+          getEngineRemainingEfficiencyBonus
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
