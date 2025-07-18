@@ -4,9 +4,10 @@ import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/com
 
 export const getEngineConfig = async (engineType: string) => {
     const engineConfig = await coreEngineContract.get_engine_type_config(engineType);
-   
+    
     return {
         engineType: engineType,
+        efficiencyBonus: Number(engineConfig.efficiency_bonus),
         durability: Number(engineConfig.durability),
         mintCost: Number(convertWeiToEther(engineConfig.mint_cost)),
         repairCostBase: Number(convertWeiToEther(engineConfig.repair_cost_base)),
