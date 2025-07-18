@@ -1,13 +1,12 @@
 import { contracts } from "@/configs/contracts";
 import { AccountInterface, CallData, uint256 } from "starknet";
-import { engineDurabilityConfig, provider } from "../readContract";
+import { provider } from "../readContract";
 import {
   ErrorLevelEnum,
   MessageBase,
   MessageEnum,
   StatusEnum,
 } from "@/type/common";
-import { getEngineData } from "../readContract/getCoreEnginesByOwner";
 
 const repairCoreEngine = async (
   account: AccountInterface,

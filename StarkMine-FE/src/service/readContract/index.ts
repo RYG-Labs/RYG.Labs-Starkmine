@@ -19,22 +19,37 @@ export const provider = new RpcProvider({ nodeUrl: `${nodeUrl}` });
 export const getAbi = async (contractAddress: string) => {
   const { abi } = await provider.getClassAt(contractAddress);
 
-  console.log("🚀 ~ getAbi ~ abi:",contractAddress,  abi);
+  console.log("🚀 ~ getAbi ~ abi:", contractAddress, abi);
   return abi;
 };
 
-export const engineDurabilityConfig = new Map<string, number>(
-  [
-    ["Basic", 86400],
-    ["Elite", 129600],
-    ["Pro", 172800],
-    ["GIGA", 259200],
-  ]
-)
-
-export const mineContract = new Contract(ABIMineToken, contracts.MineToken, provider);
-export const minerContract = new Contract(ABIMiner, contracts.MinerNFT, provider);
-export const coreEngineContract = new Contract(ABICoreEngine, contracts.CoreEngine, provider);
-export const stationContract = new Contract(ABIStationSystem, contracts.StationSystem, provider);
-export const mergeContract = new Contract(ABIMerge, contracts.MergeSystem, provider);
-export const rewardDistributorContract = new Contract(await getAbi(contracts.RewardDistributor), contracts.RewardDistributor, provider);
+export const mineContract = new Contract(
+  ABIMineToken,
+  contracts.MineToken,
+  provider
+);
+export const minerContract = new Contract(
+  ABIMiner,
+  contracts.MinerNFT,
+  provider
+);
+export const coreEngineContract = new Contract(
+  ABICoreEngine,
+  contracts.CoreEngine,
+  provider
+);
+export const stationContract = new Contract(
+  ABIStationSystem,
+  contracts.StationSystem,
+  provider
+);
+export const mergeContract = new Contract(
+  ABIMerge,
+  contracts.MergeSystem,
+  provider
+);
+export const rewardDistributorContract = new Contract(
+  ABIRewardDistributor,
+  contracts.RewardDistributor,
+  provider
+);
