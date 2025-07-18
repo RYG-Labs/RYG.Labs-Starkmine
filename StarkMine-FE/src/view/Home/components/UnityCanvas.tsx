@@ -1055,6 +1055,7 @@ export function UnityCanvas() {
       removeEventListener("RequestGetRemainingCoreEngineDurability", () => {});
       removeEventListener("RequestInitStation", () => {});
       removeEventListener("RequestEngineConfigs", () => {});
+      removeEventListener("RequestCurrentBlock", () => {});
     };
   }, [account, address, isLoaded]);
 
