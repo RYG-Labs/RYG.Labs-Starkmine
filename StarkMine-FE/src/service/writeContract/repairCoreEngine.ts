@@ -14,31 +14,13 @@ const repairCoreEngine = async (
   engineId: number,
   durabilityPercentToRestore: number
 ): Promise<MessageBase> => {
-  // get coreEngine info
-  const engineDetail = await getEngineData(engineId);
-  const maxDurability = engineDetail.durability;
-  if (!maxDurability)
-    return {
-      status: StatusEnum.ERROR,
-      message: MessageEnum.ENGINE_TYPE_NOT_FOUND,
-      level: ErrorLevelEnum.WARNING,
-      data: {
-        engineId: engineId,
-        durabilityToRestore: durabilityPercentToRestore,
-      },
-    };
-
-  // calculate blocks to restore
-  const blocksByOnePercent = Math.ceil(maxDurability / 100);
-  const blocksToRestore = blocksByOnePercent * durabilityPercentToRestore;
-
   try {
     const tx = await account.execute({
       contractAddress: contracts.CoreEngine,
       entrypoint: "repair_engine",
       calldata: CallData.compile({
         engine_id: uint256.bnToUint256(engineId),
-        durability_to_restore: blocksToRestore,
+        durability_to_restore: durabilityPercentToRestore,
       }),
     });
 
@@ -53,7 +35,7 @@ const repairCoreEngine = async (
         level: ErrorLevelEnum.INFOR,
         data: {
           engineId: engineId,
-          durabilityToRestore: blocksToRestore,
+          durabilityToRestore: durabilityPercentToRestore,
         },
       };
     } else {
@@ -63,7 +45,7 @@ const repairCoreEngine = async (
         level: ErrorLevelEnum.WARNING,
         data: {
           engineId: engineId,
-          durabilityToRestore: blocksToRestore,
+          durabilityToRestore: durabilityPercentToRestore,
         },
       };
     }
@@ -75,7 +57,7 @@ const repairCoreEngine = async (
       level: ErrorLevelEnum.WARNING,
       data: {
         engineId: engineId,
-        durabilityToRestore: blocksToRestore,
+        durabilityToRestore: durabilityPercentToRestore,
       },
     };
   }
