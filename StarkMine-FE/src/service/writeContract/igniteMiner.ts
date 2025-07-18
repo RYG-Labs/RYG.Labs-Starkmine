@@ -2,6 +2,7 @@ import { contracts } from "@/configs/contracts";
 import { AccountInterface, CallData, uint256 } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
+import { getEngineData } from "../readContract/getCoreEnginesByOwner";
 
 
 export const igniteMiner = async (account: AccountInterface, minerId: number, coreEngineId: number): Promise<MessageBase> => {
@@ -17,13 +18,14 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
         console.log(receipt);
 
         if (receipt.isSuccess()) {
+            const coreEngineInfo = await getEngineData(coreEngineId);
             return {
                 status: StatusEnum.SUCCESS,
                 message: MessageEnum.SUCCESS,
                 level: ErrorLevelEnum.INFOR,
                 data: {
                     minerId: minerId,
-                    coreEngineId: coreEngineId,
+                    coreEngine: coreEngineInfo,
                 }
 
             }
@@ -33,8 +35,6 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
                 message: MessageEnum.ERROR,
                 level: ErrorLevelEnum.WARNING,
                 data: {
-                    minerId: minerId,
-                    coreEngineId: coreEngineId,
                 }
             }
         }
@@ -44,8 +44,6 @@ export const igniteMiner = async (account: AccountInterface, minerId: number, co
             message: error.message,
             level: ErrorLevelEnum.WARNING,
             data: {
-                minerId: minerId,
-                coreEngineId: coreEngineId,
             },
         }
     }
