@@ -1,16 +1,28 @@
 import { contracts } from "@/configs/contracts";
-import { ErrorLevelEnum, EventKeyEnum, MessageBase, MessageEnum, StatusEnum } from "@/type/common";
+import {
+  ErrorLevelEnum,
+  EventKeyEnum,
+  MessageBase,
+  MessageEnum,
+  StatusEnum,
+} from "@/type/common";
 import { AccountInterface, CallData } from "starknet";
 import { provider } from "../readContract";
 
-const mintCoreEngine = async (account: AccountInterface, engineType: string): Promise<MessageBase> => {
+const mintCoreEngine = async (
+  account: AccountInterface,
+  engineType: string
+): Promise<MessageBase> => {
   console.log(engineType);
 
   try {
     const tx = await account.execute({
       contractAddress: contracts.CoreEngine,
       entrypoint: "mint_engine",
-      calldata: CallData.compile({ to: account.address, engine_type: engineType }),
+      calldata: CallData.compile({
+        to: account.address,
+        engine_type: engineType,
+      }),
     });
 
     const receipt = await provider.waitForTransaction(tx.transaction_hash);
@@ -22,10 +34,7 @@ const mintCoreEngine = async (account: AccountInterface, engineType: string): Pr
         const eventKey = event.keys[0];
         let eventName = "Unknown";
 
-        if (
-          eventKey ===
-          EventKeyEnum.EngineMinted
-        ) {
+        if (eventKey === EventKeyEnum.EngineMinted) {
           eventName = "EngineMinted";
         }
 
@@ -42,9 +51,8 @@ const mintCoreEngine = async (account: AccountInterface, engineType: string): Pr
           data: {
             engineType: engineType,
           },
-        }
+        };
       }
-
 
       return {
         status: StatusEnum.SUCCESS,
@@ -69,12 +77,12 @@ const mintCoreEngine = async (account: AccountInterface, engineType: string): Pr
     console.log(error);
     return {
       status: StatusEnum.ERROR,
-      message: error.message,
+      message: MessageEnum.EXECUTE_FAILED,
       level: ErrorLevelEnum.WARNING,
       data: {
         engineType: engineType,
       },
-    }
+    };
   }
 };
 

@@ -3,7 +3,7 @@ import { AccountInterface, CallData } from "starknet";
 import { provider } from "../readContract";
 import { ErrorLevelEnum, MessageEnum, StatusEnum } from "@/type/common";
 
-const mintMiner = async (account: AccountInterface, tier: string,) => {
+const mintMiner = async (account: AccountInterface, tier: string) => {
   try {
     const tx = await account.execute({
       contractAddress: contracts.MinerNFT,
@@ -37,7 +37,7 @@ const mintMiner = async (account: AccountInterface, tier: string,) => {
   } catch (error: any) {
     return {
       status: StatusEnum.ERROR,
-      message: error.message,
+      message: MessageEnum.EXECUTE_FAILED,
       level: ErrorLevelEnum.WARNING,
       data: {
         tier: tier,
