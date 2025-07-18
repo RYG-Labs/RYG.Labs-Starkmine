@@ -881,6 +881,7 @@ export function UnityCanvas() {
     });
     addEventListener("RequestDisconnectWallet", () => {
       disconnect();
+      window.location.reload();
       hasSentData.current = false;
     });
     addEventListener("RequestMinersData", () => {
