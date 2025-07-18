@@ -1157,7 +1157,7 @@ export function UnityCanvas() {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <button
+        {/* <button
           onClick={() => {
             getCoreEnginesByOwner(
               "0x0650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
@@ -1272,7 +1272,7 @@ export function UnityCanvas() {
         </button>
         <button onClick={async () => await getRemainingBlockForHaving()}>
           get remaining block for having
-        </button>
+        </button> */}
         <div className="flex gap-4 justify-center">
           <button
             onClick={async () => {
@@ -1289,7 +1289,7 @@ export function UnityCanvas() {
             Mint miner elite
           </button>
         </div>
-        <button onClick={async () => await getEngineTypeConfigs()}>
+        {/* <button onClick={async () => await getEngineTypeConfigs()}>
           get engine config
         </button>
         <button
@@ -1298,7 +1298,7 @@ export function UnityCanvas() {
           }}
         >
           getEngineRemainingEfficiencyBonus
-        </button>
+        </button> */}
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
