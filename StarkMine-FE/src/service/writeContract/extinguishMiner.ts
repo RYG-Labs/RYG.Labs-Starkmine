@@ -16,7 +16,6 @@ const extinguishMiner = async (
 ): Promise<MessageBase> => {
   try {
     const minerInfo = await getMinerData(minerId);
-    const engineInfo = await getEngineData(minerInfo.coreEngineId);
 
     const tx = await account.execute({
       contractAddress: contracts.MinerNFT,
@@ -29,6 +28,7 @@ const extinguishMiner = async (
     console.log(receipt);
 
     if (receipt.isSuccess()) {
+      const engineInfo = await getEngineData(minerInfo.coreEngineId);
       return {
         status: StatusEnum.SUCCESS,
         message: MessageEnum.SUCCESS,
@@ -43,10 +43,7 @@ const extinguishMiner = async (
         status: StatusEnum.ERROR,
         message: MessageEnum.EXTINGUISH_MINER_FAILED,
         level: ErrorLevelEnum.WARNING,
-        data: {
-          minerId: minerId,
-          coreEngine: engineInfo,
-        },
+        data: {},
       };
     }
   } catch (error: any) {
