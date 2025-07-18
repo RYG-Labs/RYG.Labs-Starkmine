@@ -3,12 +3,11 @@ import { coreEngineContract, provider } from ".";
 import { EventKeyEnum } from "@/type/common";
 import { formattedContractAddress } from "@/utils/helper";
 import {  shortString } from "starknet";
-import getRemainingCoreEngineDurability from "./getRemainingCoreEngineDurability";
 import getEngineCurrentEfficiencyBonus from "./getEngineRemainingEfficiencyBonus";
 
 export const getEngineData = async (tokenId: number) => {
     const coreEngineInfo = await coreEngineContract.get_engine_info(tokenId);
-    const durabilityPercent = await getRemainingCoreEngineDurability(tokenId, shortString.decodeShortString(coreEngineInfo.engine_type));
+    const durabilityPercent = Number(coreEngineInfo.durability) - Number(coreEngineInfo.blocks_used) <= 0 ? 0 : (Number(coreEngineInfo.durability) - Number(coreEngineInfo.blocks_used)) * 100 / Number(coreEngineInfo.durability)
     const currentEfficiencyBonus = await getEngineCurrentEfficiencyBonus(tokenId);
     return {
       tokenId: tokenId,
@@ -20,7 +19,7 @@ export const getEngineData = async (tokenId: number) => {
       engineType: shortString.decodeShortString(coreEngineInfo.engine_type),
       isActive: Boolean(coreEngineInfo.is_active),
       lastUsedBlock: parseInt(coreEngineInfo.last_used_block),
-      durabilityPercent: Math.floor(durabilityPercent.data.remainingDurabilityPercent),
+      durabilityPercent: Math.floor(durabilityPercent),
     };
 };
 

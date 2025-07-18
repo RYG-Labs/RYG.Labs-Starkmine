@@ -1,10 +1,8 @@
 import { ETransactionVersion, Contract, CallData, uint256 } from 'starknet';
-import * as dotenv from 'dotenv';
 import { account, BLOCK_INTERVAL, CORE_ENGINE_CONTRACT_ADDRESS, getAbi, MAX_RETRIES, MINER_ADDRESS, POLL_INTERVAL_MS, provider, REWARD_CONTRACT_ADDRESS } from './helpers';
 import { EventKeyEnum } from './types';
 
-// Load environment variables
-dotenv.config();
+
 
 let previousBlockNumber: number | null = null;
 let currentBlockNumber: number;

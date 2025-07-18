@@ -1,4 +1,7 @@
 import { Account, config, ETransactionVersion, logger, RpcProvider } from "starknet";
+import * as dotenv from 'dotenv';
+// Load environment variables
+dotenv.config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || 'YOUR_PRIVATE_KEY';
 const ACCOUNT_ADDRESS = process.env.ACCOUNT_ADDRESS || 'YOUR_ACCOUNT_ADDRESS';
