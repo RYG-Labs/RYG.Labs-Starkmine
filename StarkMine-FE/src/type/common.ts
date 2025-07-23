@@ -22,6 +22,7 @@ export const MessageEnum = {
     "Cannot execute downgrade right now. Please wait a moment.",
   ENGINE_TYPE_NOT_FOUND: "Engine type not found.",
   EXECUTE_FAILED: "Execute failed.",
+  RECORD_LOGIN_FAILED: "Record login failed.",
 } as const;
 
 export const ErrorLevelEnum = {
@@ -38,6 +39,7 @@ export enum EventKeyEnum {
   EngineMined = "0x16622eaa1ea392485702e569a492f2766d8198c203bcf49e65995f3377ade45",
   MergeSuccessful = "0x10c55b7f0b5c91d0ed5421e006e3328fa4b78f32b137e225162d69274528028",
   MergeFailed = "0x7dffcf74ad1b984e275cae190e486c0163c9a2669f10f531688bafb9717812",
+  LoginRecorded = "0x111a79b0aa2fee2970c538703c9e67be34e91e60c04816fde74367ba592d3c5",
 }
 
 export interface MessageBase {
@@ -48,6 +50,7 @@ export interface MessageBase {
 }
 
 export const SECOND_PER_BLOCK = 30;
+export const REQUIRED_STREAK_TO_CLAIM_REWARD = 5;
 
 export interface StationInfo {
   id: number;
@@ -59,4 +62,8 @@ export interface StationInfo {
   pendingDowngrade: number;
   minerCount: number;
   minersAssigned: any;
+}
+
+export enum TimeSecondsEnum {
+  ONE_DAY = 86400,
 }

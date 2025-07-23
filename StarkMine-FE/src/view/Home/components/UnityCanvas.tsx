@@ -54,6 +54,8 @@ import {
 } from "@/service/readContract/getEngineConfig";
 import getCurrentBlock from "@/service/readContract/getCurrentBlock";
 import getEngineCurrentEfficiencyBonus from "@/service/readContract/getEngineRemainingEfficiencyBonus";
+import getLoginStreak from "@/service/readContract/getLoginStreak";
+import recordLogin from "@/service/writeContract/recordLogin";
 
 export function UnityCanvas() {
   const {
@@ -144,6 +146,28 @@ export function UnityCanvas() {
       );
     }
   };
+
+  const sendLoginStreak = useCallback(
+    async (address: string) => {
+      if (!address) {
+        sendMessage(
+          "WebResponse",
+          "ResponseLoginStreak",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await getLoginStreak(address);
+      sendMessage("WebResponse", "ResponseLoginStreak", JSON.stringify(result));
+    },
+    [address, isLoaded]
+  );
 
   const sendMinersData = useCallback(
     async (address: string) => {
@@ -874,6 +898,25 @@ export function UnityCanvas() {
     );
   }, [isLoaded]);
 
+  const sendRecordLogin = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseRecordLogin",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const result = await recordLogin(account);
+    sendMessage("WebResponse", "ResponseRecordLogin", JSON.stringify(result));
+  }, [account, isLoaded]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -1025,6 +1068,10 @@ export function UnityCanvas() {
       sendCurrentBlock();
     });
 
+    addEventListener("RequestRecordLogin", () => {
+      sendRecordLogin();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -1057,6 +1104,7 @@ export function UnityCanvas() {
       removeEventListener("RequestInitStation", () => {});
       removeEventListener("RequestEngineConfigs", () => {});
       removeEventListener("RequestCurrentBlock", () => {});
+      removeEventListener("RequestRecordLogin", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -1076,6 +1124,7 @@ export function UnityCanvas() {
       sendTiersConfig();
       sendStationsData();
       sendEngineConfigs();
+      sendLoginStreak(address);
       hasSentData.current = true;
     }
   }, [isLoaded, address, account, accountChainId]);
@@ -1289,8 +1338,14 @@ export function UnityCanvas() {
             Mint miner elite
           </button>
         </div>
-        {/* <button onClick={async () => await getEngineTypeConfigs()}>
-          get engine config
+        <button
+          onClick={async () =>
+            await getLoginStreak(
+              "0x650bd21b7511c5b4f4192ef1411050daeeb506bfc7d6361a1238a6caf6fb7bc"
+            )
+          }
+        >
+          get login streak
         </button>
         <button
           onClick={async () => {
@@ -1298,7 +1353,7 @@ export function UnityCanvas() {
           }}
         >
           getEngineRemainingEfficiencyBonus
-        </button> */}
+        </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
         {isLoaded === false && (
