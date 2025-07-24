@@ -23,6 +23,8 @@ export const MessageEnum = {
   ENGINE_TYPE_NOT_FOUND: "Engine type not found.",
   EXECUTE_FAILED: "Execute failed.",
   RECORD_LOGIN_FAILED: "Record login failed.",
+  OPEN_TICKET_FAILED: "Open ticket failed.",
+  MINT_TICKET_FAILED: "Mint ticket failed.",
 } as const;
 
 export const ErrorLevelEnum = {
@@ -40,6 +42,7 @@ export enum EventKeyEnum {
   MergeSuccessful = "0x10c55b7f0b5c91d0ed5421e006e3328fa4b78f32b137e225162d69274528028",
   MergeFailed = "0x7dffcf74ad1b984e275cae190e486c0163c9a2669f10f531688bafb9717812",
   LoginRecorded = "0x111a79b0aa2fee2970c538703c9e67be34e91e60c04816fde74367ba592d3c5",
+  TicketOpened = "Oxad9ea978670140bf0fc350424d62092a17ea7bae089850421e4c77026b20d6",
 }
 
 export interface MessageBase {
