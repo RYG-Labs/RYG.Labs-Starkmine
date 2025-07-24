@@ -56,6 +56,8 @@ import getCurrentBlock from "@/service/readContract/getCurrentBlock";
 import getEngineCurrentEfficiencyBonus from "@/service/readContract/getEngineRemainingEfficiencyBonus";
 import getLoginStreak from "@/service/readContract/getLoginStreak";
 import recordLogin from "@/service/writeContract/recordLogin";
+import openTicket from "@/service/writeContract/openTicket";
+import mintTicket from "@/service/writeContract/mintTicket";
 
 export function UnityCanvas() {
   const {
@@ -917,6 +919,47 @@ export function UnityCanvas() {
     sendMessage("WebResponse", "ResponseRecordLogin", JSON.stringify(result));
   }, [account, isLoaded]);
 
+  const sendOpenTicket = useCallback(
+    async (ticketId: number) => {
+      if (!account) {
+        sendMessage(
+          "WebResponse",
+          "ResponseOpenTicket",
+          JSON.stringify({
+            status: StatusEnum.ERROR,
+            message: MessageEnum.ADDRESS_NOT_FOUND,
+            level: ErrorLevelEnum.WARNING,
+            data: {},
+          } as MessageBase)
+        );
+        return;
+      }
+
+      const result = await openTicket(account, ticketId);
+      sendMessage("WebResponse", "ResponseOpenTicket", JSON.stringify(result));
+    },
+    [account, isLoaded]
+  );
+
+  const sendMintTicket = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseMintTicket",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const result = await mintTicket(account);
+    sendMessage("WebResponse", "ResponseMintTicket", JSON.stringify(result));
+  }, [account, isLoaded]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -1072,6 +1115,14 @@ export function UnityCanvas() {
       sendRecordLogin();
     });
 
+    addEventListener("RequestOpenTicket", (ticketId) => {
+      sendOpenTicket(ticketId as number);
+    });
+
+    addEventListener("RequestMintTicket", () => {
+      sendMintTicket();
+    });
+
     return () => {
       removeEventListener("RequestConnectWallet", () => {});
       removeEventListener("RequestDisconnectWallet", () => {});
@@ -1105,6 +1156,8 @@ export function UnityCanvas() {
       removeEventListener("RequestEngineConfigs", () => {});
       removeEventListener("RequestCurrentBlock", () => {});
       removeEventListener("RequestRecordLogin", () => {});
+      removeEventListener("RequestOpenTicket", () => {});
+      removeEventListener("RequestMintTicket", () => {});
     };
   }, [account, address, isLoaded]);
 
@@ -1353,6 +1406,9 @@ export function UnityCanvas() {
           }}
         >
           getEngineRemainingEfficiencyBonus
+        </button>
+        <button onClick={async () => await mintTicket(account!)}>
+          mint ticket
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
