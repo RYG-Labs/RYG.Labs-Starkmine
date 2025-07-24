@@ -65,7 +65,7 @@ public class ChooseSpaceShipUI : BasePopup
         SoundManager.Instance.PlayConfirmSound1();
         UIManager.Instance.loadingUI.Show();
         WebRequest.CallRequestAssignMinerToStation(GameManager.Instance.CurrentStation.id, e.ShipData.id,
-            spaceShipSelectedIndex);
+            spaceShipSelectedIndex + 1);
         Hide();
     }
 
@@ -73,7 +73,8 @@ public class ChooseSpaceShipUI : BasePopup
         WebResponse.OnResponseAssignMinerToStationEventArgs e)
     {
         ShipData shipData = DataManager.Instance.GetShipDataById(e.Data.minerId);
-        GameManager.Instance.AddShipToCurrentStation(shipData, e.Data.index);
+        Debug.Log(shipData.id);
+        GameManager.Instance.AddShipToCurrentStation(shipData, e.Data.minerSlot - 1);
     }
 
     private void OnDisable()

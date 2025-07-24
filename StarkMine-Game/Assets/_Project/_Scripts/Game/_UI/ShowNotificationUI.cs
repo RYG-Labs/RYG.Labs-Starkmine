@@ -9,4 +9,10 @@ public class ShowNotificationUI : BasePopup
     {
         notificationText.text = notification;
     }
+
+    public void SetUpAndShow(string notification)
+    {
+        notificationText.text = notification;
+        Show();
+    }
 }

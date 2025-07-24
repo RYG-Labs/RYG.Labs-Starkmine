@@ -30,7 +30,7 @@ public class SelectSpaceShipInUI : MonoBehaviour
         set
         {
             _totalSuccessRate = value;
-            totalSuccessRateText.text = _totalSuccessRate + "%";
+            // totalSuccessRateText.text = _totalSuccessRate + "%";
         }
     }
 
@@ -98,7 +98,19 @@ public class SelectSpaceShipInUI : MonoBehaviour
             Destroy(item.gameObject);
         }
 
+        Debug.Log("===============" + shipDataList.Count);
         listItemSelected.Clear();
+        return shipDataList;
+    }
+
+    public List<ShipData> GetShipSelected()
+    {
+        List<ShipData> shipDataList = new();
+        foreach (ItemChooseSpaceShipInUI item in listItemSelected)
+        {
+            shipDataList.Add(item.ShipData);
+        }
+
         return shipDataList;
     }
 

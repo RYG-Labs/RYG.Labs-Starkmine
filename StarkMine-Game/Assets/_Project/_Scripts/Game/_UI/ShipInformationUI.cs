@@ -11,10 +11,15 @@ public class ShipInformationUI : BasePopup
     [SerializeField] private StarLevelUI starLevelUI;
     [SerializeField] private MaintenanceLevelUI maintenanceLevelUI;
     [SerializeField] private TextMeshProUGUI description;
+
     [SerializeField] private TextMeshProUGUI coreEngineLevel;
+
+    // [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Image coreEngineImage;
+
     [SerializeField] private Button upgradeButton;
-    [SerializeField] private Button repairButton;
+
+    // [SerializeField] private Button repairButton;
     [SerializeField] private Button launchButton;
     [SerializeField] private Button removeButton;
     [SerializeField] private Button requireCoreEngineGroup;
@@ -36,11 +41,22 @@ public class ShipInformationUI : BasePopup
         removeGroup.SetActive(false);
         _shipData = shipData;
         _shipIndex = shipIndex;
-        shipName.text = shipData.shipSO.shipName;
+        shipName.text = $"{shipData.shipSO.shipName} #{shipData.id}";
         starLevelUI.SetUp(shipData.level);
-        maintenanceLevelUI.SetUp(shipData.maintenanceLevel, shipData.maintenanceDown);
-        repairButton.interactable = shipData.maintenanceLevel < 100;
-        hashPower.text = $"{shipData.GetHashPower()} - ----- $MINE/min";
+        // titleText.text = $"{shipData.shipSO.shipName} Spaceship #{shipData.id}";
+        if (shipData.CoreEngineData != null)
+        {
+            maintenanceLevelUI.gameObject.SetActive(true);
+            maintenanceLevelUI.SetUp(Mathf.CeilToInt(shipData.CoreEngineData.GetDurabilityPercentage() * 100),
+                Mathf.CeilToInt(shipData.CoreEngineData.GetEarningRate() * 100 - 100));
+        }
+        else
+        {
+            maintenanceLevelUI.gameObject.SetActive(false);
+        }
+
+        // repairButton.interactable = shipData.maintenanceLevel < 100;
+        hashPower.text = $"{shipData.GetHashPower()}";
         if (shipData.level < 5)
         {
             upgradeButton.interactable = true;
@@ -56,7 +72,7 @@ public class ShipInformationUI : BasePopup
 
         if (shipData.CoreEngineData == null)
         {
-            CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineRequire(shipData.shipSO.shipType);
+            CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineByShipType(shipData.shipSO.shipType);
             requireCoreEngineText.text = $"Core {coreEngineRequire.nameCoreEngine} required";
             coreEngineLevel.text = coreEngineRequire.nameCoreEngine;
             requireCoreEngineGroup.gameObject.SetActive(true);
@@ -75,7 +91,7 @@ public class ShipInformationUI : BasePopup
     {
         base.Start();
         upgradeButton.onClick.AddListener(OnClickUpgradeButton);
-        repairButton.onClick.AddListener(OnClickRepairButton);
+        // repairButton.onClick.AddListener(OnClickRepairButton);
         launchButton.onClick.AddListener(OnClickLaunchButton);
         removeButton.onClick.AddListener(OnClickRemoveButton);
         coreEngineButton.onClick.AddListener(OnClickCoreEngineButton);
@@ -94,13 +110,37 @@ public class ShipInformationUI : BasePopup
     private void OnClickYesRemoveCoreEngineButton()
     {
         // SoundManager.Instance.PlayDataPointSound3();
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler += WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler +=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
+        WebRequest.CallRequestExtinguishMiner(_shipData.id);
+    }
+
+    private void WebResponseOnResponseExtinguishMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler -= WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler -=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseExtinguishMinerEventHandler(object sender,
+        WebResponse.OnResponseExtinguishMinerEventArgs e)
+    {
         removeGroup.gameObject.SetActive(false);
         bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.CoreEngineDto.tokenId);
+        coreEngineData.blockUsed = e.Data.CoreEngineDto.blocksUsed;
         SoundManager.Instance.PlayDataPointSound1();
         if (success)
         {
             ItemSpaceStationUI.SpaceShipOnCallbackHandler();
+            SetUp(_shipData, _shipIndex);
         }
+
+        WebResponse.Instance.OnResponseExtinguishMinerEventHandler -= WebResponseOnResponseExtinguishMinerEventHandler;
+        WebResponse.Instance.OnResponseExtinguishMinerFailEventHandler -=
+            WebResponseOnResponseExtinguishMinerFailEventHandler;
     }
 
     private void OnClickCallbackToRemoveButton()
@@ -112,15 +152,7 @@ public class ShipInformationUI : BasePopup
     private void OnClickCoreEngineButton()
     {
         SoundManager.Instance.PlayConfirmSound3();
-
-        // if (_shipData.onDuty)
-        // {
-        //     callbackToRemoveButton.gameObject.SetActive(true);
-        // }
-        // else
-        // {
         removeGroup.gameObject.SetActive(true);
-        // }
     }
 
     private void OnClickRequireCoreEngineButton()
@@ -132,18 +164,28 @@ public class ShipInformationUI : BasePopup
         if (!isContainCoreEngineRequire)
         {
             DontHaveRequireCoreEngineUI dontHaveRequireCoreEngineUI = UIManager.Instance.dontHaveRequireCoreEngineUI;
-            CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType);
+            CoreEngineSO coreEngineRequire = DataManager.Instance.GetCoreEngineByShipType(_shipData.shipSO.shipType);
             dontHaveRequireCoreEngineUI.SetUp(coreEngineRequire);
             dontHaveRequireCoreEngineUI.Show();
             return;
         }
 
-        YesNoUI yesNoUI = UIManager.Instance.yesNoUI;
-        yesNoUI.OnYesButtonClickEventHandler += OnYesButtonClickAddCoreEventHandler;
-        yesNoUI.OnNoButtonClickEventHandler += OnNoButtonClickAddCoreEventHandler;
-        yesNoUI.SetUp(
-            $"Use 1 core engine <color=#FEE109>{DataManager.Instance.GetCoreEngineRequire(_shipData.shipSO.shipType).nameCoreEngine}</color> for this spaceship?");
-        yesNoUI.Show();
+        ChooseCoreEngineUI chooseCoreEngineUI = UIManager.Instance.chooseCoreEngineUI;
+        chooseCoreEngineUI.SetUpAndShow(_shipData);
+        chooseCoreEngineUI.OnItemSelectEventHandler += ChooseCoreEngineUIOnItemSelectEventHandler;
+    }
+
+    private void ChooseCoreEngineUIOnItemSelectEventHandler(object sender, ChooseCoreEngineUI.OnItemSelectEventArgs e)
+    {
+        SoundManager.Instance.PlayBleepSound1();
+        CoreEngineData coreEngineData = e.CoreEngineData;
+        WebResponse.Instance.OnResponseIgniteMinerEventHandler += WebResponseOnResponseIgniteMinerEventHandler;
+        WebResponse.Instance.OnResponseIgniteMinerFailEventHandler += WebResponseOnResponseIgniteMinerFailEventHandler;
+        WebRequest.CallRequestIgniteMiner(_shipData.id, coreEngineData.id);
+        UIManager.Instance.loadingUI.Show();
+
+        ChooseCoreEngineUI chooseCoreEngineUI = UIManager.Instance.chooseCoreEngineUI;
+        chooseCoreEngineUI.OnItemSelectEventHandler -= ChooseCoreEngineUIOnItemSelectEventHandler;
     }
 
     private void OnYesButtonClickAddCoreEventHandler(object sender, EventArgs e)
@@ -173,9 +215,11 @@ public class ShipInformationUI : BasePopup
     {
         // ItemSpaceStationUI.SpaceShipOnCallbackHandler();
         ItemSpaceStationUI.SpaceShipOnDutyHandler();
-        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.coreEngineId);
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.CoreEngineDto.tokenId);
+        coreEngineData.lastUsedBlock = e.Data.CoreEngineDto.lastUsedBlock;
         DataManager.Instance.AddCoreEngineToSpaceShip(coreEngineData, _shipData);
         GameManager.Instance.LaunchSpaceShip(_shipData);
+        SetUp(_shipData, _shipIndex);
         WebResponse.Instance.OnResponseIgniteMinerEventHandler -= WebResponseOnResponseIgniteMinerEventHandler;
         WebResponse.Instance.OnResponseIgniteMinerFailEventHandler -= WebResponseOnResponseIgniteMinerFailEventHandler;
     }
@@ -230,16 +274,25 @@ public class ShipInformationUI : BasePopup
 
     private void OnClickRepairButton()
     {
-        if (_shipData.maintenanceLevel < 100)
+        if (_shipData.CoreEngineData == null)
         {
-            // int newMaintenanceLevel = _shipData.maintenanceLevel + 10;
-            // _shipData.maintenanceLevel = newMaintenanceLevel <= 100 ? newMaintenanceLevel : 100;
-            _shipData.maintenanceLevel = 100;
-            SoundManager.Instance.PlayConfirmSound6();
+            ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
+            showNotificationUI.SetUp("Don't have Core-Engine in this ship.");
+            showNotificationUI.Show();
+            return;
         }
 
-        maintenanceLevelUI.SetUp(_shipData.maintenanceLevel, 0);
-        repairButton.interactable = false;
+        if ((int)_shipData.CoreEngineData.GetDurabilityPercentage() == 100)
+        {
+            ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
+            showNotificationUI.SetUp("The Core Engine is currently in its best condition, no repair needed.");
+            showNotificationUI.Show();
+            return;
+        }
+
+        UIManager.Instance.repairCoreEngineUI.SetupAndShow(_shipData.CoreEngineData);
+        Hide();
+        // repairButton.interactable = false;
     }
 
     private void OnClickUpgradeButton()

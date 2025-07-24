@@ -89,10 +89,14 @@ namespace _Project._Scripts.Game.Managers
             Ship ship = Instantiate(shipPrefab, new Vector3(2, 0, 0), Quaternion.identity, GameHolder);
             ship.SetUp(shipData, currentPlanet);
             ships.Add(ship);
+            WebRequest.CallRequestUserHashPower();
+            WebRequest.CallRequestTotalHashPower();
         }
 
         public bool CallbackSpaceShip(ShipData shipData)
         {
+            WebRequest.CallRequestUserHashPower();
+            WebRequest.CallRequestTotalHashPower();
             Ship ship = GetShipInstant(shipData);
             if (ship == null) return false;
             shipData.onDuty = false;
@@ -129,7 +133,5 @@ namespace _Project._Scripts.Game.Managers
         //
         //     ships.Clear();
         // }
-
-       
     }
 }

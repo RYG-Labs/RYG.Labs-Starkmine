@@ -16,3 +16,11 @@ MonoBehaviour:
   nameCoreEngine: Basic
   coreEngineType: 0
   cost: 500
+  listCoreEngineDownWithDurabilitySO:
+  - {fileID: 11400000, guid: 390d1b9b655b97f4ba735df686f9c4ab, type: 2}
+  - {fileID: 11400000, guid: 04828a18a2c4bb7408b8982df7a3434d, type: 2}
+  - {fileID: 11400000, guid: 64dcdc95bfaa1434f922d6833bfcb787, type: 2}
+  - {fileID: 11400000, guid: ce44058326bf3354c9cb02391c6beec1, type: 2}
+  - {fileID: 11400000, guid: e6be1cc0d6539af499cd9602299b00ee, type: 2}
+  repairCostBase: 0
+  durabilityBlock: 30

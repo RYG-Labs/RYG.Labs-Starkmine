@@ -27,3 +27,4 @@ MonoBehaviour:
   powerShipPerLevel: 0a000000140000001e0000002800000032000000
   costPerLevel: 64000000c8000000f4010000e8030000d0070000
   shipTypeRequire: 0
+  repairCostPerValue: 50

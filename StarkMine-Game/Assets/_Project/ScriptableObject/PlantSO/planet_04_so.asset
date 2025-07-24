@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: planet_04_so
   m_EditorClassIdentifier: 
   planetName: Cinderfall
-  planetSprite: {fileID: 21300000, guid: 01e194e785fb8f5469ed1fc9bacdda72, type: 3}
+  planetSprite: {fileID: -7595249643652420799, guid: 0342628a342812a47a27c412ed4a8cb9, type: 3}
   maxShip: 6
   listPlanetMusic:
   - {fileID: 8300000, guid: 025c609f46258f247a9ed8c97cc8ea12, type: 3}

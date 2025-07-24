@@ -12,8 +12,10 @@ public class HangarUI : BasePopup
     [SerializeField] private Transform containerItem;
     [SerializeField] private List<ItemHangarUI> listItem;
     [SerializeField] private Button buySpaceShipButton;
+    [SerializeField] private Button buySpaceShipLargeButton;
     [SerializeField] private Button mergeSpaceShipButton;
     [SerializeField] private Button createCoreEngineButton;
+    [SerializeField] private Button repairCoreEngineButton;
     [SerializeField] private Button defuseCoreEngineButton;
     [SerializeField] private Button nextPageButton;
     [SerializeField] private Button prevPageButton;
@@ -27,6 +29,7 @@ public class HangarUI : BasePopup
 
     public void SetUp(List<ShipData> shipDatas)
     {
+        buySpaceShipLargeButton.gameObject.SetActive(shipDatas.Count == 0);
         ClearChildren();
         for (int i = 0; i < 10; i++)
         {
@@ -40,14 +43,21 @@ public class HangarUI : BasePopup
     {
         base.Start();
         buySpaceShipButton.onClick.AddListener(BuySpaceShipButtonOnClick);
+        buySpaceShipLargeButton.onClick.AddListener(BuySpaceShipButtonOnClick);
         mergeSpaceShipButton.onClick.AddListener(MergeSpaceShipButtonOnClick);
         createCoreEngineButton.onClick.AddListener(CreateCoreEngineButtonOnClick);
+        repairCoreEngineButton.onClick.AddListener(OnClickRepairCoreEngineButton);
         defuseCoreEngineButton.onClick.AddListener(DefuseCoreEngineButtonOnClick);
         nextPageButton.onClick.AddListener(OnClickNextPageButton);
         prevPageButton.onClick.AddListener(OnClickPrevPageButton);
         filterSpaceShipUI.OnOptionFilterChangeEventHandler += FilterSpaceShipUIOnOnOptionFilterChangeEventHandler;
         SetUp(DataManager.Instance.ShipDataInInventoryFilter(filterSpaceShipUI.ListToggleIndexSelected, 1, 0,
             isAll: true, isAllType: true));
+    }
+
+    private void OnClickRepairCoreEngineButton()
+    {
+        UIManager.Instance.chooseCoreEngineToRepairUI.Show();
     }
 
     private void OnClickPrevPageButton()
@@ -130,6 +140,7 @@ public class HangarUI : BasePopup
 
     private void BuySpaceShipButtonOnClick()
     {
+        Application.OpenURL("https://hyperflex.market/");
     }
 
     public void ClearChildren()

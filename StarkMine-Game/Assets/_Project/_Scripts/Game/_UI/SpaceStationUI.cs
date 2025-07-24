@@ -16,6 +16,11 @@ public class SpaceStationUI : BasePopup
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Button downgradeButton;
     [SerializeField] private TextMeshProUGUI stationLevel;
+    [SerializeField] private Button pendingMineButton;
+    [SerializeField] private Button cancelDowngradeButton;
+    [SerializeField] private TextMeshProUGUI pendingMineText;
+
+    // [SerializeField] private PendingMineUI pendingMineUI;
     private StationData _stationData;
     private int _indexSelected = -1;
 
@@ -25,6 +30,88 @@ public class SpaceStationUI : BasePopup
         GameManager.Instance.OnChangeStationEventHandler += GameManagerOnOnChangeStationEventHandler;
         upgradeButton.onClick.AddListener(OnUpgradeButtonClick);
         downgradeButton.onClick.AddListener(OnDowngradeButtonClick);
+        pendingMineButton.onClick.AddListener(OnClickPendingMineButton);
+        cancelDowngradeButton.onClick.AddListener(OnClickCancelDownGradeButton);
+        HandleIsPending(_stationData.pendingDownGrade != 0);
+    }
+
+    private void OnClickCancelDownGradeButton()
+    {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseCancelDowngradeEventHandler += InstanceOnOnResponseCancelDowngradeEventHandler;
+        WebResponse.Instance.OnResponseCancelDowngradeFailEventHandler +=
+            InstanceOnOnResponseCancelDowngradeFailEventHandler;
+        WebRequest.CallRequestCancelDowngrade(_stationData.id);
+    }
+
+    private void InstanceOnOnResponseCancelDowngradeFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseCancelDowngradeEventHandler -= InstanceOnOnResponseCancelDowngradeEventHandler;
+        WebResponse.Instance.OnResponseCancelDowngradeFailEventHandler -=
+            InstanceOnOnResponseCancelDowngradeFailEventHandler;
+    }
+
+    private void InstanceOnOnResponseCancelDowngradeEventHandler(object sender,
+        WebResponse.OnResponseCancelDowngradeEventArgs e)
+    {
+        _stationData.pendingMineTime = 0;
+        _stationData.level = _stationData.pendingDownGrade;
+        _stationData.pendingDownGrade = 0;
+        HandleIsPending(false);
+        RefreshStationInformation(_stationData);
+        WebResponse.Instance.OnResponseCancelDowngradeEventHandler -= InstanceOnOnResponseCancelDowngradeEventHandler;
+        WebResponse.Instance.OnResponseCancelDowngradeFailEventHandler -=
+            InstanceOnOnResponseCancelDowngradeFailEventHandler;
+    }
+
+    public void HandleIsPending(bool isPending)
+    {
+        cancelDowngradeButton.gameObject.SetActive(isPending);
+        pendingMineButton.gameObject.SetActive(isPending);
+        upgradeButton.gameObject.SetActive(!isPending);
+        downgradeButton.gameObject.SetActive(!isPending && _stationData.level > 0);
+    }
+
+    private void CountDowngradeStationChangeEventHandler(object sender, EventArgs e)
+    {
+        if (_stationData.pendingMineTime == 0)
+        {
+            pendingMineText.text = $"Claim {Helpers.FormatCurrencyNumber(_stationData.GetPendingMineValue())} $Mine";
+            pendingMineButton.interactable = true;
+            return;
+        }
+
+        pendingMineButton.interactable = false;
+        pendingMineText.text =
+            $"Pending {Helpers.FormatCurrencyNumber(_stationData.GetPendingMineValue())} $Mine: {Helpers.TimeFormater(_stationData.pendingMineTime)}";
+    }
+
+    private void OnClickPendingMineButton()
+    {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseExecuteDowngradeEventHandler += InstanceOnOnResponseExecuteDowngradeEventHandler;
+        WebResponse.Instance.OnResponseExecuteDowngradeFailEventHandler +=
+            InstanceOnOnResponseExecuteDowngradeFailEventHandler;
+        WebRequest.CallRequestExecuteDowngrade(_stationData.id);
+    }
+
+    private void InstanceOnOnResponseExecuteDowngradeFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseExecuteDowngradeEventHandler -= InstanceOnOnResponseExecuteDowngradeEventHandler;
+        WebResponse.Instance.OnResponseExecuteDowngradeFailEventHandler -=
+            InstanceOnOnResponseExecuteDowngradeFailEventHandler;
+    }
+
+    private void InstanceOnOnResponseExecuteDowngradeEventHandler(object sender,
+        WebResponse.OnResponseExecuteDowngradeEventArgs e)
+    {
+        _stationData.pendingMineTime = 0;
+        _stationData.pendingDownGrade = 0;
+        HandleIsPending(false);
+        RefreshStationInformation(_stationData);
+        WebResponse.Instance.OnResponseExecuteDowngradeEventHandler -= InstanceOnOnResponseExecuteDowngradeEventHandler;
+        WebResponse.Instance.OnResponseExecuteDowngradeFailEventHandler -=
+            InstanceOnOnResponseExecuteDowngradeFailEventHandler;
     }
 
     private void OnDowngradeButtonClick()
@@ -46,9 +133,10 @@ public class SpaceStationUI : BasePopup
     private void GameManagerOnOnChangeStationEventHandler(object sender,
         GameManager.OnChangeStationEventHandlerEventArgs e)
     {
-        Refresh(e.ListShipInNewPlanet);
+        RefreshShip(e.ListShipInNewPlanet);
         _stationData = e.CurrentStation;
         RefreshStationInformation(e.CurrentStation);
+        HandleIsPending(_stationData.pendingDownGrade != 0);
     }
 
     private void OnEnable()
@@ -56,9 +144,11 @@ public class SpaceStationUI : BasePopup
         ShipData[] listShipData = GameManager.Instance.GetShipOnCurrentPlanet();
         _stationData = GameManager.Instance.CurrentStation;
         RefreshStationInformation(_stationData);
-        Refresh(listShipData);
+        RefreshShip(listShipData);
+
         DataManager.Instance.OnAddShipToPlanetHandler += DataManagerOnOnAddShipToPlanetHandler;
         DataManager.Instance.OnRemoveShipToPlanetHandler += DataManagerOnRemoveShipToPlanetHandler;
+        DataManager.Instance.OnCountDowngradeStationChangeEventHandler += CountDowngradeStationChangeEventHandler;
     }
 
 
@@ -66,9 +156,10 @@ public class SpaceStationUI : BasePopup
     {
         stationLevel.text = $"Station LV{stationData.level}";
         downgradeButton.gameObject.SetActive(stationData.CanDowngrade());
+        HandleIsPending(_stationData.pendingDownGrade != 0);
     }
 
-    private void Refresh(ShipData[] listShipData)
+    private void RefreshShip(ShipData[] listShipData)
     {
         containerItemSpaceStationUI.DestroyChildren();
         listItem.Clear();
@@ -145,6 +236,8 @@ public class SpaceStationUI : BasePopup
         {
             DataManager.Instance.OnAddShipToPlanetHandler -= DataManagerOnOnAddShipToPlanetHandler;
         }
+
+        DataManager.Instance.OnCountDowngradeStationChangeEventHandler -= CountDowngradeStationChangeEventHandler;
     }
 
     public override void Show()

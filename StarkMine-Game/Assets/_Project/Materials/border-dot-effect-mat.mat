@@ -49,8 +49,8 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color1: {r: 0.97714794, g: 1, b: 0, a: 1}
-    - _Color2: {r: 1, g: 1, b: 1, a: 1}
-    - _Color3: {r: 1, g: 1, b: 1, a: 1}
+    - _Color2: {r: 1, g: 0.08962262, b: 0.9734516, a: 1}
+    - _Color3: {r: 0.2028302, g: 0.53924835, b: 1, a: 1}
     - _DotColor: {r: 1, g: 0, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

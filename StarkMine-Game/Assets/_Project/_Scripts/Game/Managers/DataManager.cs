@@ -210,6 +210,22 @@ namespace _Project._Scripts.Game.Managers
                 coreEngineData.coreEngineSO.coreEngineType == type && !coreEngineData.isActive);
         }
 
+        public List<CoreEngineData> GetCoreEngineDataUnActiveByListType(List<CoreEngineSO.CoreEngineType> types)
+        {
+            return listCoreEngineData.FindAll(coreEngineData =>
+                types.Contains(coreEngineData.coreEngineSO.coreEngineType) && !coreEngineData.isActive);
+        }
+
+        public List<CoreEngineData> GetCoreEngineDataUnActive()
+        {
+            return listCoreEngineData.FindAll(coreEngineData => coreEngineData != null && !coreEngineData.isActive);
+        }
+
+        public List<CoreEngineData> GetCoreEngineDataActive()
+        {
+            return listCoreEngineData.FindAll(coreEngineData => coreEngineData != null && coreEngineData.isActive);
+        }
+
         public CoreEngineData GetCoreEngineDataById(int id)
         {
             return listCoreEngineData.Find(coreEngineData => coreEngineData.id == id);
@@ -349,7 +365,7 @@ namespace _Project._Scripts.Game.Managers
         //     return planets.Sum(planets => SumHashPowerOfTypeShipInPlanet(shipType, planets));
         // }
 
-        public CoreEngineSO GetCoreEngineRequire(ShipSO.ShipType shipType)
+        public CoreEngineSO GetCoreEngineByShipType(ShipSO.ShipType shipType)
         {
             switch (shipType)
             {
@@ -363,7 +379,7 @@ namespace _Project._Scripts.Game.Managers
 
         public CoreEngineData GetCoreEngineRandomByShipType(ShipSO.ShipType shipType)
         {
-            CoreEngineSO coreEngineSO = GetCoreEngineRequire(shipType);
+            CoreEngineSO coreEngineSO = GetCoreEngineByShipType(shipType);
             return listCoreEngineData.Find(data =>
                 !data.isActive && data.coreEngineSO.coreEngineType == coreEngineSO.coreEngineType);
         }
@@ -387,8 +403,7 @@ namespace _Project._Scripts.Game.Managers
 
         public int CountSpaceShipOnDuty()
         {
-            return _planetShipDictionary.Values.SelectMany(shipDataArray => shipDataArray)
-                .Count(shipData => shipData != null && shipData.onDuty);
+            return allShip.Count(shipData => shipData != null && shipData.onDuty);
         }
 
         public int CountAllSpaceShipByType(ShipSO.ShipType shipType)
@@ -399,6 +414,13 @@ namespace _Project._Scripts.Game.Managers
         public int CountAllSpaceShipInInventoryByType(ShipSO.ShipType shipType)
         {
             return shipInInventory.Count(shipData => shipData != null && shipData.shipSO.shipType == shipType);
+        }
+
+        public int CountAllCoreEngineInInventoryByType(CoreEngineSO.CoreEngineType coreEngineType, bool isActive)
+        {
+            return listCoreEngineData.Count(coreEngineData =>
+                coreEngineData != null && coreEngineData.coreEngineSO.coreEngineType == coreEngineType &&
+                coreEngineData.isActive == isActive);
         }
 
         public int CountSpaceShipAddedStationByType(ShipSO.ShipType shipType)
@@ -499,35 +521,64 @@ namespace _Project._Scripts.Game.Managers
             return listCoreEngineSO[0];
         }
 
-        private void Start()
+        public List<CoreEngineData> GetListCoreEngineByType(CoreEngineSO.CoreEngineType coreEngineType)
         {
-#if UNITY_EDITOR
-            for (int i = 0; i < ShipInInventory.Count; i++)
-            {
-                shipInInventory[i].id = i;
-            }
+            return listCoreEngineData.FindAll(coreEngineData =>
+                coreEngineData.coreEngineSO.coreEngineType == coreEngineType);
+        }
 
-            foreach (var shipData in shipInInventory)
-            {
-                allShip.Add(shipData);
-            }
+        public List<CoreEngineData> GetListCoreEngineByType(string type)
+        {
+            CoreEngineSO coreEngineSo = GetCoreEngineByType(type);
+            return listCoreEngineData.FindAll(coreEngineData =>
+                coreEngineData.coreEngineSO.coreEngineType == coreEngineSo.coreEngineType);
+        }
 
-            foreach (CoreEngineData coreEngineData in listCoreEngineData)
+        public List<CoreEngineData> GetListCoreEngineUnActiveByShipType(ShipSO.ShipType shipType)
+        {
+            CoreEngineSO coreEngineSo = GetCoreEngineByShipType(shipType);
+            return listCoreEngineData.FindAll(coreEngineData =>
+                coreEngineData.coreEngineSO.coreEngineType == coreEngineSo.coreEngineType && !coreEngineData.isActive);
+        }
+
+        public bool IsContainCoreEngineUnActiveByShipType(ShipSO.ShipType shipType)
+        {
+            List<CoreEngineData> listCoreEngine = GetListCoreEngineUnActiveByShipType(shipType);
+            return listCoreEngine.Count > 0;
+        }
+
+
+        private void WebResponseOnResponseEngineConfigsHandler(object sender,
+            WebResponse.OnResponseEngineConfigsEventArgs e)
+        {
+            List<EngineConfigDTO> engineConfigDto = e.Data;
+            for (int i = 0; i < engineConfigDto.Count; i++)
             {
-                AddCoreEngine(coreEngineData);
+                CoreEngineSO coreEngineSo = GetCoreEngineByType(engineConfigDto[i].engineType);
+                coreEngineSo.cost = engineConfigDto[i].mintCost;
+                coreEngineSo.repairCostBase = engineConfigDto[i].repairCostBase;
+                coreEngineSo.durabilityBlock = engineConfigDto[i].durability;
+                coreEngineSo.efficiencyBonus = engineConfigDto[i].efficiencyBonus;
             }
-#endif
-            StartCoroutine(RefreshPendingRewardCoroutine());
-            WebResponse.Instance.OnResponseGetPendingRewardEventHandler +=
-                WebResponseOnResponseGetPendingRewardEventHandler;
-            WebResponse.Instance.OnLoadFullBaseData += WebResponseOnLoadFullBaseData;
-            WebResponse.Instance.OnResponseMinersDataEventHandler += WebResponseOnResponseMinersDataEventHandler;
-            WebResponse.Instance.OnResponseCoreEnginesDataEventHandler +=
-                WebResponseOnResponseCoreEnginesDataEventHandler;
-            WebResponse.Instance.OnResponseStationsDataEventHandler += WebResponseOnResponseStationsDataEventHandler;
-            WebResponse.Instance.OnResponseMinerLevelsConfigHandler += WebResponseOnResponseMinerLevelsConfigHandler;
-            WebResponse.Instance.OnResponseStationLevelsConfigHandler +=
-                WebResponseOnResponseStationLevelsConfigHandler;
+        }
+
+
+        private void InstanceOnOnResponseRemainingBlockForHavingEventHandler(object sender,
+            WebResponse.OnResponseRemainingBlockForHavingEventArgs e)
+        {
+            _nextHavingSecond = e.Data.estimateSeconds;
+        }
+
+        private void InstanceOnOnResponseUserHashPowerEventHandler(object sender,
+            WebResponse.OnResponseUserHashPowerEventArgs e)
+        {
+            YourPower = e.Data.userHashPower;
+        }
+
+        private void InstanceOnOnResponseTotalHashPowerEventHandler(object sender,
+            WebResponse.OnResponseTotalHashPowerEventArgs e)
+        {
+            GlobalHashPower = e.Data.totalHashPower;
         }
 
         private void WebResponseOnResponseGetPendingRewardEventHandler(object sender,
@@ -572,10 +623,10 @@ namespace _Project._Scripts.Game.Managers
             for (int i = 0; i < listStationDto.Count; i++)
             {
                 StationDTO stationDto = listStationDto[i];
-                foreach (int shipId in stationDto.minerIds.ToObject<List<int>>())
+                foreach (MinerAssigned minerAssigned in stationDto.MinersAssigned)
                 {
-                    ShipData shipData = allShip.Find(shipData => shipData.id == shipId);
-                    listStationData[i].AddShipData(shipData);
+                    ShipData shipData = allShip.Find(shipData => shipData.id == minerAssigned.tokenId);
+                    listStationData[i].ListShipData[minerAssigned.slot - 1] = shipData;
                     listShipIgnore.Add(shipData);
                 }
             }
@@ -597,6 +648,30 @@ namespace _Project._Scripts.Game.Managers
             }
 
             GameManager.Instance.MoveToNewStation(listStationData[0]);
+            int countLostDurability = 0;
+            foreach (var coreEngineData in listCoreEngineData)
+            {
+                if (coreEngineData.IsLostDurability())
+                {
+                    countLostDurability++;
+                }
+            }
+
+            if (countLostDurability > 0)
+            {
+                UIManager.Instance.showNotificationUI.SetUpAndShow(countLostDurability == 1
+                    ? "Your one core engine has lost its durability"
+                    : $"Your {countLostDurability} core engines have lost their durability.");
+            }
+
+            if (!IsEnoughStreak() && RemainingTimeToRecordLogin == 0)
+            {
+                UIManager.Instance.checkInStreakUI.Show();
+            }
+
+            StartCountDownRemainingTimeToRecordLoginCoroutine();
+
+            UIManager.Instance.tabPlanetUI.Show();
         }
 
         private void WebResponseOnResponseStationsDataEventHandler(object sender,
@@ -608,6 +683,8 @@ namespace _Project._Scripts.Game.Managers
             {
                 listStationData[i].level = listStationDto[i].level;
                 listStationData[i].id = listStationDto[i].id;
+                listStationData[i].pendingMineTime = listStationDto[i].estimateSecond;
+                listStationData[i].pendingDownGrade = listStationDto[i].pendingDowngrade;
                 listStationData[i].ResetShipData();
             }
         }
@@ -622,7 +699,9 @@ namespace _Project._Scripts.Game.Managers
             {
                 CoreEngineSO coreEngineSo = GetCoreEngineByType(coreEngineDto.engineType);
                 CoreEngineData coreEngineData =
-                    new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive);
+                    new CoreEngineData(coreEngineDto.tokenId, coreEngineSo, coreEngineDto.isActive,
+                        coreEngineDto.blocksUsed, coreEngineDto.currentEfficiencyBonus,
+                        coreEngineDto.lastUsedBlock);
                 CreateCoreEngine(coreEngineData);
             }
         }
@@ -638,7 +717,7 @@ namespace _Project._Scripts.Game.Managers
             foreach (ShipDTO shipDto in _listShipDto)
             {
                 ShipData shipData = new ShipData(shipDto.tokenId, GetShipSoByType(shipDto.tier), shipDto.level,
-                    shipDto.hashPower, shipDto.isIgnited);
+                    shipDto.hashPower, shipDto.efficiency, shipDto.isIgnited);
                 // ShipInInventory.Add(shipData);
                 allShip.Add(shipData);
             }
@@ -674,6 +753,236 @@ namespace _Project._Scripts.Game.Managers
 
                 yield return new WaitForSeconds(30);
             }
+        }
+
+        public EventHandler OnCountDowngradeStationChangeEventHandler;
+
+        public IEnumerator CountDownDowngradeStationCoroutine()
+        {
+            while (true)
+            {
+                // if (UserData == null)
+                // {
+                foreach (StationData stationData in listStationData)
+                {
+                    if (stationData.pendingMineTime > 0)
+                    {
+                        stationData.pendingMineTime--;
+                    }
+                }
+
+                OnCountDowngradeStationChangeEventHandler?.Invoke(this, EventArgs.Empty);
+                // }
+                yield return new WaitForSeconds(1);
+            }
+        }
+
+        public event EventHandler OnMonthlyPoolChangeEventHandler;
+        private int _monthlyPool;
+
+        public int MonthlyPool
+        {
+            get => _monthlyPool;
+            set
+            {
+                _monthlyPool = value;
+                OnMonthlyPoolChangeEventHandler?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler OnGlobalHashPowerChangeEventHandler;
+        private float _globalHashPower;
+
+        public float GlobalHashPower
+        {
+            get => _globalHashPower;
+            set
+            {
+                _globalHashPower = value;
+                OnGlobalHashPowerChangeEventHandler?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public IEnumerator RefreshGlobalHashPowerCoroutine()
+        {
+            while (true)
+            {
+                WebRequest.CallRequestTotalHashPower();
+                yield return new WaitForSeconds(30);
+            }
+        }
+
+        public event EventHandler OnNextHavingSecondChangeEventHandler;
+        private int _nextHavingSecond;
+
+        public int NextHavingSecond
+        {
+            get => _nextHavingSecond;
+            set
+            {
+                _nextHavingSecond = value;
+                OnNextHavingSecondChangeEventHandler?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler OnYourPowerChangeEventHandler;
+        private float _yourPower;
+
+        public float YourPower
+        {
+            get => _yourPower;
+            set
+            {
+                _yourPower = value;
+                OnYourPowerChangeEventHandler?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        [SerializeField] private int currentBlock;
+
+        public int CurrentBlock
+        {
+            get => currentBlock;
+        }
+
+        public IEnumerator RefreshCurrentBlockCoroutine()
+        {
+            while (true)
+            {
+                WebRequest.CallRequestCurrentBlock();
+                yield return new WaitForSeconds(15);
+            }
+        }
+
+        private void InstanceOnOnResponseCurrentBlockEventHandler(object sender,
+            WebResponse.OnResponseCurrentBlockEventArgs e)
+        {
+            currentBlock = e.Data.currentBlock;
+            // Helpers.LogCaller(currentBlock);
+            foreach (CoreEngineData coreEngineData in listCoreEngineData)
+            {
+                if (coreEngineData.isActive && coreEngineData.IsLostDurability(currentBlock))
+                {
+                    ShipData shipData = GetShipDataByCoreEngineId(coreEngineData.id);
+                    if (shipData != null)
+                    {
+                        coreEngineData.ResetBlockUsed();
+                        GameManager.Instance.CallbackSpaceShip(shipData);
+                    }
+                }
+            }
+        }
+
+        private int _streak = 0;
+
+        public int Streak
+        {
+            get => _streak;
+            set => _streak = value;
+        }
+
+        private int _remainingTimeToRecordLogin = 0;
+
+        public int RemainingTimeToRecordLogin
+        {
+            get => _remainingTimeToRecordLogin;
+            set => _remainingTimeToRecordLogin = value;
+        }
+
+        public IEnumerator CountDownRemainingTimeToRecordLoginCoroutine()
+        {
+            while (_remainingTimeToRecordLogin > 0)
+            {
+                _remainingTimeToRecordLogin--;
+                yield return new WaitForSeconds(1);
+            }
+
+            if (StreakToClaimReward != 0)
+            {
+                Helpers.LogCaller(_remainingTimeToRecordLogin);
+                UIManager.Instance.checkInStreakUI.Show();
+            }
+        }
+
+        public void StartCountDownRemainingTimeToRecordLoginCoroutine()
+        {
+            StartCoroutine(CountDownRemainingTimeToRecordLoginCoroutine());
+        }
+
+        private int _streakToClaimReward = 0;
+
+        public int StreakToClaimReward
+        {
+            get => _streakToClaimReward;
+            set => _streakToClaimReward = value;
+        }
+
+        public bool IsEnoughStreak()
+        {
+            return Streak >= StreakToClaimReward;
+        }
+
+        public int GetTimeLeftStreak()
+        {
+            return StreakToClaimReward - Streak;
+        }
+
+        private void InstanceOnOnResponseLoginStreakEventHandler(object sender,
+            WebResponse.OnResponseLoginStreakEventArgs e)
+        {
+            ResponseLoginStreakDTO responseLoginStreakDTO = e.Data;
+            Streak = responseLoginStreakDTO.currentStreak;
+            RemainingTimeToRecordLogin = responseLoginStreakDTO.remainingTimeToRecordLogin;
+            StreakToClaimReward = responseLoginStreakDTO.streakToClaimReward;
+        }
+
+        public ShipData GetShipDataByCoreEngineId(int coreEngineId)
+        {
+            return allShip.FirstOrDefault(shipData =>
+                shipData.CoreEngineData != null && shipData.CoreEngineData.id == coreEngineId);
+        }
+
+        private void Start()
+        {
+#if UNITY_EDITOR
+            for (int i = 0; i < ShipInInventory.Count; i++)
+            {
+                shipInInventory[i].id = i;
+            }
+
+            foreach (var shipData in shipInInventory)
+            {
+                allShip.Add(shipData);
+            }
+
+            foreach (CoreEngineData coreEngineData in listCoreEngineData)
+            {
+                AddCoreEngine(coreEngineData);
+            }
+#endif
+            StartCoroutine(RefreshPendingRewardCoroutine());
+            StartCoroutine(CountDownDowngradeStationCoroutine());
+            StartCoroutine(RefreshGlobalHashPowerCoroutine());
+            StartCoroutine(RefreshCurrentBlockCoroutine());
+            WebResponse.Instance.OnResponseCurrentBlockEventHandler += InstanceOnOnResponseCurrentBlockEventHandler;
+            WebResponse.Instance.OnResponseUserHashPowerEventHandler += InstanceOnOnResponseUserHashPowerEventHandler;
+            WebResponse.Instance.OnResponseTotalHashPowerEventHandler += InstanceOnOnResponseTotalHashPowerEventHandler;
+            WebResponse.Instance.OnResponseGetPendingRewardEventHandler +=
+                WebResponseOnResponseGetPendingRewardEventHandler;
+            WebResponse.Instance.OnResponseLoginStreakEventHandler += InstanceOnOnResponseLoginStreakEventHandler;
+            WebResponse.Instance.OnResponseMinersDataEventHandler += WebResponseOnResponseMinersDataEventHandler;
+            WebResponse.Instance.OnResponseCoreEnginesDataEventHandler +=
+                WebResponseOnResponseCoreEnginesDataEventHandler;
+            WebResponse.Instance.OnResponseStationsDataEventHandler += WebResponseOnResponseStationsDataEventHandler;
+            WebResponse.Instance.OnResponseMinerLevelsConfigHandler += WebResponseOnResponseMinerLevelsConfigHandler;
+            WebResponse.Instance.OnResponseEngineConfigsHandler += WebResponseOnResponseEngineConfigsHandler;
+            WebResponse.Instance.OnResponseStationLevelsConfigHandler +=
+                WebResponseOnResponseStationLevelsConfigHandler;
+
+            WebRequest.CallRequestRemainingBlockForHaving();
+            WebResponse.Instance.OnResponseRemainingBlockForHavingEventHandler +=
+                InstanceOnOnResponseRemainingBlockForHavingEventHandler;
+            WebResponse.Instance.OnLoadFullBaseData += WebResponseOnLoadFullBaseData;
         }
     }
 }

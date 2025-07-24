@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using _Project._Scripts.Game.Managers;
 using _Project._Scripts.Game.Poolings;
 using UnityEngine;
@@ -26,6 +27,10 @@ namespace _Project._Scripts.Game.Enemies
         [SerializeField] private BulletSO bulletSO;
         [SerializeField] private SpriteRenderer visual;
         public ShipData ShipData { get; set; }
+        [SerializeField] private List<float> listRandomDistanceTest = new();
+        [SerializeField] private List<Vector2> listRandomDirectionTest = new();
+        [SerializeField] private int countTest = 0;
+        [SerializeField] private bool isTest = false;
 
         public Sprite Visual
         {
@@ -93,8 +98,26 @@ namespace _Project._Scripts.Game.Enemies
             if (targetPlanet == null) return;
 
             // Chọn khoảng cách ngẫu nhiên trong khoảng minPatrolRadius đến patrolRadius
-            float randomDistance = Random.Range(minPatrolRadius, patrolRadius);
-            Vector2 randomDirection = Random.insideUnitCircle.normalized;
+            // float randomDistance = Random.Range(minPatrolRadius, patrolRadius);
+            // Vector2 randomDirection = Random.insideUnitCircle.normalized;
+            float randomDistance;
+            Vector2 randomDirection;
+            if (isTest)
+            {
+                randomDistance = listRandomDistanceTest[countTest];
+                randomDirection = listRandomDirectionTest[countTest];
+                countTest++;
+                if (countTest >= listRandomDistanceTest.Count)
+                {
+                    countTest = 0;
+                }
+            }
+            else
+            {
+                randomDistance = Random.Range(minPatrolRadius, patrolRadius);
+                randomDirection = Random.insideUnitCircle.normalized;
+            }
+
             Vector3 patrolTarget = targetPlanet.position + (Vector3)(randomDirection * randomDistance);
 
             // Di chuyển mượt bằng DOTween

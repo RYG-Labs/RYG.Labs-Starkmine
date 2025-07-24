@@ -12,8 +12,13 @@ public class MergeSpaceshipUI : BasePopup
     [SerializeField] private SelectSpaceShipInUI selectSpaceShipInUI;
     [SerializeField] private Button mergeButton;
     [SerializeField] private TextMeshProUGUI totalSuccessRateAmountText;
+    [SerializeField] private TextMeshProUGUI totalSuccessRateFailingAmountText;
     [SerializeField] private TextMeshProUGUI totalFailingAmountText;
     [SerializeField] private TextMeshProUGUI costPerMergeAmountText;
+    [SerializeField] private TextMeshProUGUI successRatePerShipText;
+    [SerializeField] private TextMeshProUGUI hashPowerText;
+    [SerializeField] private TextMeshProUGUI availableAmountText;
+
     [SerializeField] private List<ShipSO> listShipResult;
     private int _totalFailing;
     private int _successRateDefault = 5;
@@ -26,6 +31,7 @@ public class MergeSpaceshipUI : BasePopup
         {
             _totalFailing = value;
             totalFailingAmountText.text = $"({value} failing)";
+            totalSuccessRateFailingAmountText.text = $"{value}%";
         }
     }
 
@@ -48,7 +54,6 @@ public class MergeSpaceshipUI : BasePopup
         selectSpaceShipInUI.OnUnSelectSpaceShipEventHandler += SelectSpaceShipInUIOnOnUnSelectSpaceShipEventHandler;
         mergeButton.onClick.AddListener(OnClickMergeButton);
 
-
         selectSpaceShipResultUI.SetUp(listShipResult);
         selectSpaceShipResultUI.OnSelectSpaceShipResultEventHandler +=
             SelectSpaceShipResultUIOnOnSelectSpaceShipResultEventHandler;
@@ -59,34 +64,107 @@ public class MergeSpaceshipUI : BasePopup
     private void SelectSpaceShipResultUIOnOnSelectSpaceShipResultEventHandler(object sender,
         SelectSpaceShipResultUI.OnSelectSpaceShipResultEventArgs e)
     {
-        selectSpaceShipInUI.SetUp(DataManager.Instance.ShipInInventory.FindAll(shipData =>
-            shipData.shipSO.shipType == e.ShipSo.shipTypeRequire));
+        CallRequestCurrentSuccessRate(e.ShipSo.shipName == "Pro" ? "Elite" : "Pro", e.ShipSo.shipName);
+        // _successRateDefault = selectSpaceShipResultUI.ShipSOSelected.shipType == ShipSO.ShipType.Pro ? 50 : 25;
+        // successRatePerShipText.text =
+        //     $"Success rate: <color=#FEE109>{_successRateDefault}%</color> and increase <color=#FEE109>+1%</color> per failing";
+        // TotalSuccessRate = _successRateDefault;
+        // selectSpaceShipInUI.SetUp(DataManager.Instance.ShipInInventory.FindAll(shipData =>
+        //     shipData.shipSO.shipType == e.ShipSo.shipTypeRequire));
     }
 
     private void OnEnable()
     {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserEventHandler +=
+            WebResponseOnResponseCurrentMergeStatusByUserEventHandler;
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserFailEventHandler +=
+            WebResponseOnResponseCurrentMergeStatusByUserFailEventHandler;
+        CallRequestCurrentSuccessRate("Elite", "Pro");
+    }
+
+    public void CallRequestCurrentSuccessRate(string fromTier, string toTier)
+    {
+        UIManager.Instance.loadingUI.Show();
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserEventHandler +=
+            WebResponseOnResponseCurrentMergeStatusByUserEventHandler;
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserFailEventHandler +=
+            WebResponseOnResponseCurrentMergeStatusByUserFailEventHandler;
+        WebRequest.CallRequestCurrentMergeStatusByUser(fromTier, toTier);
+    }
+
+    private void WebResponseOnResponseCurrentMergeStatusByUserFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserEventHandler -=
+            WebResponseOnResponseCurrentMergeStatusByUserEventHandler;
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserFailEventHandler -=
+            WebResponseOnResponseCurrentMergeStatusByUserFailEventHandler;
+    }
+
+    private void WebResponseOnResponseCurrentMergeStatusByUserEventHandler(object sender,
+        WebResponse.OnResponseCurrentSuccessRateEventArgs e)
+    {
+        ResponseCurrentMergeStatusByUserDTO data = e.Data;
+        _successRateDefault = data.baseSuccessRate;
+        successRatePerShipText.text =
+            $"Success rate: <color=#FEE109>{_successRateDefault}%</color> and increase <color=#FEE109>+1%</color> per failing";
         mergeButton.interactable = false;
         TotalSuccessRate = _successRateDefault;
-        costPerMergeAmountText.text = _costPerMerge + "$STRK";
-
+        TierConfig tierConfig = data.TierConfig;
+        hashPowerText.text = $"{tierConfig.baseHashPower} + {tierConfig.tierBonus}% extra bonus reward";
+        availableAmountText.text = $"<color=#FEE109>{tierConfig.mintedCount}</color> /{tierConfig.supplyLimit} ";
+        costPerMergeAmountText.text = data.costStrk + "$STRK";
+        TotalFailing = data.successRateBonus;
         if (selectSpaceShipResultUI.ShipSOSelected != null)
         {
             selectSpaceShipInUI.SetUp(DataManager.Instance.ShipInInventory.FindAll(shipData =>
                 shipData.shipSO.shipType == selectSpaceShipResultUI.ShipSOSelected.shipTypeRequire));
         }
+
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserEventHandler -=
+            WebResponseOnResponseCurrentMergeStatusByUserEventHandler;
+        WebResponse.Instance.OnResponseCurrentMergeStatusByUserFailEventHandler -=
+            WebResponseOnResponseCurrentMergeStatusByUserFailEventHandler;
     }
 
     private void OnClickMergeButton()
     {
+#if UNITY_EDITOR
         if (!IsSuccess(TotalSuccessRate + selectSpaceShipInUI.TotalSuccessRate))
         {
-            SoundManager.Instance.PlayBleepSound4();
             TotalFailing++;
             TotalSuccessRate++;
             return;
         }
+#endif
+        SoundManager.Instance.PlayBleepSound4();
+        UIManager.Instance.loadingUI.Show();
+        List<ShipData> listShipSelected = selectSpaceShipInUI.GetShipSelected();
+        WebResponse.Instance.OnResponseMergeMinerEventHandler += WebResponseOnResponseMergeMinerEventHandler;
+        WebResponse.Instance.OnResponseMergeMinerFailEventHandler += WebResponseOnResponseMergeMinerFailEventHandler;
+        WebRequest.CallRequestMergeMiner(listShipSelected[0].id, listShipSelected[1].id,
+            listShipSelected[0].shipSO.shipName, selectSpaceShipResultUI.ShipSOSelected.shipName);
+    }
+
+    private void WebResponseOnResponseMergeMinerFailEventHandler(object sender, EventArgs e)
+    {
+        WebResponse.Instance.OnResponseMergeMinerEventHandler -= WebResponseOnResponseMergeMinerEventHandler;
+        WebResponse.Instance.OnResponseMergeMinerFailEventHandler -= WebResponseOnResponseMergeMinerFailEventHandler;
+    }
+
+    private void WebResponseOnResponseMergeMinerEventHandler(object sender, WebResponse.OnResponseMergeMinerEventArgs e)
+    {
+        ResponseMergeMinerDTO responseMergeMinerDTO = e.Data;
+        if (!responseMergeMinerDTO.isMergeSuccessful)
+        {
+            TotalFailing = responseMergeMinerDTO.failureBonus;
+            _successRateDefault = responseMergeMinerDTO.baseSuccessRate;
+            return;
+        }
+
         SoundManager.Instance.PlayCompleteSound2();
         ShipData newShipData = new ShipData(selectSpaceShipResultUI.ShipSOSelected);
+        newShipData.id = responseMergeMinerDTO.newTokenId;
         List<ShipData> listShipRemove = selectSpaceShipInUI.DestroyItemSelected();
         DataManager.Instance.AddShipToInventory(newShipData);
         DataManager.Instance.RemoveShipFromInventory(listShipRemove);
@@ -94,10 +172,14 @@ public class MergeSpaceshipUI : BasePopup
         TotalFailing = 0;
         TotalSuccessRate = _successRateDefault;
         mergeButton.interactable = false;
+
+        WebResponse.Instance.OnResponseMergeMinerEventHandler -= WebResponseOnResponseMergeMinerEventHandler;
+        WebResponse.Instance.OnResponseMergeMinerFailEventHandler -= WebResponseOnResponseMergeMinerFailEventHandler;
     }
 
     private void SelectSpaceShipInUIOnOnUnSelectSpaceShipEventHandler(object sender, EventArgs e)
     {
+        TotalSuccessRate = _successRateDefault;
         mergeButton.interactable = false;
     }
 
@@ -105,6 +187,12 @@ public class MergeSpaceshipUI : BasePopup
         SelectSpaceShipInUI.OnSelectSpaceShipEventArgs e)
     {
         // selectSpaceShipResultUI.SetUp(shipSos);
+        TotalSuccessRate = _successRateDefault;
+        foreach (var shipData in e.ListShipSelected)
+        {
+            TotalSuccessRate += shipData.level;
+        }
+
         mergeButton.interactable = true;
     }
 

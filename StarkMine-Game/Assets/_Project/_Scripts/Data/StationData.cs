@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -16,18 +17,37 @@ public class StationData
     [SerializeField] public int level;
     [SerializeField] public SpaceStationSO spaceStationSo;
     [SerializeField] public PlanetSO planetSo;
+
+    [SerializeField] public long pendingMineTime;
+
+    // [SerializeField] public int pendingMineValue;
+    public int pendingDownGrade;
     private ShipData[] _listShipData = new ShipData[6];
 
     public ShipData[] ListShipData => _listShipData;
 
-    public void AddShipData(ShipData shipData)
+    public int CountShipData()
     {
+        int count = 0;
         for (int i = 0; i < _listShipData.Length; i++)
         {
-            if (_listShipData[i] != null) continue;
-            _listShipData[i] = shipData;
-            return;
+            if (_listShipData[i] != null)
+            {
+                count++;
+            }
         }
+
+        return count;
+    }
+
+    public bool IsFull()
+    {
+        return ListShipData.All(shipData => shipData != null);
+    }
+
+    public bool IsEmpty()
+    {
+        return _listShipData.All(shipData => shipData == null);
     }
 
     public void RemoveShipData(ShipData shipData)
@@ -103,5 +123,27 @@ public class StationData
     public bool IsMinLevel()
     {
         return level <= 0;
+    }
+
+    public int GetReceivedDownLevel(int targetLevel)
+    {
+        int sum = 0;
+        for (int i = targetLevel; i < level; i++)
+        {
+            sum += spaceStationSo.listCostPerLevel[i];
+        }
+
+        return sum;
+    }
+
+    public int GetPendingMineValue()
+    {
+        int sum = 0;
+        for (int i = level; i < pendingDownGrade; i++)
+        {
+            sum += spaceStationSo.listCostPerLevel[i];
+        }
+
+        return sum;
     }
 }

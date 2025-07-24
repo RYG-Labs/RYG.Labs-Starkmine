@@ -11,10 +11,14 @@ public class YesNoUI : BasePopup
     [SerializeField] private Button yesButton;
     [SerializeField] private Button noButton;
     [SerializeField] private TextMeshProUGUI notificationText;
+    private object _objectSend;
 
-    public void SetUp(string notification)
+    public object ObjectSend => _objectSend;
+
+    public void SetUp(string notification, object objectSend = null)
     {
         notificationText.text = notification;
+        _objectSend = objectSend;
     }
 
     protected override void Start()
@@ -41,5 +45,10 @@ public class YesNoUI : BasePopup
     {
         OnNoButtonClickEventHandler?.Invoke(this, EventArgs.Empty);
         Hide();
+    }
+
+    private void OnDisable()
+    {
+        _objectSend = null;
     }
 }
