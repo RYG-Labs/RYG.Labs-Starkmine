@@ -53,6 +53,36 @@ public class WebRequest
     [DllImport("__Internal")]
     private static extern void RequestClaimPendingReward();
 
+    [DllImport("__Internal")]
+    private static extern void RequestCurrentMergeStatusByUser(string fromTier, string toTier);
+
+    [DllImport("__Internal")]
+    private static extern void RequestMergeMiner(int tokenId1, int tokenId2, string fromTier, string toTier);
+
+    [DllImport("__Internal")]
+    private static extern void RequestRepairCoreEngine(int engineId, int durabilityToRestore);
+
+    [DllImport("__Internal")]
+    private static extern void RequestTotalHashPower();
+
+    [DllImport("__Internal")]
+    private static extern void RequestUserHashPower();
+
+    [DllImport("__Internal")]
+    private static extern void RequestRemainingBlockForHaving();
+
+    [DllImport("__Internal")]
+    private static extern void RequestCancelDowngrade(int stationId);
+
+    [DllImport("__Internal")]
+    private static extern void RequestInitStation();
+
+    [DllImport("__Internal")]
+    private static extern void RequestCurrentBlock();
+
+    [DllImport("__Internal")]
+    private static extern void RequestRecordLogin();
+
     public static void CallRequestConnectWallet()
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -164,7 +194,6 @@ public class WebRequest
 
     public static void CallRequestGetPendingReward()
     {
-        Debug.Log("Claim Pending Reward");
 #if UNITY_WEBGL && !UNITY_EDITOR
         RequestGetPendingReward();
 #else
@@ -178,6 +207,98 @@ public class WebRequest
         RequestClaimPendingReward();
 #else
         // FakeResponse.Instance.StartFakeResponseDefuseEngineCoroutine(minerId);
+#endif
+    }
+
+    public static void CallRequestMergeMiner(int tokenId1, int tokenId2, string fromTier, string toTier)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestMergeMiner(tokenId1, tokenId2, fromTier, toTier);
+#else
+        FakeResponse.Instance.StartFakeMergeMinerCoroutine(tokenId1, tokenId2, fromTier, toTier);
+#endif
+    }
+
+    public static void CallRequestCurrentMergeStatusByUser(string fromTier, string toTier)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestCurrentMergeStatusByUser(fromTier, toTier);
+#else
+#endif
+    }
+
+    public static void CallRequestRepairCoreEngine(int engineId, int durabilityToRestore)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestRepairCoreEngine(engineId, durabilityToRestore);
+#else
+#endif
+    }
+
+    public static void CallRequestTotalHashPower()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestTotalHashPower();
+#else
+#endif
+    }
+
+    public static void CallRequestUserHashPower()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestUserHashPower();
+#else
+#endif
+    }
+
+    public static void CallRequestRemainingBlockForHaving()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestRemainingBlockForHaving();
+#else
+#endif
+    }
+
+    public static void CallRequestCancelDowngrade(int stationId)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestCancelDowngrade(stationId);
+#else
+#endif
+    }
+
+    public static void CallRequestInitStation()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestInitStation();
+#else
+#endif
+    }
+
+    public static void CallRequestCurrentBlock()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestCurrentBlock();
+#else
+        FakeResponse.Instance.StartFakeResponseCurrentBlock();
+#endif
+    }
+
+    public static void CallRequestExecuteDowngrade(int stationId)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestExecuteDowngrade(stationId);
+#else
+
+#endif
+    }
+
+    public static void CallRequestRecordLogin()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestRecordLogin();
+#else
+
 #endif
     }
 }

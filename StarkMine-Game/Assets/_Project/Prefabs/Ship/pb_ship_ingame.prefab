@@ -48,8 +48,6 @@ MonoBehaviour:
   starLevel: 1
   damage: 10
   fireRate: 1
-  durability: 100
-  maxDurability: 100
   bulletPrefab: {fileID: 2457205050694517484, guid: 631b51f966e7828418e0f3734faa165f, type: 3}
   targetPlanet: {fileID: 0}
   minPatrolRadius: 2
@@ -57,6 +55,20 @@ MonoBehaviour:
   patrolSpeed: 1
   bulletSO: {fileID: 11400000, guid: 1f22f047fec76954f9c68aaccfc567d8, type: 2}
   visual: {fileID: 3806166950797242020}
+  listRandomDistanceTest:
+  - 2.9905307
+  - 2.9673035
+  - 2.7157485
+  - 2.473166
+  - 2.1742163
+  listRandomDirectionTest:
+  - {x: -0.695912, y: -0.7181271}
+  - {x: 0.97954947, y: -0.20120358}
+  - {x: -0.7795923, y: 0.6262874}
+  - {x: -0.99296004, y: -0.118450224}
+  - {x: -0.7241337, y: 0.68965966}
+  countTest: 0
+  isTest: 0
 --- !u!1 &8848316242794433838
 GameObject:
   m_ObjectHideFlags: 0

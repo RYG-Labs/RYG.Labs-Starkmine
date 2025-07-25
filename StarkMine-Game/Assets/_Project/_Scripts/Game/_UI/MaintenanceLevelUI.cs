@@ -5,17 +5,17 @@ using UnityEngine.UI;
 
 public class MaintenanceLevelUI : MonoBehaviour
 {
-    private int maintenanceLevelPercent = 100;
+    private float _maintenanceLevelPercent = 100;
     [SerializeField] private List<Image> maintenanceLevels = new();
     [SerializeField] private TextMeshProUGUI maintenanceLevelPercentText;
     [SerializeField] private TextMeshProUGUI earningRateText;
     [SerializeField] private Image earningRateBackground;
 
-    public void SetUp(int maintenanceLevelPercent, int earningRate)
+    public void SetUp(float maintenanceLevelPercent, float earningRate)
     {
-        this.maintenanceLevelPercent = maintenanceLevelPercent;
+        _maintenanceLevelPercent = maintenanceLevelPercent;
         maintenanceLevelPercentText.text = maintenanceLevelPercent + "%";
-        earningRateText.text = "earnings -" + earningRate + "%";
+        earningRateText.text = "earnings " + earningRate + "%";
         Refresh();
     }
 
@@ -26,11 +26,11 @@ public class MaintenanceLevelUI : MonoBehaviour
         maintenanceLevelPercentText.color = color;
         earningRateText.color = color;
         earningRateBackground.color = new Color(color.r, color.g, color.b, 0.125f);
-        earningRateBackground.gameObject.SetActive(maintenanceLevelPercent <= 70);
+        // earningRateBackground.gameObject.SetActive(_maintenanceLevelPercent <= 70);
 
         for (int i = 0; i < 10; i++)
         {
-            if (i < maintenanceLevelPercent / 10)
+            if (i < _maintenanceLevelPercent / 10)
             {
                 maintenanceLevels[i].color = color;
                 maintenanceLevels[i].gameObject.SetActive(true);
@@ -52,9 +52,9 @@ public class MaintenanceLevelUI : MonoBehaviour
 
     private Color GetColor()
     {
-        if (maintenanceLevelPercent <= 15) return new Color32(255, 89, 91, 255);
-        if (maintenanceLevelPercent <= 40) return new Color32(255, 89, 194, 255);
-        if (maintenanceLevelPercent <= 70) return new Color32(255, 180, 51, 255);
+        if (_maintenanceLevelPercent <= 15) return new Color32(255, 89, 91, 255);
+        if (_maintenanceLevelPercent <= 40) return new Color32(255, 89, 194, 255);
+        if (_maintenanceLevelPercent <= 70) return new Color32(255, 180, 51, 255);
         return new Color32(50, 222, 171, 255);
     }
 }

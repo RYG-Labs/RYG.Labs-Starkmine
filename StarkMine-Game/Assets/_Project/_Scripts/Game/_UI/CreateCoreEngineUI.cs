@@ -57,7 +57,8 @@ public class CreateCoreEngineUI : BasePopup
         SoundManager.Instance.PlayCompleteSound2();
         CoreEngineSO coreEngineSelected = DataManager.Instance.listCoreEngineSO[indexSelected];
         CoreEngineData coreEngineData =
-            new CoreEngineData(e.Data.coreEngineId, coreEngineSelected, false);
+            new CoreEngineData(e.Data.coreEngineId, coreEngineSelected, false, 0, coreEngineSelected.efficiencyBonus,
+                0);
         DataManager.Instance.MineCoin -= coreEngineSelected.cost;
         DataManager.Instance.CreateCoreEngine(coreEngineData);
         Hide();

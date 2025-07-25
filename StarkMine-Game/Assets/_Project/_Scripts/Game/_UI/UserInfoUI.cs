@@ -12,6 +12,12 @@ public class UserInfoUI : BasePopup
     [SerializeField] private TextMeshProUGUI mineCoinText;
     [SerializeField] private TextMeshProUGUI balanceText;
     [SerializeField] private TextMeshProUGUI pendingHarvestText;
+    [SerializeField] private TextMeshProUGUI monthlyPoolText;
+    [SerializeField] private TextMeshProUGUI nextHalvingText;
+    [SerializeField] private TextMeshProUGUI globalHashPowerText;
+    [SerializeField] private TextMeshProUGUI yourTotalShareText;
+    [SerializeField] private TextMeshProUGUI yourHashPowerText;
+    [SerializeField] private Button refreshButton;
     [SerializeField] private Button harvestButton;
 
     protected override void Start()
@@ -21,14 +27,56 @@ public class UserInfoUI : BasePopup
         mineCoinText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MineCoin) + " $MINE";
         balanceText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MineCoin) + " $MINE";
         pendingHarvestText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.PendingReward) + " $MINE";
+        monthlyPoolText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.MonthlyPool) + " $MINE";
+        globalHashPowerText.text = Helpers.Round(DataManager.Instance.GlobalHashPower, 2).ToString();
+        yourHashPowerText.text = Helpers.Round(DataManager.Instance.YourPower, 2).ToString();
+        yourTotalShareText.text = CalculateYourTotalShare() + "%";
+        nextHalvingText.text =
+            $"{Helpers.AddSecondToUtcNow(DataManager.Instance.NextHavingSecond)} UTC ({Helpers.SecondToDay(DataManager.Instance.NextHavingSecond)} days)";
+
         DataManager.Instance.OnMineCoinUpdate += InstanceOnOnMineCoinUpdate;
         DataManager.Instance.OnUserDataChangedEventHandler += DataManagerOnUserDataChangedEventHandler;
         DataManager.Instance.OnPendingRewardChangeEventHandler += DataManagerOnPendingRewardChangeEventHandler;
+        DataManager.Instance.OnGlobalHashPowerChangeEventHandler += DataManagerOnGlobalHashPowerChangeEventHandler;
+        DataManager.Instance.OnYourPowerChangeEventHandler += InstanceOnOnYourPowerChangeEventHandler;
         harvestButton.onClick.AddListener(OnClickHarvestButton);
+        refreshButton.onClick.AddListener(OnClickRefreshButton);
+    }
+
+    private void OnClickRefreshButton()
+    {
+        WebRequest.CallRequestTotalHashPower();
+        WebRequest.CallRequestUserHashPower();
+    }
+
+    private void InstanceOnOnYourPowerChangeEventHandler(object sender, EventArgs e)
+    {
+        yourHashPowerText.text = Helpers.Round(DataManager.Instance.YourPower, 2).ToString();
+        yourTotalShareText.text = CalculateYourTotalShare() + "%";
+    }
+
+    public string CalculateYourTotalShare()
+    {
+        if (DataManager.Instance.YourPower == 0 || DataManager.Instance.GlobalHashPower == 0) return "0";
+        return Helpers.FormatCurrencyNumber(
+            Helpers.Round(DataManager.Instance.YourPower / DataManager.Instance.GlobalHashPower, 2) * 100);
+    }
+
+    private void DataManagerOnGlobalHashPowerChangeEventHandler(object sender, EventArgs e)
+    {
+        globalHashPowerText.text = Helpers.FormatCurrencyNumber(DataManager.Instance.GlobalHashPower);
+        yourTotalShareText.text = CalculateYourTotalShare() + "%";
     }
 
     private void OnClickHarvestButton()
     {
+        if (!DataManager.Instance.IsEnoughStreak())
+        {
+            UIManager.Instance.showNotificationUI.SetUpAndShow(
+                $"You need to log in for <color=#FEE109>{DataManager.Instance.GetTimeLeftStreak()}</color> more consecutive days to be able to harvest your mine.");
+            return;
+        }
+
         UIManager.Instance.loadingUI.Show();
         WebResponse.Instance.OnResponseClaimPendingRewardEventHandler +=
             InstanceOnOnResponseClaimPendingRewardEventHandler;

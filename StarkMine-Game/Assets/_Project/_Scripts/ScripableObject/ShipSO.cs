@@ -28,5 +28,5 @@ public class ShipSO : ScriptableObject
     public List<int> powerShipPerLevel = new();
     public List<int> costPerLevel = new();
     public ShipType shipTypeRequire;
-
+    public int repairCostPerValue;
 }

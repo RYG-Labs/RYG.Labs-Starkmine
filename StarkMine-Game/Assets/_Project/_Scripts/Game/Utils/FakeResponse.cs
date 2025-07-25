@@ -1,5 +1,6 @@
 using System.Collections;
 using _Project._Scripts.Game.Managers;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class FakeResponse : StaticInstance<FakeResponse>
@@ -20,7 +21,7 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 {
                     stationId = stationId,
                     minerId = minerId,
-                    index = index
+                    minerSlot = index
                 }
             });
     }
@@ -53,6 +54,11 @@ public class FakeResponse : StaticInstance<FakeResponse>
     private IEnumerator FakeResponseResponseIgniteMinerCoroutine(int minerId, int coreEngineId)
     {
         yield return new WaitForSeconds(0.5f);
+        CoreEngineDTO coreEngineDto = new CoreEngineDTO()
+        {
+            tokenId = coreEngineId,
+            lastUsedBlock = DataManager.Instance.CurrentBlock
+        };
         UIManager.Instance.loadingUI.Hide();
         WebResponse.Instance.InvokeResponseIgniteMiner(
             new WebResponse.OnResponseIgniteMinerEventArgs
@@ -60,7 +66,9 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 Data = new ResponseIgniteMinerDTO
                 {
                     minerId = minerId,
-                    coreEngineId = coreEngineId
+                    // coreEngineId = coreEngineId
+
+                    coreEngine = JObject.FromObject(coreEngineDto)
                 }
             });
     }
@@ -176,6 +184,50 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 Data = new()
                 {
                     pendingReward = DataManager.Instance.PendingReward + 100
+                }
+            });
+    }
+
+    public void StartFakeMergeMinerCoroutine(int tokenId1, int tokenId2, string fromTier, string toTier)
+    {
+        StartCoroutine(FakeInvokeMergeMinerCoroutine(tokenId1, tokenId2, fromTier, toTier));
+    }
+
+    private IEnumerator FakeInvokeMergeMinerCoroutine(int tokenId1, int tokenId2, string fromTier, string toTier)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseMergeMiner(
+            new()
+            {
+                Data = new()
+                {
+                    tokenId1 = tokenId1,
+                    tokenId2 = tokenId2,
+                    fromTier = fromTier,
+                    toTier = toTier,
+                    isMergeSuccessful = Random.Range(0, 2) == 0,
+                    failureBonus = 1,
+                    newTokenId = DataManager.Instance.allShip.Count
+                }
+            });
+    }
+
+    public void StartFakeResponseCurrentBlock()
+    {
+        StartCoroutine(FakeInvokeResponseCurrentBlockCoroutine());
+    }
+
+    private IEnumerator FakeInvokeResponseCurrentBlockCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseCurrentBlock(
+            new()
+            {
+                Data = new()
+                {
+                    currentBlock = DataManager.Instance.CurrentBlock + 2
                 }
             });
     }

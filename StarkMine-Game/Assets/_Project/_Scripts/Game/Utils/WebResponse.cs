@@ -16,16 +16,19 @@ public class WebResponse : StaticInstance<WebResponse>
     private bool _isLoadCoreEngineSuccess;
     private bool _isLoadStationDataSuccess;
     private bool _isLoadMinerLevelConfigSuccess;
+    private bool _isLoadCoreEngineConfigSuccess;
     private bool _isLoadStationLevelsConfigSuccess;
+    private bool _isLoadLoginStreakSuccess;
     private bool _isFirstLoad;
 
     private void Update()
     {
-        if (IsLoadBaseDataSuccess() && !_isFirstLoad)
+        if (IsLoadBaseDataSuccess())
         {
             OnLoadFullBaseData?.Invoke(this, EventArgs.Empty);
             UIManager.Instance.loadingUI.Hide();
-            _isFirstLoad = true;
+            ResetLoadData();
+            // _isFirstLoad = true;
             Debug.Log("================Load Full Data===================");
         }
     }
@@ -53,7 +56,8 @@ public class WebResponse : StaticInstance<WebResponse>
     private bool IsLoadBaseDataSuccess()
     {
         return _isLoadShipDataSuccess && _isLoadCoreEngineSuccess && _isLoadStationDataSuccess &&
-               _isLoadMinerLevelConfigSuccess && _isLoadStationLevelsConfigSuccess;
+               _isLoadMinerLevelConfigSuccess && _isLoadStationLevelsConfigSuccess && _isLoadCoreEngineConfigSuccess &&
+               _isLoadLoginStreakSuccess;
     }
 
     public void ResetLoadData()
@@ -62,7 +66,9 @@ public class WebResponse : StaticInstance<WebResponse>
         _isLoadCoreEngineSuccess = false;
         _isLoadStationDataSuccess = false;
         _isLoadMinerLevelConfigSuccess = false;
+        _isLoadCoreEngineConfigSuccess = false;
         _isLoadStationLevelsConfigSuccess = false;
+        _isLoadLoginStreakSuccess = false;
         Debug.Log("================Reset Load Data===================");
     }
 
@@ -126,6 +132,35 @@ public class WebResponse : StaticInstance<WebResponse>
 
     #endregion
 
+    #region ResponseLoginStreak
+
+    public event EventHandler<OnResponseLoginStreakEventArgs> OnResponseLoginStreakEventHandler;
+
+    public class OnResponseLoginStreakEventArgs : EventArgs
+    {
+        public ResponseLoginStreakDTO Data { get; set; }
+    }
+
+    private void ResponseLoginStreak(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadLoginStreakSuccess) return;
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            return;
+        }
+
+        _isLoadLoginStreakSuccess = true;
+        OnResponseLoginStreakEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseLoginStreakDTO>() });
+    }
+
+    #endregion
+
     #region ResponseGetPendingReward
 
     public event EventHandler<OnResponseClaimPendingRewardEventArgs> OnResponseClaimPendingRewardEventHandler;
@@ -140,6 +175,7 @@ public class WebResponse : StaticInstance<WebResponse>
     private void ResponseClaimPendingReward(string responseString)
     {
         Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
 
         MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
         if (!response.IsSuccess())
@@ -233,10 +269,14 @@ public class WebResponse : StaticInstance<WebResponse>
         MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
         if (!response.IsSuccess())
         {
-            HandleUnSuccess(response.level, response.message);
+            UIManager.Instance.initStationUI.Show();
+            UIManager.Instance.loadingUI.Hide();
+
+            // HandleUnSuccess(response.level, response.message);
             return;
         }
 
+        UIManager.Instance.initStationUI.Hide();
         _isLoadStationDataSuccess = true;
         OnResponseStationsDataEventHandler?.Invoke(this,
             new OnResponseStationsDataEventArgs { Data = response.data.ToObject<List<StationDTO>>() });
@@ -270,6 +310,35 @@ public class WebResponse : StaticInstance<WebResponse>
         OnResponseMinerLevelsConfigHandler?.Invoke(this,
             new OnResponseMinerLevelsConfigEventArgs
                 { Data = response.data.ToObject<List<ResponseMinerLevelsConfigDTO>>() });
+    }
+
+    #endregion
+
+    #region ResponseEngineConfigs
+
+    public event EventHandler<OnResponseEngineConfigsEventArgs> OnResponseEngineConfigsHandler;
+
+    public class OnResponseEngineConfigsEventArgs : EventArgs
+    {
+        public List<EngineConfigDTO> Data { get; set; }
+    }
+
+    private void ResponseEngineConfigs(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadCoreEngineConfigSuccess) return;
+
+        MessageBase<JArray> response = DeserializeMessage<JArray>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            return;
+        }
+
+        _isLoadCoreEngineConfigSuccess = true;
+        OnResponseEngineConfigsHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<List<EngineConfigDTO>>() });
     }
 
     #endregion
@@ -480,7 +549,7 @@ public class WebResponse : StaticInstance<WebResponse>
 
     public class OnResponseRequestDowngradeStationEventArgs : EventArgs
     {
-        public ResponseRequestDowngradeStation Data;
+        public ResponseDowngradeStationDTO Data;
     }
 
     public event EventHandler OnResponseRequestDowngradeStationFailEventHandler;
@@ -498,7 +567,7 @@ public class WebResponse : StaticInstance<WebResponse>
         }
 
         OnResponseRequestDowngradeStationEventHandler?.Invoke(this,
-            new() { Data = response.data.ToObject<ResponseRequestDowngradeStation>() });
+            new() { Data = response.data.ToObject<ResponseDowngradeStationDTO>() });
     }
 
     public void InvokeResponseRequestDowngradeStation(
@@ -610,6 +679,317 @@ public class WebResponse : StaticInstance<WebResponse>
         OnResponseUpgradeMinerEventArgs onResponseUpgradeMinerEventArgs)
     {
         OnResponseUpgradeMinerEventHandler?.Invoke(this, onResponseUpgradeMinerEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseMergeMiner
+
+    public event EventHandler<OnResponseMergeMinerEventArgs> OnResponseMergeMinerEventHandler;
+
+    public class OnResponseMergeMinerEventArgs : EventArgs
+    {
+        public ResponseMergeMinerDTO Data;
+    }
+
+    public event EventHandler OnResponseMergeMinerFailEventHandler;
+
+    private void ResponseMergeMiner(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseMergeMinerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseMergeMinerEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseMergeMinerDTO>() });
+    }
+
+    public void InvokeResponseMergeMiner(
+        OnResponseMergeMinerEventArgs onResponseMergeMinerEventArgs)
+    {
+        OnResponseMergeMinerEventHandler?.Invoke(this, onResponseMergeMinerEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseMergeMiner
+
+    public event EventHandler<OnResponseCurrentSuccessRateEventArgs> OnResponseCurrentMergeStatusByUserEventHandler;
+
+    public class OnResponseCurrentSuccessRateEventArgs : EventArgs
+    {
+        public ResponseCurrentMergeStatusByUserDTO Data;
+    }
+
+    public event EventHandler OnResponseCurrentMergeStatusByUserFailEventHandler;
+
+    private void ResponseCurrentMergeStatusByUser(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseCurrentMergeStatusByUserFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseCurrentMergeStatusByUserEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseCurrentMergeStatusByUserDTO>() });
+    }
+
+    public void InvokeResponseCurrentSuccessRate(
+        OnResponseCurrentSuccessRateEventArgs onResponseCurrentSuccessRateEventArgs)
+    {
+        OnResponseCurrentMergeStatusByUserEventHandler?.Invoke(this, onResponseCurrentSuccessRateEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseExecuteDowngrade
+
+    public event EventHandler<OnResponseExecuteDowngradeEventArgs> OnResponseExecuteDowngradeEventHandler;
+
+    public class OnResponseExecuteDowngradeEventArgs : EventArgs
+    {
+        public ResponseExecuteDowngradeDTO Data;
+    }
+
+    public event EventHandler OnResponseExecuteDowngradeFailEventHandler;
+
+    private void ResponseExecuteDowngrade(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseExecuteDowngradeFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseExecuteDowngradeEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseExecuteDowngradeDTO>() });
+    }
+
+    public void InvokeResponseExecuteDowngrade(
+        OnResponseExecuteDowngradeEventArgs response)
+    {
+        OnResponseExecuteDowngradeEventHandler?.Invoke(this, response);
+    }
+
+    #endregion
+
+    #region ResponseRepairCoreEngine
+
+    public event EventHandler<OnResponseRepairCoreEngineEventArgs> OnResponseRepairCoreEngineEventHandler;
+
+    public class OnResponseRepairCoreEngineEventArgs : EventArgs
+    {
+        public ResponseRepairCoreEngineDTO Data;
+    }
+
+    public event EventHandler OnResponseRepairCoreEngineFailEventHandler;
+
+    private void ResponseRepairCoreEngine(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        UIManager.Instance.loadingUI.Hide();
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseRepairCoreEngineFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseRepairCoreEngineEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseRepairCoreEngineDTO>() });
+    }
+
+    public void InvokeResponseRepairCoreEngine(
+        OnResponseRepairCoreEngineEventArgs onResponseRepairCoreEngineEventArgs)
+    {
+        OnResponseRepairCoreEngineEventHandler?.Invoke(this, onResponseRepairCoreEngineEventArgs);
+    }
+
+    #endregion
+
+    #region ResponseTotalHashPower
+
+    public event EventHandler<OnResponseTotalHashPowerEventArgs> OnResponseTotalHashPowerEventHandler;
+
+    public class OnResponseTotalHashPowerEventArgs : EventArgs
+    {
+        public ResponseTotalHashPowerDTO Data;
+    }
+
+    public event EventHandler OnResponseTotalHashPowerFailEventHandler;
+
+    private void ResponseTotalHashPower(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            // HandleUnSuccess(response.level, response.message);
+            OnResponseTotalHashPowerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseTotalHashPowerEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseTotalHashPowerDTO>() });
+    }
+
+    #endregion
+
+    #region ResponseUserHashPower
+
+    public event EventHandler<OnResponseUserHashPowerEventArgs> OnResponseUserHashPowerEventHandler;
+
+    public class OnResponseUserHashPowerEventArgs : EventArgs
+    {
+        public ResponseUserHashPowerDTO Data;
+    }
+
+    public event EventHandler OnResponseUserHashPowerFailEventHandler;
+
+    private void ResponseUserHashPower(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            // HandleUnSuccess(response.level, response.message);
+            OnResponseUserHashPowerFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseUserHashPowerEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseUserHashPowerDTO>() });
+    }
+
+    #endregion
+
+    #region ResponseRemainingBlockForHaving
+
+    public event EventHandler<OnResponseRemainingBlockForHavingEventArgs> OnResponseRemainingBlockForHavingEventHandler;
+
+    public class OnResponseRemainingBlockForHavingEventArgs : EventArgs
+    {
+        public ResponseRemainingBlockForHavingDTO Data;
+    }
+
+    public event EventHandler OnResponseRemainingBlockForHavingFailEventHandler;
+
+    private void ResponseRemainingBlockForHaving(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            // HandleUnSuccess(response.level, response.message);
+            OnResponseRemainingBlockForHavingFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseRemainingBlockForHavingEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseRemainingBlockForHavingDTO>() });
+    }
+
+    #endregion
+
+    #region ResponseCancelDowngrade
+
+    public event EventHandler<OnResponseCancelDowngradeEventArgs> OnResponseCancelDowngradeEventHandler;
+
+    public class OnResponseCancelDowngradeEventArgs : EventArgs
+    {
+        public ResponseCancelDowngradeDTO Data;
+    }
+
+    public event EventHandler OnResponseCancelDowngradeFailEventHandler;
+
+    private void ResponseCancelDowngrade(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        UIManager.Instance.loadingUI.Hide();
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseCancelDowngradeFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseCancelDowngradeEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseCancelDowngradeDTO>() });
+    }
+
+    #endregion
+
+    #region ResponseCurrentBlock
+
+    public event EventHandler<OnResponseCurrentBlockEventArgs> OnResponseCurrentBlockEventHandler;
+
+    public class OnResponseCurrentBlockEventArgs : EventArgs
+    {
+        public ResponseCurrentBlockDTO Data;
+    }
+
+    private void ResponseCurrentBlock(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        if (!response.IsSuccess())
+        {
+            return;
+        }
+
+        OnResponseCurrentBlockEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseCurrentBlockDTO>() });
+    }
+
+    public void InvokeResponseCurrentBlock(
+        OnResponseCurrentBlockEventArgs responseData)
+    {
+        OnResponseCurrentBlockEventHandler?.Invoke(this, responseData);
+    }
+
+    #endregion
+
+    #region ResponseRecordLogin
+
+    public event EventHandler<OnResponseRecordLoginEventArgs> OnResponseRecordLoginEventHandler;
+    public event EventHandler OnResponseRecordLoginFailEventHandler;
+
+    public class OnResponseRecordLoginEventArgs : EventArgs
+    {
+        public ResponseRecordLoginDTO Data;
+    }
+
+    private void ResponseRecordLogin(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        UIManager.Instance.loadingUI.Hide();
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseRecordLoginFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseRecordLoginEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseRecordLoginDTO>() });
     }
 
     #endregion

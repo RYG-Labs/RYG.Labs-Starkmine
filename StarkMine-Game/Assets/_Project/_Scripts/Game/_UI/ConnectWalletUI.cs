@@ -29,10 +29,11 @@ public class ConnectWalletUI : BasePopup
         WebRequest.CallRequestDisconnectWallet();
         UIManager.Instance.userInfoUI.Hide();
         UIManager.Instance.spaceStationUI.Hide();
+        UIManager.Instance.loadingUI.Hide();
+        UIManager.Instance.initStationUI.Hide();
         DataManager.Instance.UserData = null;
         Show();
-
-        WebResponse.Instance.ResetLoadData();
+        // WebResponse.Instance.ResetLoadData();
     }
 
     public override void Show()
@@ -40,7 +41,7 @@ public class ConnectWalletUI : BasePopup
         base.Show();
         disconnectWalletButton.gameObject.SetActive(false);
         UIManager.Instance.userInfoUI.Hide();
-        UIManager.Instance.tabPlanetUI.Hide();
+        // UIManager.Instance.tabPlanetUI.Hide();
     }
 
     public override void Hide()
@@ -48,7 +49,7 @@ public class ConnectWalletUI : BasePopup
         base.Hide();
         disconnectWalletButton.gameObject.SetActive(true);
         UIManager.Instance.userInfoUI.Show();
-        UIManager.Instance.tabPlanetUI.Show();
+        // UIManager.Instance.tabPlanetUI.Show();
     }
 
     public void Test()

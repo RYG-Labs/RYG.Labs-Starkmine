@@ -35,7 +35,7 @@ public class InformationCommonUI : MonoBehaviour
             DataManager.Instance.CountAllSpaceShipByType(ShipSO.ShipType.GIGA).ToString();
 
         countAllCoreEngineText.text = DataManager.Instance.CountAllCoreEngine().ToString();
-        countCoreEngineEquippedText.text = DataManager.Instance.CountCoreEngineEquipped().ToString();
+        countCoreEngineEquippedText.text = DataManager.Instance.GetCoreEngineDataActive().Count.ToString();
         countCoreEngineTypeLv1Text.text =
             DataManager.Instance.CountAllCoreEngineByType(CoreEngineSO.CoreEngineType.Basic).ToString();
         countCoreEngineTypeLv2Text.text =

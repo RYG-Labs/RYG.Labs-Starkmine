@@ -44,7 +44,7 @@ public class ShipData
         this.onDuty = onDuty;
     }
 
-    public ShipData(int id, ShipSO newShipSO, int level, double hashPower, bool onDuty)
+    public ShipData(int id, ShipSO newShipSO, int level, double hashPower, int maintenanceLevel, bool onDuty)
     {
         this.id = id;
         shipSO = newShipSO;
@@ -102,4 +102,6 @@ public class ShipData
     {
         return level == 0;
     }
+
+ 
 }

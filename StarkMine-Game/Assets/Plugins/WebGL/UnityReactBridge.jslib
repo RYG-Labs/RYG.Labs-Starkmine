@@ -111,4 +111,81 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
+  RequestMergeMiner: function (tokenId1, tokenId2, fromTier, toTier) {
+    try {
+      window.dispatchReactUnityEvent("RequestMergeMiner",tokenId1, tokenId2, UTF8ToString(fromTier), UTF8ToString(toTier));
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestCurrentMergeStatusByUser: function (fromTier, toTier) {
+    try {
+      window.dispatchReactUnityEvent("RequestCurrentMergeStatusByUser",UTF8ToString(fromTier), UTF8ToString(toTier));
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestRepairCoreEngine: function (engineId, durabilityToRestore) {
+    try {
+      window.dispatchReactUnityEvent("RequestRepairCoreEngine",engineId, durabilityToRestore);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestTotalHashPower: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestTotalHashPower");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestUserHashPower: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestUserHashPower");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestRemainingBlockForHaving: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestRemainingBlockForHaving");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestCancelDowngrade: function (stationId) {
+    try {
+      window.dispatchReactUnityEvent("RequestCancelDowngrade", stationId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestExecuteDowngrade: function (stationId) {
+    try {
+      window.dispatchReactUnityEvent("RequestExecuteDowngrade", stationId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestInitStation: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestInitStation");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestCurrentBlock: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestCurrentBlock");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestRecordLogin: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestRecordLogin");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
 });

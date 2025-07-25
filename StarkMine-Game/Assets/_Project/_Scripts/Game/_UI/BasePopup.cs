@@ -9,6 +9,9 @@ public class BasePopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public Button btnBack;
     [SerializeField] protected BackgroundOverlayUI backgroundOverlayUI;
     protected bool isShowing;
+    // private PopupCallBack callback;
+    //
+    // public delegate void PopupCallBack();
 
     protected virtual void Start()
     {
