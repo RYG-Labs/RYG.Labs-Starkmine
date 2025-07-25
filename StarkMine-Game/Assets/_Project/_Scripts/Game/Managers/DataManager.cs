@@ -955,6 +955,17 @@ namespace _Project._Scripts.Game.Managers
             return _listTicketData.LastOrDefault();
         }
 
+        private void InstanceOnOnResponseGetTicketsByOwnerEventHandler(object sender,
+            WebResponse.OnResponseGetTicketsByOwnerEventArgs e)
+        {
+            ResponseGetTicketsByOwnerDTO responseGetTicketsByOwnerDTO = e.Data;
+
+            foreach (int ticketId in responseGetTicketsByOwnerDTO.TicketIds)
+            {
+                _listTicketData.Add(new TicketData(ticketId));
+            }
+        }
+
         private void Start()
         {
 #if UNITY_EDITOR
@@ -991,7 +1002,8 @@ namespace _Project._Scripts.Game.Managers
             WebResponse.Instance.OnResponseEngineConfigsHandler += WebResponseOnResponseEngineConfigsHandler;
             WebResponse.Instance.OnResponseStationLevelsConfigHandler +=
                 WebResponseOnResponseStationLevelsConfigHandler;
-
+            WebResponse.Instance.OnResponseGetTicketsByOwnerEventHandler +=
+                InstanceOnOnResponseGetTicketsByOwnerEventHandler;
             WebRequest.CallRequestRemainingBlockForHaving();
             WebResponse.Instance.OnResponseRemainingBlockForHavingEventHandler +=
                 InstanceOnOnResponseRemainingBlockForHavingEventHandler;

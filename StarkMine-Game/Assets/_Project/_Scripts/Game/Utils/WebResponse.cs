@@ -19,6 +19,7 @@ public class WebResponse : StaticInstance<WebResponse>
     private bool _isLoadCoreEngineConfigSuccess;
     private bool _isLoadStationLevelsConfigSuccess;
     private bool _isLoadLoginStreakSuccess;
+    private bool _isLoadTicketSuccess;
     private bool _isFirstLoad;
 
     private void Update()
@@ -57,7 +58,7 @@ public class WebResponse : StaticInstance<WebResponse>
     {
         return _isLoadShipDataSuccess && _isLoadCoreEngineSuccess && _isLoadStationDataSuccess &&
                _isLoadMinerLevelConfigSuccess && _isLoadStationLevelsConfigSuccess && _isLoadCoreEngineConfigSuccess &&
-               _isLoadLoginStreakSuccess;
+               _isLoadLoginStreakSuccess && _isLoadTicketSuccess;
     }
 
     public void ResetLoadData()
@@ -69,6 +70,7 @@ public class WebResponse : StaticInstance<WebResponse>
         _isLoadCoreEngineConfigSuccess = false;
         _isLoadStationLevelsConfigSuccess = false;
         _isLoadLoginStreakSuccess = false;
+        _isLoadTicketSuccess = false;
         Debug.Log("================Reset Load Data===================");
     }
 
@@ -216,6 +218,35 @@ public class WebResponse : StaticInstance<WebResponse>
         _isLoadShipDataSuccess = true;
         OnResponseMinersDataEventHandler?.Invoke(this,
             new OnResponseMinersDataEventArgs { Data = response.data.ToObject<List<ShipDTO>>() });
+    }
+
+    #endregion
+
+    #region ResponseGetTicketsByOwner
+
+    public event EventHandler<OnResponseGetTicketsByOwnerEventArgs> OnResponseGetTicketsByOwnerEventHandler;
+
+    public class OnResponseGetTicketsByOwnerEventArgs : EventArgs
+    {
+        public ResponseGetTicketsByOwnerDTO Data { get; set; }
+    }
+
+    private void ResponseGetTicketsByOwner(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+
+        if (_isLoadTicketSuccess) return;
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            return;
+        }
+
+        _isLoadTicketSuccess = true;
+        OnResponseGetTicketsByOwnerEventHandler?.Invoke(this,
+            new OnResponseGetTicketsByOwnerEventArgs { Data = response.data.ToObject<ResponseGetTicketsByOwnerDTO>() });
     }
 
     #endregion
@@ -1027,6 +1058,7 @@ public class WebResponse : StaticInstance<WebResponse>
     }
 
     #endregion
+
     #region ResponseOpenTicket
 
     public event EventHandler<OnResponseOpenTicketEventArgs> OnResponseOpenTicketEventHandler;

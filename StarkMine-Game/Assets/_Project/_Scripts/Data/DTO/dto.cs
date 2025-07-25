@@ -245,3 +245,9 @@ public class ResponseExecuteDowngradeDTO
 {
     public int stationId;
 }
+
+public class ResponseGetTicketsByOwnerDTO
+{
+    public JArray ticketIds;
+    public List<int> TicketIds => ticketIds.ToObject<List<int>>();
+}
