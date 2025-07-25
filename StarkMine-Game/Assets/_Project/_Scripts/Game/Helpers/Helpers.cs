@@ -127,4 +127,15 @@ public static class Helpers
         // Can replace UnityEngine.Debug.Log with any logging API you want
         UnityEngine.Debug.Log($"{line} :: {memberName} :: {filePath} === {message}");
     }
+
+    public static Color Color(int r, int g, int b, int a = 255)
+    {
+        return new Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+    }
+
+    public static Color Color(int r, int g, int b, int a = 255, int indensity = 1)
+    {
+        return new Color(r / 255.0f * indensity * 3, g / 255.0f * indensity * 3, b / 255.0f * indensity * 3,
+            a / 255.0f * indensity * 3);
+    }
 }
