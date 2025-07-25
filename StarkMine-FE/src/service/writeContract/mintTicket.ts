@@ -11,7 +11,7 @@ import { provider } from "../readContract";
 
 const mintTicket = async (account: AccountInterface): Promise<MessageBase> => {
   const tx = await account.execute({
-    contractAddress: contracts.TicketSystem,
+    contractAddress: contracts.TicketNFT,
     entrypoint: "mint_ticket",
     calldata: CallData.compile({ to: account.address }),
   });
@@ -29,7 +29,7 @@ const mintTicket = async (account: AccountInterface): Promise<MessageBase> => {
           message: MessageEnum.SUCCESS,
           level: ErrorLevelEnum.INFOR,
           data: {
-            ticketId: parseInt(txR.events[i].keys[2], 16),
+            ticketId: parseInt(txR.events[i].keys[3], 16),
           },
         };
       }

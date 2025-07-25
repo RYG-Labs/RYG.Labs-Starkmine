@@ -58,6 +58,7 @@ import getLoginStreak from "@/service/readContract/getLoginStreak";
 import recordLogin from "@/service/writeContract/recordLogin";
 import openTicket from "@/service/writeContract/openTicket";
 import mintTicket from "@/service/writeContract/mintTicket";
+import getTicketsByOwner from "@/service/readContract/getTicketsByOwner";
 
 export function UnityCanvas() {
   const {
@@ -960,6 +961,29 @@ export function UnityCanvas() {
     sendMessage("WebResponse", "ResponseMintTicket", JSON.stringify(result));
   }, [account, isLoaded]);
 
+  const sendGetTicketsByOwner = useCallback(async () => {
+    if (!account) {
+      sendMessage(
+        "WebResponse",
+        "ResponseGetTicketsByOwner",
+        JSON.stringify({
+          status: StatusEnum.ERROR,
+          message: MessageEnum.ADDRESS_NOT_FOUND,
+          level: ErrorLevelEnum.WARNING,
+          data: {},
+        } as MessageBase)
+      );
+      return;
+    }
+
+    const result = await getTicketsByOwner(account.address);
+    sendMessage(
+      "WebResponse",
+      "ResponseGetTicketsByOwner",
+      JSON.stringify(result)
+    );
+  }, [account, isLoaded]);
+
   // event listener
   useEffect(() => {
     addEventListener("RequestConnectWallet", () => {
@@ -1178,6 +1202,7 @@ export function UnityCanvas() {
       sendStationsData();
       sendEngineConfigs();
       sendLoginStreak(address);
+      sendGetTicketsByOwner();
       hasSentData.current = true;
     }
   }, [isLoaded, address, account, accountChainId]);
@@ -1409,6 +1434,13 @@ export function UnityCanvas() {
         </button>
         <button onClick={async () => await mintTicket(account!)}>
           mint ticket
+        </button>
+        <button onClick={async () => await openTicket(account!, 1)}>
+          Open ticket
+        </button>
+
+        <button onClick={async () => await getTicketsByOwner(account!.address)}>
+          Get tickets by owner
         </button>
       </div>
       <div className="w-screen min-h-screen flex items-center justify-center overflow-hidden">
