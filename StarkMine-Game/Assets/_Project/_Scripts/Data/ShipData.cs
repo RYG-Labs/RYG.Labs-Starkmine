@@ -52,6 +52,14 @@ public class ShipData
         this.hashPower = hashPower;
         this.onDuty = onDuty;
     }
+    public ShipData(int id, ShipSO newShipSO)
+    {
+        this.id = id;
+        shipSO = newShipSO;
+        level = 0;
+        onDuty = false;
+        hashPower = newShipSO.baseHashPower;
+    }
 
     public CoreEngineData CoreEngineData
     {

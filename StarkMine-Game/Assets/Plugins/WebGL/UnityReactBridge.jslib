@@ -188,4 +188,18 @@ mergeInto(LibraryManager.library, {
       console.warn("Failed to dispatch event");
     }
   },
+  RequestMintTicket: function () {
+    try {
+      window.dispatchReactUnityEvent("RequestMintTicket");
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
+  RequestOpenTicket: function (ticketId) {
+    try {
+      window.dispatchReactUnityEvent("RequestOpenTicket",ticketId);
+    } catch (e) {
+      console.warn("Failed to dispatch event");
+    }
+  },
 });

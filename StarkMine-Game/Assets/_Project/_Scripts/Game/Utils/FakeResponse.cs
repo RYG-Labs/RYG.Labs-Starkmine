@@ -231,4 +231,44 @@ public class FakeResponse : StaticInstance<FakeResponse>
                 }
             });
     }
+
+    public void StartFakeResponseMintTicket()
+    {
+        StartCoroutine(FakeInvokeResponseMintTicketCoroutine());
+    }
+
+    private IEnumerator FakeInvokeResponseMintTicketCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseMintTicket(
+            new()
+            {
+                Data = new()
+                {
+                    ticketId = DataManager.Instance.ListTicketData.Count + 1
+                }
+            });
+    }
+
+    public void StartFakeResponseOpenTicket(int ticketId)
+    {
+        StartCoroutine(FakeInvokeResponseOpenTicketCoroutine(ticketId));
+    }
+
+    private IEnumerator FakeInvokeResponseOpenTicketCoroutine(int ticketId)
+    {
+        yield return new WaitForSeconds(0.5f);
+        UIManager.Instance.loadingUI.Hide();
+        WebResponse.Instance.InvokeResponseOpenTicket(
+            new()
+            {
+                Data = new()
+                {
+                    ticketId = ticketId,
+                    tier = "Elite",
+                    tokenId = 100
+                }
+            });
+    }
 }

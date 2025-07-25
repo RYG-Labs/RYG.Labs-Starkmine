@@ -993,4 +993,71 @@ public class WebResponse : StaticInstance<WebResponse>
     }
 
     #endregion
+
+    #region ResponseMintTicket
+
+    public event EventHandler<OnResponseMintTicketEventArgs> OnResponseMintTicketEventHandler;
+    public event EventHandler OnResponseMintTicketFailEventHandler;
+
+    public class OnResponseMintTicketEventArgs : EventArgs
+    {
+        public ResponseMintTicketDTO Data;
+    }
+
+    private void ResponseMintTicket(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        UIManager.Instance.loadingUI.Hide();
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseMintTicketFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseMintTicketEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseMintTicketDTO>() });
+    }
+
+    public void InvokeResponseMintTicket(
+        OnResponseMintTicketEventArgs responseData)
+    {
+        OnResponseMintTicketEventHandler?.Invoke(this, responseData);
+    }
+
+    #endregion
+    #region ResponseOpenTicket
+
+    public event EventHandler<OnResponseOpenTicketEventArgs> OnResponseOpenTicketEventHandler;
+    public event EventHandler OnResponseOpenTicketFailEventHandler;
+
+    public class OnResponseOpenTicketEventArgs : EventArgs
+    {
+        public ResponseOpenTicketDTO Data;
+    }
+
+    private void ResponseOpenTicket(string responseString)
+    {
+        Debug.Log(MethodBase.GetCurrentMethod()?.Name + " " + responseString);
+        MessageBase<JObject> response = DeserializeMessage<JObject>(responseString);
+        UIManager.Instance.loadingUI.Hide();
+        if (!response.IsSuccess())
+        {
+            HandleUnSuccess(response.level, response.message);
+            OnResponseOpenTicketFailEventHandler?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
+        OnResponseOpenTicketEventHandler?.Invoke(this,
+            new() { Data = response.data.ToObject<ResponseOpenTicketDTO>() });
+    }
+
+    public void InvokeResponseOpenTicket(
+        OnResponseOpenTicketEventArgs responseData)
+    {
+        OnResponseOpenTicketEventHandler?.Invoke(this, responseData);
+    }
+
+    #endregion
 }

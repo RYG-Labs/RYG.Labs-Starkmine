@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class MenuBarUI : BasePopup
 {
-    [SerializeField] private Button explorationButton;
+    [SerializeField] private Button openOrbButton;
     [SerializeField] private Button referralButton;
     [SerializeField] private Button hangarButton;
 
@@ -11,6 +11,12 @@ public class MenuBarUI : BasePopup
     {
         base.Start();
         hangarButton.onClick.AddListener(OnHangarButtonClick);
+        openOrbButton.onClick.AddListener(OnClickOpenOrbButton);
+    }
+
+    private void OnClickOpenOrbButton()
+    {
+        UIManager.Instance.openTicketUI.Show();
     }
 
     private void OnHangarButtonClick()

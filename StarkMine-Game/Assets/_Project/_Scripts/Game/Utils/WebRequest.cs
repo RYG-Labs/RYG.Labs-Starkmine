@@ -83,6 +83,12 @@ public class WebRequest
     [DllImport("__Internal")]
     private static extern void RequestRecordLogin();
 
+    [DllImport("__Internal")]
+    private static extern void RequestMintTicket();
+
+    [DllImport("__Internal")]
+    private static extern void RequestOpenTicket(int ticketId);
+
     public static void CallRequestConnectWallet()
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -299,6 +305,24 @@ public class WebRequest
         RequestRecordLogin();
 #else
 
+#endif
+    }
+
+    public static void CallRequestMintTicket()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestMintTicket();
+#else
+        FakeResponse.Instance.StartFakeResponseMintTicket();
+#endif
+    }
+
+    public static void CallRequestOpenTicket(int ticketId)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        RequestOpenTicket(ticketId);
+#else
+        FakeResponse.Instance.StartFakeResponseOpenTicket(ticketId);
 #endif
     }
 }

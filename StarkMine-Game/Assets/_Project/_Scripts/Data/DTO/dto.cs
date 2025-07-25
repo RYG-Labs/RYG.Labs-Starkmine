@@ -229,6 +229,18 @@ public class ResponseRecordLoginDTO
 {
 }
 
+public class ResponseMintTicketDTO
+{
+    public int ticketId;
+}
+
+public class ResponseOpenTicketDTO
+{
+    public int ticketId;
+    public string tier;
+    public int tokenId;
+}
+
 public class ResponseExecuteDowngradeDTO
 {
     public int stationId;

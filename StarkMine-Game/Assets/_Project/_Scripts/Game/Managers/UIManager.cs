@@ -28,6 +28,7 @@ public class UIManager : StaticInstance<UIManager>
     public ChooseCoreEngineToRepairUI chooseCoreEngineToRepairUI;
     public InitStationUI initStationUI;
     public CheckInStreakUI checkInStreakUI;
+    public OpenTicketUI openTicketUI;
     public bool isHoverUI;
 
     private void Start()

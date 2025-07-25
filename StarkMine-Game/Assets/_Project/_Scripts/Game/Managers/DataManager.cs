@@ -942,6 +942,19 @@ namespace _Project._Scripts.Game.Managers
                 shipData.CoreEngineData != null && shipData.CoreEngineData.id == coreEngineId);
         }
 
+        private List<TicketData> _listTicketData = new();
+
+        public List<TicketData> ListTicketData
+        {
+            get => _listTicketData;
+            set => _listTicketData = value;
+        }
+
+        public TicketData GetLastTicketData()
+        {
+            return _listTicketData.LastOrDefault();
+        }
+
         private void Start()
         {
 #if UNITY_EDITOR
