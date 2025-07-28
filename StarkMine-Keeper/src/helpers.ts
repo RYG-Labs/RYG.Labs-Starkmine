@@ -18,7 +18,7 @@ export const CORE_ENGINE_CONTRACT_ADDRESS =
   process.env.CORE_ENGINE_ADDRESS || "YOUR_CONTRACT_ADDRESS";
 export const MINER_ADDRESS =
   process.env.MINER_ADDRESS || "YOUR_CONTRACT_ADDRESS";
-export const BLOCK_INTERVAL = 5; // Call update_reward every 5 blocks
+export const BLOCK_INTERVAL = 10; // Call update_reward every 5 blocks
 export const POLL_INTERVAL_MS = 10_000; // Poll every 30 seconds
 export const MAX_RETRIES = 3; // Maximum retry attempts for failed transactions
 
