@@ -19,6 +19,7 @@ public class OpenTicketUI : BasePopup
     [SerializeField] private float initialScale = 0.1f; // Kích thước ban đầu
     [SerializeField] private float targetScale = 1f; // Kích thước mục tiêu
     [SerializeField] private Ease easeType = Ease.OutQuad; // Kiểu easing
+    [SerializeField] private GameObject buttonGroup;
 
     [Header("Card Properties")] [SerializeField]
     private ImageAnimation shipImageAnimation;
@@ -47,11 +48,14 @@ public class OpenTicketUI : BasePopup
 
     private void OnClickClaimButton()
     {
+        SoundManager.Instance.PlayClickSound();
         endingVideo.SetActive(false);
         StartCoroutine(OpenPopupCoroutine());
     }
+
     private void OnEnable()
     {
+        buttonGroup.SetActive(false);
         StartCoroutine(OpenPopupCoroutine());
         SetUp();
     }
@@ -60,6 +64,7 @@ public class OpenTicketUI : BasePopup
     {
         openingVideo.SetActive(true);
         yield return new WaitForSeconds(3f);
+        buttonGroup.SetActive(true);
         openingVideo.SetActive(false);
         waitingVideo.SetActive(true);
     }
@@ -72,6 +77,7 @@ public class OpenTicketUI : BasePopup
     private void OnClickBuyTicketButton()
     {
         UIManager.Instance.loadingUI.Show();
+        SoundManager.Instance.PlayClickSound();
         WebResponse.Instance.OnResponseMintTicketEventHandler += InstanceOnOnResponseMintTicketEventHandler;
         WebResponse.Instance.OnResponseMintTicketFailEventHandler += InstanceOnOnResponseMintTicketFailEventHandler;
         WebRequest.CallRequestMintTicket();
@@ -94,6 +100,7 @@ public class OpenTicketUI : BasePopup
 
     private void OnClickOpenTicketButton()
     {
+        SoundManager.Instance.PlayClickSound();
         if (DataManager.Instance.ListTicketData.Count <= 0)
         {
             UIManager.Instance.showNotificationUI.SetUpAndShow("You don't have any quantum orb to open.");
@@ -123,6 +130,7 @@ public class OpenTicketUI : BasePopup
         DataManager.Instance.AddShipToInventory(shipData);
         SetupCard(shipData);
         // PlayEffectOpenQuantumOrb();
+        buttonGroup.SetActive(false);
         StartCoroutine(PlayEffectCoroutine());
         WebResponse.Instance.OnResponseOpenTicketEventHandler -= InstanceOnOnResponseOpenTicketEventHandler;
         WebResponse.Instance.OnResponseOpenTicketFailEventHandler -= InstanceOnOnResponseOpenTicketFailEventHandler;
@@ -130,10 +138,12 @@ public class OpenTicketUI : BasePopup
 
     public IEnumerator PlayEffectCoroutine()
     {
+        openingVideo.SetActive(false);
         waitingVideo.SetActive(false);
         endingVideo.SetActive(true);
         yield return new WaitForSeconds(12);
         cardGroupUI.Show();
+        SoundManager.Instance.PlayConfirmSound6();
         cardTransform.localScale = Vector3.zero;
         cardTransform.DOScale(targetScale, scaleDuration).SetEase(easeType);
     }
