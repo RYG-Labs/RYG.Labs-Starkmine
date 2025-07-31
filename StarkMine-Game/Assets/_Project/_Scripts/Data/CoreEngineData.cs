@@ -23,6 +23,7 @@ public class CoreEngineData
         // this.durability = durability;
         this.blockUsed = blockUsed;
         this.lastUsedBlock = lastUsedBlock;
+        this.currentEfficiencyBonus = currentEfficiencyBonus;
     }
 
     // public int GetDownDurability()
@@ -32,12 +33,12 @@ public class CoreEngineData
 
     public float GetEarningRate()
     {
-        if (GetCurrentEfficiencyBonus() <= 0)
+        if (currentEfficiencyBonus == coreEngineSO.efficiencyBonus)
         {
             return 0f;
         }
 
-        return (float)GetCurrentEfficiencyBonus() / coreEngineSO.efficiencyBonus;
+        return (float)currentEfficiencyBonus / coreEngineSO.efficiencyBonus;
     }
 
     public int GetCurrentEfficiencyBonus()
@@ -99,5 +100,10 @@ public class CoreEngineData
     public void ResetBlockUsed()
     {
         blockUsed = 0;
+    }
+
+    public void FullBlockUsed()
+    {
+        blockUsed = coreEngineSO.durabilityBlock;
     }
 }

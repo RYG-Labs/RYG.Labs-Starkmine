@@ -14,6 +14,7 @@ public class SpaceStationUI : BasePopup
     [SerializeField] private List<ItemSpaceStationUI> listItem = new();
     [SerializeField] private StationInformationUI stationInformationUI;
     [SerializeField] private Button upgradeButton;
+    [SerializeField] private TextMeshProUGUI upgradeButtonText;
     [SerializeField] private Button downgradeButton;
     [SerializeField] private TextMeshProUGUI stationLevel;
     [SerializeField] private Button pendingMineButton;
@@ -59,6 +60,7 @@ public class SpaceStationUI : BasePopup
         _stationData.pendingDownGrade = 0;
         HandleIsPending(false);
         RefreshStationInformation(_stationData);
+        UIManager.Instance.userInfoUI.UpdateSuggestStation(_stationData);
         WebResponse.Instance.OnResponseCancelDowngradeEventHandler -= InstanceOnOnResponseCancelDowngradeEventHandler;
         WebResponse.Instance.OnResponseCancelDowngradeFailEventHandler -=
             InstanceOnOnResponseCancelDowngradeFailEventHandler;
@@ -124,6 +126,7 @@ public class SpaceStationUI : BasePopup
 
     private void OnUpgradeButtonClick()
     {
+        if (_stationData.IsMaxLevel()) return;
         SoundManager.Instance.PlayConfirmSound3();
         UpgradeSpaceStationUI upgradeSpaceShipUI = UIManager.Instance.upgradeSpaceStationUI;
         upgradeSpaceShipUI.SetUp(_stationData);
@@ -155,6 +158,7 @@ public class SpaceStationUI : BasePopup
     public void RefreshStationInformation(StationData stationData)
     {
         stationLevel.text = $"Station LV{stationData.level}";
+        upgradeButtonText.text = stationData.IsMaxLevel() ? "Max Level" : "Upgrade";
         downgradeButton.gameObject.SetActive(stationData.CanDowngrade());
         HandleIsPending(_stationData.pendingDownGrade != 0);
     }

@@ -11,10 +11,10 @@ public class MaintenanceLevelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI earningRateText;
     [SerializeField] private Image earningRateBackground;
 
-    public void SetUp(float maintenanceLevelPercent, float earningRate)
+    public void SetUp(float maintenanceLevelPercent, float earningRate, float gasUsed, int maxGas)
     {
         _maintenanceLevelPercent = maintenanceLevelPercent;
-        maintenanceLevelPercentText.text = maintenanceLevelPercent + "%";
+        maintenanceLevelPercentText.text = $"{gasUsed}/{maxGas}";
         earningRateText.text = "earnings " + earningRate + "%";
         Refresh();
     }

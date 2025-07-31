@@ -122,6 +122,7 @@ public class DowngradeSpaceStationUI : BasePopup
             showNotificationUI.Show();
         }
 
+        UIManager.Instance.userInfoUI.UpdateSuggestStation(_stationData);
         Hide();
         WebResponse.Instance.OnResponseRequestDowngradeStationEventHandler -=
             WebResponseOnResponseRequestDowngradeStationEventHandler;

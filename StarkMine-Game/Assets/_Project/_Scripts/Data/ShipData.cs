@@ -111,5 +111,9 @@ public class ShipData
         return level == 0;
     }
 
+    // public float GetHashPowerWithCoreEngine()
+    // {
+    //     
+    // }
  
 }

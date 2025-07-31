@@ -24,3 +24,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e6be1cc0d6539af499cd9602299b00ee, type: 2}
   repairCostBase: 0
   durabilityBlock: 30
+  efficiencyBonus: 2000
