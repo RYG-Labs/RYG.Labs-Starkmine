@@ -5,7 +5,7 @@ import {
   SECOND_PER_BLOCK,
   StatusEnum,
 } from "@/type/common";
-import { stationContract } from ".";
+import { provider, stationContract } from ".";
 
 const getTimeUntilUnlock = async (
   address: string,
@@ -17,14 +17,16 @@ const getTimeUntilUnlock = async (
       stationId
     );
     console.log("🚀 ~ getTimeUntilUnlock ~ timeUntilUnlock:", timeUntilUnlock);
-
+    const currentBlock = await provider.getBlockNumber();
     return {
       status: StatusEnum.SUCCESS,
       message: MessageEnum.SUCCESS,
       level: ErrorLevelEnum.INFOR,
       data: {
         timeUntilUnlock: Number(BigInt(timeUntilUnlock)),
-        estimateSeconds: Number(BigInt(timeUntilUnlock)) * SECOND_PER_BLOCK,
+        estimateSeconds:
+          (Number(BigInt(timeUntilUnlock)) - Number(BigInt(currentBlock))) *
+          SECOND_PER_BLOCK,
       },
     };
   } catch (error: any) {
