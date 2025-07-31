@@ -105,7 +105,8 @@ public class ItemSpaceStationUI : MonoBehaviour, IPointerClickHandler
         WebResponse.OnResponseExtinguishMinerEventArgs e)
     {
         bool success = GameManager.Instance.CallbackSpaceShip(_shipData);
-
+        CoreEngineData coreEngineData = DataManager.Instance.GetCoreEngineDataById(e.Data.CoreEngineDto.tokenId);
+        coreEngineData.blockUsed = e.Data.CoreEngineDto.blocksUsed;
         SoundManager.Instance.PlayDataPointSound1();
         if (success)
         {

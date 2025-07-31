@@ -25,7 +25,7 @@ public class RepairCoreEngineUI : BasePopup
         mineRequirmentText.text = "0";
         durabilityInputField.text = "0";
         _coreEngineData = coreEngineData;
-        durabilityText.text = $"Durability ({1}-{_coreEngineData.blockUsed})";
+        durabilityText.text = $"Fill with gas ({1}-{_coreEngineData.blockUsed})";
     }
 
     protected override void Start()
@@ -43,7 +43,7 @@ public class RepairCoreEngineUI : BasePopup
         {
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
             showNotificationUI.SetUp(
-                $"The entered durability must be greater than 0 and less than {_coreEngineData.blockUsed}.");
+                $"The entered must be greater than 0 and less than {_coreEngineData.blockUsed}.");
             showNotificationUI.Show();
             return;
         }
@@ -87,7 +87,7 @@ public class RepairCoreEngineUI : BasePopup
         {
             ShowNotificationUI showNotificationUI = UIManager.Instance.showNotificationUI;
             showNotificationUI.SetUp(
-                $"The entered durability must be greater than 0 and less than {_coreEngineData.blockUsed}.");
+                $"The entered must be greater than 0 and less than {_coreEngineData.blockUsed}.");
             showNotificationUI.Show();
             return;
         }

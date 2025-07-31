@@ -48,7 +48,10 @@ public class ShipInformationUI : BasePopup
         {
             maintenanceLevelUI.gameObject.SetActive(true);
             maintenanceLevelUI.SetUp(Mathf.CeilToInt(shipData.CoreEngineData.GetDurabilityPercentage() * 100),
-                Mathf.CeilToInt(shipData.CoreEngineData.GetEarningRate() * 100 - 100));
+                Mathf.CeilToInt(shipData.CoreEngineData.GetEarningRate() * 100 - 100),
+                DataManager.Instance.CurrentBlock - shipData.CoreEngineData.lastUsedBlock +
+                shipData.CoreEngineData.blockUsed,
+                shipData.CoreEngineData.coreEngineSO.durabilityBlock);
         }
         else
         {

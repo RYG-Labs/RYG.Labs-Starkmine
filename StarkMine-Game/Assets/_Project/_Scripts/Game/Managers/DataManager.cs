@@ -866,7 +866,7 @@ namespace _Project._Scripts.Game.Managers
                     ShipData shipData = GetShipDataByCoreEngineId(coreEngineData.id);
                     if (shipData != null)
                     {
-                        coreEngineData.ResetBlockUsed();
+                        coreEngineData.FullBlockUsed();
                         GameManager.Instance.CallbackSpaceShip(shipData);
                     }
                 }
@@ -963,6 +963,20 @@ namespace _Project._Scripts.Game.Managers
             foreach (int ticketId in responseGetTicketsByOwnerDTO.TicketIds)
             {
                 _listTicketData.Add(new TicketData(ticketId));
+            }
+        }
+
+        public List<ShipData> GetListShipDataOnDuty()
+        {
+            return allShip.FindAll(shipData => shipData != null && shipData.onDuty);
+        }
+
+        public void SumOfHashPowerActiveSpaceShip()
+        {
+            List<ShipData> listShipDataOnDuty = GetListShipDataOnDuty();
+
+            foreach (ShipData shipData in listShipDataOnDuty)
+            {
             }
         }
 

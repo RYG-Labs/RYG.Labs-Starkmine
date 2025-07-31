@@ -53,7 +53,6 @@ namespace _Project._Scripts.Game.Managers
                 ships.Add(ship);
                 ship.SetUp(shipData, currentPlanet);
             }
-
             OnChangeStationEventHandler?.Invoke(this, new OnChangeStationEventHandlerEventArgs
             {
                 ListShipInNewPlanet = CurrentStation.ListShipData,

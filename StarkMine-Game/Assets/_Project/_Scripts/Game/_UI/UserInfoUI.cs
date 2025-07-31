@@ -17,6 +17,8 @@ public class UserInfoUI : BasePopup
     [SerializeField] private TextMeshProUGUI globalHashPowerText;
     [SerializeField] private TextMeshProUGUI yourTotalShareText;
     [SerializeField] private TextMeshProUGUI yourHashPowerText;
+    [SerializeField] private TextMeshProUGUI suggestUpgradeStationText;
+    [SerializeField] private TextMeshProUGUI currentStationMultiplierText;
     [SerializeField] private Button refreshButton;
     [SerializeField] private Button harvestButton;
 
@@ -34,13 +36,41 @@ public class UserInfoUI : BasePopup
         nextHalvingText.text =
             $"{Helpers.AddSecondToUtcNow(DataManager.Instance.NextHavingSecond)} UTC ({Helpers.SecondToDay(DataManager.Instance.NextHavingSecond)} days)";
 
+        StationData currentStationData = GameManager.Instance.CurrentStation;
+        SetStationInfo(currentStationData);
+        currentStationMultiplierText.text = $"x1.{currentStationData.level}";
+        GameManager.Instance.OnChangeStationEventHandler += InstanceOnOnChangeStationEventHandler;
+
         DataManager.Instance.OnMineCoinUpdate += InstanceOnOnMineCoinUpdate;
         DataManager.Instance.OnUserDataChangedEventHandler += DataManagerOnUserDataChangedEventHandler;
         DataManager.Instance.OnPendingRewardChangeEventHandler += DataManagerOnPendingRewardChangeEventHandler;
         DataManager.Instance.OnGlobalHashPowerChangeEventHandler += DataManagerOnGlobalHashPowerChangeEventHandler;
         DataManager.Instance.OnYourPowerChangeEventHandler += InstanceOnOnYourPowerChangeEventHandler;
+
         harvestButton.onClick.AddListener(OnClickHarvestButton);
         refreshButton.onClick.AddListener(OnClickRefreshButton);
+    }
+
+    public void SetStationInfo(StationData stationData)
+    {
+        if (stationData.IsMaxLevel())
+        {
+            suggestUpgradeStationText.text =
+                $"Current station is max level.";
+        }
+        else
+        {
+            suggestUpgradeStationText.text =
+                $"Upgrade Station to <color=#32DEAB>Lv{stationData.level + 1}</color> required <color=#32DEAB>{stationData.GetCostForNextLevel()}</color> $MINE to have <color=#FEE109>x1.{stationData.level + 1}</color> multiplier";
+        }
+    }
+
+    private void InstanceOnOnChangeStationEventHandler(object sender,
+        GameManager.OnChangeStationEventHandlerEventArgs e)
+    {
+        StationData currentStationData = e.CurrentStation;
+        SetStationInfo(currentStationData);
+        currentStationMultiplierText.text = $"x1.{currentStationData.level}";
     }
 
     private void OnClickRefreshButton()
@@ -98,7 +128,6 @@ public class UserInfoUI : BasePopup
     {
         DataManager.Instance.MineCoin += DataManager.Instance.PendingReward;
         DataManager.Instance.PendingReward = 0;
-
         WebResponse.Instance.OnResponseClaimPendingRewardEventHandler +=
             InstanceOnOnResponseClaimPendingRewardEventHandler;
         WebResponse.Instance.OnResponseClaimPendingRewardFailEventHandler +=
@@ -122,5 +151,11 @@ public class UserInfoUI : BasePopup
     {
         mineCoinText.text = Helpers.FormatCurrencyNumber(e.NewMineCoin) + " $MINE";
         balanceText.text = Helpers.FormatCurrencyNumber(e.NewMineCoin) + " $MINE";
+    }
+
+    public void UpdateSuggestStation(StationData stationData)
+    {
+        SetStationInfo(stationData);
+        currentStationMultiplierText.text = $"x1.{stationData.level}";
     }
 }

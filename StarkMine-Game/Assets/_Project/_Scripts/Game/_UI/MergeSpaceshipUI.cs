@@ -19,6 +19,10 @@ public class MergeSpaceshipUI : BasePopup
     [SerializeField] private TextMeshProUGUI hashPowerText;
     [SerializeField] private TextMeshProUGUI availableAmountText;
 
+    [SerializeField] private GameObject availableGo;
+    [SerializeField] private GameObject unavailableGo;
+    [SerializeField] private TextMeshProUGUI requirementText;
+
     [SerializeField] private List<ShipSO> listShipResult;
     private int _totalFailing;
     private int _successRateDefault = 5;
@@ -65,12 +69,6 @@ public class MergeSpaceshipUI : BasePopup
         SelectSpaceShipResultUI.OnSelectSpaceShipResultEventArgs e)
     {
         CallRequestCurrentSuccessRate(e.ShipSo.shipName == "Pro" ? "Elite" : "Pro", e.ShipSo.shipName);
-        // _successRateDefault = selectSpaceShipResultUI.ShipSOSelected.shipType == ShipSO.ShipType.Pro ? 50 : 25;
-        // successRatePerShipText.text =
-        //     $"Success rate: <color=#FEE109>{_successRateDefault}%</color> and increase <color=#FEE109>+1%</color> per failing";
-        // TotalSuccessRate = _successRateDefault;
-        // selectSpaceShipInUI.SetUp(DataManager.Instance.ShipInInventory.FindAll(shipData =>
-        //     shipData.shipSO.shipType == e.ShipSo.shipTypeRequire));
     }
 
     private void OnEnable()
@@ -113,6 +111,8 @@ public class MergeSpaceshipUI : BasePopup
         TierConfig tierConfig = data.TierConfig;
         hashPowerText.text = $"{tierConfig.baseHashPower} + {tierConfig.tierBonus}% extra bonus reward";
         availableAmountText.text = $"<color=#FEE109>{tierConfig.mintedCount}</color> /{tierConfig.supplyLimit} ";
+        SetAvailableStatus(tierConfig.mintedCount < tierConfig.supplyLimit);
+        requirementText.text = $"x2 {data.fromTier} Spaceship";
         costPerMergeAmountText.text = data.costStrk + "$STRK";
         TotalFailing = data.successRateBonus;
         if (selectSpaceShipResultUI.ShipSOSelected != null)
@@ -201,5 +201,11 @@ public class MergeSpaceshipUI : BasePopup
         if (totalSuccessRate == 0) return false;
         int random = UnityEngine.Random.Range(0, 100);
         return random < totalSuccessRate;
+    }
+
+    private void SetAvailableStatus(bool available)
+    {
+        availableGo.SetActive(available);
+        unavailableGo.SetActive(!available);
     }
 }

@@ -70,7 +70,7 @@ public class UpgradeSpaceStationUI : BasePopup
             SetUp(_stationData);
             showNotificationUI.Show();
         }
-
+        UIManager.Instance.userInfoUI.UpdateSuggestStation(_stationData);
         WebResponse.Instance.OnResponseUpgradeStationEventHandler -= InstanceOnOnResponseUpgradeStationEventHandler;
         WebResponse.Instance.OnResponseUpgradeStationFailEventHandler -=
             InstanceOnOnResponseUpgradeStationFailEventHandler;
