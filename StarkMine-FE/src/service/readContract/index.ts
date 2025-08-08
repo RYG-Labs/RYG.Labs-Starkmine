@@ -6,6 +6,8 @@ import ABIMiner from "@/type/ABIMiner";
 import ABIMineToken from "@/type/ABIMineToken";
 import ABIRewardDistributor from "@/type/ABIRewardDistributor";
 import ABIStationSystem from "@/type/ABIStationSystem";
+import ABITicketNft from "@/type/ABITicketNft";
+import ABITicketSystem from "@/type/ABITicketSystem";
 import { mainnet } from "@starknet-react/chains";
 import { Contract, RpcProvider } from "starknet";
 
@@ -51,5 +53,17 @@ export const mergeContract = new Contract(
 export const rewardDistributorContract = new Contract(
   ABIRewardDistributor,
   contracts.RewardDistributor,
+  provider
+);
+
+export const ticketNftContract = new Contract(
+  ABITicketNft,
+  contracts.TicketNFT,
+  provider
+);
+
+export const ticketSystemContract = new Contract(
+  ABITicketSystem,
+  contracts.TicketSystem,
   provider
 );
